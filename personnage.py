@@ -1,5 +1,8 @@
 from abc import abstractmethod, ABCMeta
 
+test savoir si ca fonctionne
+
+
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
 
