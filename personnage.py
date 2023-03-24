@@ -28,7 +28,6 @@ class Entite(metaclass=ABCMeta):
         pass
 
 
-
 class Ennemi(Entite):
     def __init__(self):
         super().__init__()
