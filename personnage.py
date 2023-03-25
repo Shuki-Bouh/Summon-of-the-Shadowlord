@@ -7,6 +7,15 @@ from abc import abstractmethod, ABCMeta
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
 
+    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau = 1):
+        self.vie = vie
+        self.attaque = attaque
+        self.defense = defense
+        self.mana = mana
+        self.__position = position
+        self.vitesse = vitesse
+        self.__niveau = niveau
+
     @abstractmethod
     def attaquer(self):
         pass
@@ -29,15 +38,9 @@ class Entite(metaclass=ABCMeta):
 
 
 class Personnage(Entite):
-    def __init__(self, vie, attaque, defense, mana, position, vitesse, niveau, inventaire):
-        self.vie = vie
-        self.attaque = attaque
-        self.defense = defense
-        self.mana = mana
-        self.__position = position
-        self.vitesse = vitesse
-        self.__niveau = niveau
-        self.inventory = inventaire # Objet item
+    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau: int, inventaire: dict):
+        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau)
+        self.inventory = inventaire  # Objet item
 
     @abstractmethod
     def attaquer(self):
@@ -81,14 +84,28 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
-    def __init__(self, vie, attaque, defense, mana, position, vitesse, niveau, inventaire):
-        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau, inventaire)
+    def __init__(self, position, niveau = 1, inventaire = {}):
+        super().__init__(10, 20, 12, 5, position, 15, niveau, inventaire)
+        self.niveau = niveau
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
+
+    @property
+    def niveau(self):
+        return self.__niveau
+    @niveau.setter
+    def niveau(self, niveau):
+        self.vie = 5 * niveau
+        self.attaque = 5
+        self.defense = 5
+        self.mana = 5
+        self.vitesse = 5
+        self.__niveau = niveau
+
 
 
 class Garde(Personnage):
@@ -128,8 +145,13 @@ class Druide(Personnage):
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, niveau, position):
+        vie = 5 * niveau
+        attaque = 5
+        defense = 5
+        mana = 5
+        vitesse = 5
+        super().__init__(self, vie, attaque, defense, mana, position, vitesse, niveau)
 
     @abstractmethod
     def attaquer(self):
