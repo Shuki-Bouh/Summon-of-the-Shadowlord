@@ -47,9 +47,24 @@ class Entite(metaclass=ABCMeta):
 
 
 class Personnage(Entite):
-    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau: int, inventaire: dict):
+    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau: int, inventaire: dict, nom: str):
         super().__init__(vie, attaque, defense, mana, position, vitesse, niveau)
         self.inventory = inventaire  # Objet item
+        self.nom = nom
+
+    @property
+    def niveau(self):
+        return (self.__niveau)
+
+    @niveau.setter
+    def niveau(self, niveau):
+        # On peut penser à faire des paliers de nuveau, avec des bonus supplémentaires (ex: de 5 en 5 jusqu'au niveau 30)
+        with open(self.nom, 'r') as lvl:
+            self.vie, self.attaque, self.defense, self.mana = lvl[:]
+        """self.mana = 5"""  # Mana ne peut pas évoluer, c'est l'équivalent d'endurance, donc elle est fixée pour chaque
+        # perso... A la limite, on pourra l'augmenter pour des paliers de niveaux
+        """self.vitesse = 5"""  # Je suis pas convaincu par cette stat / Ouais pas nécessaire effectivement, ce sera une stat fixe de chaque perso
+        self.__niveau = niveau
 
     @abstractmethod
     def attaquer(self):
@@ -107,10 +122,9 @@ class Epeiste(Personnage):
         self.attaque += 4
         self.defense += 2
         """self.mana = 5""" #Mana ne peut pas évoluer, c'est l'équivalent d'endurance, donc elle est fixée pour chaque
-        # perso... A la limite, on pourra l'augmenter pour des palier de niveaux
-        """self.vitesse = 5""" #Je suis pas convaincu par cette stat
+        # perso... A la limite, on pourra l'augmenter pour des paliers de niveaux
+        """self.vitesse = 5""" #Je suis pas convaincu par cette stat / Ouais pas nécessaire effectivement, ce sera une stat fixe de chaque perso
         self.__niveau = niveau
-
 
 
 class Garde(Personnage):
