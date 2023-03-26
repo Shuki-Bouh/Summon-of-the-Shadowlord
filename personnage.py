@@ -1,5 +1,14 @@
 from abc import abstractmethod, ABCMeta
 
+## ESPACES COMMENTAIRES
+# Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
+# plus tard, ie, faire une methode pour ou bien utliser __repr__
+
+
+
+
+
+
 
 # --------------------------------------------------------------------------
 # Classe mère abstraite Entite, où Personnages et Ennemis héritent de Entite
@@ -51,13 +60,6 @@ class Personnage(Entite):
         pass
 
     @property
-    def niveau(self):
-        return(self.__niveau)
-    @niveau.setter
-    def niveau(self, niv):
-        self.__niveau = niv
-
-    @property
     def position(self):
         return(self.__position)
     @position.setter
@@ -85,8 +87,8 @@ class Personnage(Entite):
 
 class Epeiste(Personnage):
     def __init__(self, position, niveau = 1, inventaire = {}):
-        super().__init__(10, 20, 12, 5, position, 15, niveau, inventaire)
-        self.niveau = niveau
+        super().__init__(10, 7, 4, 5, position, 15, niveau, inventaire)
+        self.__niveau = niveau
 
     def attaquer(self):
         pass
@@ -96,32 +98,50 @@ class Epeiste(Personnage):
 
     @property
     def niveau(self):
-        return self.__niveau
+        return(self.__niveau)
+
     @niveau.setter
     def niveau(self, niveau):
+        #On peut penser à faire des palier de nuveau, avec des bonus supplémentaires (ex: de 5 en 5 jusqu'au niveau 30)
         self.vie = 5 * niveau
-        self.attaque = 5
-        self.defense = 5
-        self.mana = 5
-        self.vitesse = 5
+        self.attaque += 4
+        self.defense += 2
+        """self.mana = 5""" #Mana ne peut pas évoluer, c'est l'équivalent d'endurance, donc elle est fixée pour chaque
+        # perso... A la limite, on pourra l'augmenter pour des palier de niveaux
+        """self.vitesse = 5""" #Je suis pas convaincu par cette stat
         self.__niveau = niveau
 
 
 
 class Garde(Personnage):
-    def __init__(self, vie, attaque, defense, mana, position, vitesse, niveau, inventaire):
-        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau, inventaire)
+    def __init__(self, position, niveau=1, inventaire={}):
+        super().__init__(15, 6, 6, 5, position, 10, niveau, inventaire)
+        self.__niveau = niveau
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
+
+    @property
+    def niveau(self):
+        return (self.__niveau)
+
+    @niveau.setter
+    def niveau(self, niveau):
+        self.vie = 5 * niveau
+        self.attaque += 2
+        self.defense += 4
+        # self.mana = 5
+        # self.vitesse = 5
+        self.__niveau = niveau
 
 
 class Sorcier(Personnage):
-    def __init__(self, vie, attaque, defense, mana, position, vitesse, niveau, inventaire):
-        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau, inventaire)
+    def __init__(self, position, niveau=1, inventaire={}):
+        super().__init__(6, 8, 3, 5, position, 13, niveau, inventaire)
+        self.__niveau = niveau
 
     def attaquer(self):
         pass
@@ -129,16 +149,42 @@ class Sorcier(Personnage):
     def attaquer_speciale(self):
         pass
 
+    @property
+    def niveau(self):
+        return (self.__niveau)
+
+    @niveau.setter
+    def niveau(self, niveau):
+        self.vie = 5 * niveau
+        self.attaque += 5
+        self.defense += 1
+        # self.mana = 5
+        # self.vitesse = 5
+        self.__niveau = niveau
 
 class Druide(Personnage):
-    def __init__(self, vie, attaque, defense, mana, position, vitesse, niveau, inventaire):
-        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau, inventaire)
+    def __init__(self, position, niveau=1, inventaire={}):
+        super().__init__(9, 6, 5, 5, position, 13, niveau, inventaire)
+        self.__niveau = niveau
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
+
+    @property
+    def niveau(self):
+        return (self.__niveau)
+
+    @niveau.setter
+    def niveau(self, niveau):
+        self.vie = 5 * niveau
+        self.attaque += 3
+        self.defense += 3
+        # self.mana = 5
+        # self.vitesse = 5
+        self.__niveau = niveau
 
 
 # ----------------------------------
@@ -147,8 +193,8 @@ class Druide(Personnage):
 class Ennemi(Entite):
     def __init__(self, niveau, position):
         vie = 5 * niveau
-        attaque = 5
-        defense = 5
+        attaque = 5 * niveau
+        defense = 5 * niveau
         mana = 5
         vitesse = 5
         super().__init__(self, vie, attaque, defense, mana, position, vitesse, niveau)
