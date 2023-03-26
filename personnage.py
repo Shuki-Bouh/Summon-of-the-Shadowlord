@@ -3,6 +3,7 @@ from abc import abstractmethod, ABCMeta
 ## ESPACES COMMENTAIRES
 # Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
 # plus tard, ie, faire une methode pour ou bien utliser __repr__
+# Toutes les entités devraient avoir la même modification de de "__position" donc je mets le get/set dans Entite directement
 
 
 
@@ -16,7 +17,7 @@ from abc import abstractmethod, ABCMeta
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
 
-    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau = 1):
+    def __init__(self, vie: int, attaque: int, defense: int, mana: int, position: tuple, vitesse: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
         self.vie = vie
         self.attaque = attaque
         self.defense = defense
@@ -24,6 +25,15 @@ class Entite(metaclass=ABCMeta):
         self.__position = position
         self.vitesse = vitesse
         self.__niveau = niveau
+
+    @property
+    def position(self):
+        return self.__position
+
+    @position.setter
+    def position(self, nextPosition):
+        """valeur correspond à une liste [x, y] --- > TUPLE c'est mieux pour beaucoup de raisons (surtout éviter les erreurs mémoires"""
+        pass
 
     @abstractmethod
     def attaquer(self):
@@ -51,6 +61,7 @@ class Personnage(Entite):
         super().__init__(vie, attaque, defense, mana, position, vitesse, niveau)
         self.inventory = inventaire  # Objet item
         self.nom = nom
+        self.path = ''
 
     @property
     def niveau(self):
@@ -59,11 +70,11 @@ class Personnage(Entite):
     @niveau.setter
     def niveau(self, niveau):
         # On peut penser à faire des paliers de nuveau, avec des bonus supplémentaires (ex: de 5 en 5 jusqu'au niveau 30)
-        with open(self.nom, 'r') as lvl:
+        with open(self.path, 'r') as lvl:
+            lvl = lvl.readline()
+            lvl = lvl[self.niveau] # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
+            lvl = lvl.split()
             self.vie, self.attaque, self.defense, self.mana = lvl[:]
-        """self.mana = 5"""  # Mana ne peut pas évoluer, c'est l'équivalent d'endurance, donc elle est fixée pour chaque
-        # perso... A la limite, on pourra l'augmenter pour des paliers de niveaux
-        """self.vitesse = 5"""  # Je suis pas convaincu par cette stat / Ouais pas nécessaire effectivement, ce sera une stat fixe de chaque perso
         self.__niveau = niveau
 
     @abstractmethod
@@ -74,15 +85,8 @@ class Personnage(Entite):
     def attaquer_speciale(self):
         pass
 
-    @property
-    def position(self):
-        return(self.__position)
-    @position.setter
-    def position(self, pos):
-        "valeur correspond à une liste [x, y]"
-        self.__position = pos
-
     def deplacement(self, x, y):
+        """On regardera comment faire ça, ça a l'air tendu ---> 2 personnes ne peuvent pas être sur la même case (ou le même ensemble de case) et il doit rester dans la map"""
         pos = self.position
         x_pos, y_pos = pos[0], pos[1]
         x_nouv, y_nouv = x_pos + x, y_pos + y
@@ -101,31 +105,16 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
-    def __init__(self, position, niveau = 1, inventaire = {}):
-        super().__init__(10, 7, 4, 5, position, 15, niveau, inventaire)
-        self.__niveau = niveau
+    def __init__(self, position, nom, niveau = 1, inventaire = {}): # Pour position, à voir comment on génère ça, ptet pas en arg
+        super().__init__(10, 7, 4, 5, position, 15, niveau, inventaire, nom)
+        self.niveau = niveau
+        self.path = "Schema lv epeiste.txt"
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
-
-    @property
-    def niveau(self):
-        return(self.__niveau)
-
-    @niveau.setter
-    def niveau(self, niveau):
-        #On peut penser à faire des palier de nuveau, avec des bonus supplémentaires (ex: de 5 en 5 jusqu'au niveau 30)
-        self.vie = 5 * niveau
-        self.attaque += 4
-        self.defense += 2
-        """self.mana = 5""" #Mana ne peut pas évoluer, c'est l'équivalent d'endurance, donc elle est fixée pour chaque
-        # perso... A la limite, on pourra l'augmenter pour des paliers de niveaux
-        """self.vitesse = 5""" #Je suis pas convaincu par cette stat / Ouais pas nécessaire effectivement, ce sera une stat fixe de chaque perso
-        self.__niveau = niveau
-
 
 class Garde(Personnage):
     def __init__(self, position, niveau=1, inventaire={}):
@@ -211,7 +200,7 @@ class Ennemi(Entite):
         defense = 5 * niveau
         mana = 5
         vitesse = 5
-        super().__init__(self, vie, attaque, defense, mana, position, vitesse, niveau)
+        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau)
 
     @abstractmethod
     def attaquer(self):
