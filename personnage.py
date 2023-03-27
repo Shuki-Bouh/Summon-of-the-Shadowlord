@@ -200,7 +200,7 @@ class Ennemi(Entite):
             n = np.random.randint(a, b)
             pos = list_pos[n]
             x, y = pos[0], pos[1]
-            self.map[x][y] = 'Ennemie'
+            self.map[x][y] = 'Ennemi'
 
 
 
