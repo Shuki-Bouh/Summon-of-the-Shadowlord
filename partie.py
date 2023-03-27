@@ -1,13 +1,15 @@
+import personnage as perso
+
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
     def __init__(self, h, l):
         super().__init__()
         self.__h = h + 2 # Pour compenser les False qui apparaissent
         self.__l = l + 2
-        self.__gen_map()
+        self.gen_map()  #Jai modifier gen map car le __ servait pas en l'occurrence
         self.entites = {}
 
-    def __gen_map(self):
+    def gen_map(self):
         for k in range(self.h+3):
             self.append([])
             for j in range(self.l+3):
@@ -23,6 +25,10 @@ class Partie(list):
     @property
     def l(self):
         return self.__l
+
+    def get_map(self):
+        """Ca permet de faire le lien entre personnage et partie (en appelant la map dans personnage)"""
+        return self
 
     def rien_autour_position(self, pos, direction):
         x, y = pos # x corespond au self.l et y au self.h

@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABCMeta
-from partie import Partie
+import numpy as np
 
 ## ESPACES COMMENTAIRES
 # Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
@@ -20,12 +20,16 @@ class Entite(metaclass=ABCMeta):
                  'down': 'y+1, x',
                  'left': 'y, x-1',
                  'right': 'y, x+1'}
-    def __init__(self, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
+    def __init__(self, game, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
         self.vie = 0
         self.attaque = 0
         self.defense = 0
         self.mana = 0
         self.path = ''
+        self.game = game  # game permet de faire le lien avec la class Partie de partie
+        self.h = self.game.h
+        self.l = self.game.l
+        self.map = self.game.get_map()
         self.__position = position
         self.cooldown = cooldown
         self.__niveau = niveau
@@ -37,13 +41,12 @@ class Entite(metaclass=ABCMeta):
 
     @niveau.setter
     def niveau(self, niveau):
-        # On peut penser à faire des paliers de nuveau, avec des bonus supplémentaires (ex: de 5 en 5 jusqu'au niveau 30)
+        self.niveau = niveau
         with open(self.path, 'r') as lvl:
             lvl = lvl.readline()
             lvl = lvl[self.niveau] # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
             lvl = lvl.split()
             self.vie, self.attaque, self.defense, self.mana = lvl[:]
-        self.__niveau = niveau
 
     @property
     def position(self):
@@ -88,9 +91,8 @@ class Personnage(Entite):
     def attaquer_speciale(self):
         pass
 
-    def deplacement(self, game, direction):
-
-        if game.rien_autour_position(self.position, direction):
+    def deplacement(self, direction):
+        if self.game.rien_autour_position(self.position, direction):
             x, y = self.position
             self.position = eval(Entite.direction[direction])
 
@@ -108,10 +110,10 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
-    def __init__(self, position, cooldown,nom, niveau = 1, inventaire = {}): # Pour position, à voir comment on génère ça, ptet pas en arg
+    def __init__(self, position, cooldown, nom, niveau = 1, inventaire = {}): # Pour position, à voir comment on génère ça, ptet pas en arg
         super().__init__(position, cooldown, niveau, inventaire, nom)
         self.niveau = niveau
-        self.path = "Schema lv epeiste.txt"
+        self.path = "Epeiste_lvl.txt"
 
     def attaquer(self):
         pass
@@ -120,34 +122,23 @@ class Epeiste(Personnage):
         pass
 
 class Garde(Personnage):
-    def __init__(self, position, niveau=1, inventaire={}):
-        super().__init__(15, 6, 6, 5, position, 10, niveau, inventaire)
-        self.__niveau = niveau
+    def __init__(self, position, cooldown, nom, niveau=1, inventaire={}):
+        super().__init__(position, cooldown, niveau, inventaire, nom)
+        self.niveau = niveau
+        self.path = "Garde_lvl.txt"
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
-
-    @property
-    def niveau(self):
-        return (self.__niveau)
-
-    @niveau.setter
-    def niveau(self, niveau):
-        self.vie = 5 * niveau
-        self.attaque += 2
-        self.defense += 4
-        # self.mana = 5
-        # self.vitesse = 5
-        self.__niveau = niveau
 
 
 class Sorcier(Personnage):
-    def __init__(self, position, niveau=1, inventaire={}):
-        super().__init__(6, 8, 3, 5, position, 13, niveau, inventaire)
-        self.__niveau = niveau
+    def __init__(self, position, cooldown, nom, niveau=1, inventaire={}):
+        super().__init__(position, cooldown, niveau, inventaire, nom)
+        self.niveau = niveau
+        self.path = "Sorcier_lvl.txt"
 
     def attaquer(self):
         pass
@@ -155,63 +146,63 @@ class Sorcier(Personnage):
     def attaquer_speciale(self):
         pass
 
-    @property
-    def niveau(self):
-        return (self.__niveau)
-
-    @niveau.setter
-    def niveau(self, niveau):
-        self.vie = 5 * niveau
-        self.attaque += 5
-        self.defense += 1
-        # self.mana = 5
-        # self.vitesse = 5
-        self.__niveau = niveau
 
 class Druide(Personnage):
-    def __init__(self, position, niveau=1, inventaire={}):
-        super().__init__(9, 6, 5, 5, position, 13, niveau, inventaire)
-        self.__niveau = niveau
+    def __init__(self, position, cooldown, nom, niveau=1, inventaire={}):
+        super().__init__(position, cooldown, niveau, inventaire, nom)
+        self.niveau = niveau
+        self.path = "Druide_lvl.txt"
 
     def attaquer(self):
         pass
 
     def attaquer_speciale(self):
         pass
-
-    @property
-    def niveau(self):
-        return (self.__niveau)
-
-    @niveau.setter
-    def niveau(self, niveau):
-        self.vie = 5 * niveau
-        self.attaque += 3
-        self.defense += 3
-        # self.mana = 5
-        # self.vitesse = 5
-        self.__niveau = niveau
 
 
 # ----------------------------------
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    def __init__(self, niveau, position):
-        vie = 5 * niveau
-        attaque = 5 * niveau
-        defense = 5 * niveau
-        mana = 5
-        vitesse = 5
-        super().__init__(vie, attaque, defense, mana, position, vitesse, niveau)
+    def __init__(self, game, niveau):
+        """problème avec le init... Soucis avec l'héritage, il ne faudrait peut etre pas le garder, car ici, on fait un spawn aléatoire sur les cases non vides, il n'y a donc pas interet à conserver l'héritage
+        Ou alors, il faudrait modifier les arguments du init de entite pour les penser differemment
+        D'ailleurs, il y a beaucoup d'aguments dans le init de entite, c'est normal ?"""
+        self.vie = 5 * niveau
+        self.attaque = 5 * niveau
+        self.defense = 5 * niveau
+        self.mana = 5
+        self.cooldown = 5
+        self.map = game.get_map()
+        self.position = self.spawn()
+        super().__init__(game, self.position, self.cooldown)
 
-    @abstractmethod
+
+
+
+
     def attaquer(self):
         pass
 
-    @abstractmethod
+
     def attaquer_speciale(self):
         pass
+
+    def spawn(self):
+        list_pos = []
+        for k in range(len(self.map)):
+            for j in range(len(self.map[0])):
+                if self.map[k][j] == None:
+                    list_pos.append([k,j])
+        if len(list_pos) != 0:
+            a = 0
+            b = len(list_pos)
+            n = np.random.randint(a, b)
+            pos = list_pos[n]
+            x, y = pos[0], pos[1]
+            self.map[x][y] = 'Ennemie'
+
+
 
     def deplacement(self):
         pass
