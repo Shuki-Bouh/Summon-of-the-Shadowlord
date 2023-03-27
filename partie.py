@@ -8,9 +8,9 @@ class Partie(list):
         self.entites = {}
 
     def __gen_map(self):
-        for k in range(self.h+2):
+        for k in range(self.h+3):
             self.append([])
-            for j in range(self.l+2):
+            for j in range(self.l+3):
                 if k == 0 or k == self.h-1 or j == 0 or j == self.l-1:
                     self[k].append(False)
                 else:
