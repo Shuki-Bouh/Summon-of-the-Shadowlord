@@ -39,7 +39,7 @@ class Partie(list):
         return self
 
 
-    def spawn_ennemi(self, niveau):
+    def spawn_squelette(self, niveau):
         x = randrange(1, 11)
         y = randrange(1, 11)
         while self[y][x] != None:
@@ -66,4 +66,4 @@ class Partie(list):
 
 if __name__ == '__main__':
     a = Partie(10, 10)
-    print(a)
+    print(type(a))

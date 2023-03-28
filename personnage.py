@@ -186,10 +186,12 @@ class Ennemi(Entite):
 
 class Squelette(Ennemi):
     compteur = 0
+    total_compteur = 0
 
     def __init__(self, position: tuple, niveau):
         super().__init__("Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
         Squelette.compteur += 1
+        Squelette.total_compteur += 1
 
     def mort(self):
         Squelette.compteur -= 1
