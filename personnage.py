@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABCMeta
+import numpy as np
 
 
 ## ESPACES COMMENTAIRES
@@ -57,11 +58,11 @@ class Entite(metaclass=ABCMeta):
             self.vie, self.attaque, self.defense, self.mana = lvl[:]
 
     @abstractmethod
-    def attaquer(self):
+    def attaquer(self, direction):
         pass
 
     @abstractmethod
-    def attaquer_speciale(self):
+    def attaque_speciale(self, direction):
         pass
 
     @abstractmethod
@@ -71,7 +72,6 @@ class Entite(metaclass=ABCMeta):
     @abstractmethod
     def mort(self):
         pass
-
 
 # ------------------------------------
 # Développement des classes Personnage
@@ -85,17 +85,18 @@ class Personnage(Entite):
 
 
     @abstractmethod
-    def attaquer(self):
+    def attaquer(self, direction):
         pass
 
     @abstractmethod
-    def attaquer_speciale(self):
+    def attaque_speciale(self, direction):
         pass
 
     def deplacement(self, direction):
         x, y = self.position
         x, y = eval(Entite.direction[direction])
-        self.position = x, y
+        self.position = (x, y)
+
     def interagir(self):
         """Permet d'utiliser objet"""
         pass
@@ -116,70 +117,168 @@ class Epeiste(Personnage):
         # Pour position, à voir comment on génère ça, ptet pas en arg
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        pass
+    def attaquer(self, direction):
+        """Rappel : attaque d'épéiste est un simple coup dans la direction regardée"""
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        entite = self.game[x_att][y_att]
+        presence_ennemi = (entite in Ennemi.liste_ennemis)
+        if presence_ennemi:
+            entite.recoie_coup(self.attaque)
 
-    def attaquer_speciale(self):
-        pass
+    def attaque_speciale(self, direction):
+        """
+        Rappel : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision
+        Cooldown COURT !
+        """
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        list_dir = [-1, 0, 1]
+        liste_entite = []
+        if direction == "up" or direction == "down":
+            for k in list_dir:
+                liste_entite.append(self.game[x_att + k, y_att])
+        else:
+            for k in list_dir:
+                liste_entite.append(self.game[x_att, y_att + k])
+        for entite in liste_entite:
+            presence_ennemi = (entite in Ennemi.liste_ennemis)
+            if presence_ennemi:
+                entite.recoie_coup(self.attaque)
 
 
 class Garde(Personnage):
-    def __init__(self, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        super().__init__("Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
+    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
+        super().__init__(game, "Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        pass
+    def attaquer(self, direction):
+        """Rappel : attaque de garde est un simple coup dans la direction regardée"""
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        entite = self.game[x_att][y_att]
+        presence_ennemi = (entite in Ennemi.liste_ennemis)
+        if presence_ennemi:
+            entite.recoie_coup(self.attaque)
 
-    def attaquer_speciale(self):
-        pass
+    def attaque_speciale(self, direction):
+        """
+        Rappel : attaque spéciale de garde est une attaque sur les deux cases dans la direction regardée
+        Cooldown COURT
+        """
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        liste_entite = [self.game[x_att][y_att]]
+        x_2ecase, y_2ecase = x_att, y_att
+        if direction == "up":
+            y_2ecase -= 1
+        elif direction == "down":
+            y_2ecase += 1
+        elif direction == "left":
+            x_2ecase -= 1
+        else:
+            x_2ecase += 1
+        liste_entite.append(self.game[x_2ecase][y_2ecase])
+        for entite in liste_entite:
+            presence_ennemi = (entite in Ennemi.liste_ennemis)
+            if presence_ennemi:
+                entite.recoie_coup(self.attaque)
 
 
 class Sorcier(Personnage):
-    def __init__(self, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        # Pour position, à voir comment on génère ça, ptet pas en arg
-        self.niveau = niveau
+    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
         self.path = "Sorcier_lvl.txt"
-        super().__init__(self.path, position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        pass
+    def attaquer(self, direction):
+        """Rappel : attaque de sorcier est un simple coup dans la direction regardée"""
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        entite = self.game[x_att][y_att]
+        presence_ennemi = (entite in Ennemi.liste_ennemis)
+        if presence_ennemi:
+            entite.recoie_coup(self.attaque)
 
-    def attaquer_speciale(self):
-        pass
-
+    def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
+        """
+        Rappel : attaque spéciale de sorcier agit sur tous les ennemis dont la distance est au maximum 2 cases
+        Cooldown : LONG
+        """
+        # C'est long à écrire, mais au moins c'est fait et on ne perd pas le temp sde calcul des boucles, et on est
+        # sûr que le résultat est le bon.
+        x_att, y_att = self.position
+        liste_entite = []
+        liste_entite.append(self.game[x_att][y_att + 1])
+        liste_entite.append(self.game[x_att][y_att - 1])
+        liste_entite.append(self.game[x_att + 1][y_att])
+        liste_entite.append(self.game[x_att - 1][y_att])
+        liste_entite.append(self.game[x_att][y_att + 2])
+        liste_entite.append(self.game[x_att][y_att - 2])
+        liste_entite.append(self.game[x_att + 2][y_att])
+        liste_entite.append(self.game[x_att - 2][y_att])
+        liste_entite.append(self.game[x_att + 1][y_att - 1])
+        liste_entite.append(self.game[x_att + 1][y_att + 1])
+        liste_entite.append(self.game[x_att - 1][y_att - 1])
+        liste_entite.append(self.game[x_att - 1][y_att + 1])
+        for entite in liste_entite:
+            presence_ennemi = (entite in Ennemi.liste_ennemis)
+            if presence_ennemi:
+                entite.recoie_coup(self.attaque)
 
 class Druide(Personnage):
-    def __init__(self, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        # Pour position, à voir comment on génère ça, ptet pas en arg
-        self.niveau = niveau
-        self.path = "Druide_lvl.txt"
-        super().__init__(self.path, position, cooldown, nom, inventaire, niveau)
+    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
+        super().__init__(game, "Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        pass
+    def attaquer(self, direction):
+        """Rappel : attaque de druide est un simple coup dans la direction regardée"""
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[direction])
+        entite = self.game[x_att][y_att]
+        presence_ennemi = (entite in Ennemi.liste_ennemis)
+        if presence_ennemi:
+            entite.recoie_coup(self.attaque)
 
-    def attaquer_speciale(self):
-        pass
-
+    def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
+        """
+        Rappel : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case
+        Cooldown : MOYEN
+        """
+        x_att, y_att = self.position
+        liste_entite = []
+        liste_entite.append(self.game[x_att][y_att + 1])
+        liste_entite.append(self.game[x_att][y_att - 1])
+        liste_entite.append(self.game[x_att + 1][y_att])
+        liste_entite.append(self.game[x_att - 1][y_att])
+        for entite in liste_entite:
+            presence_ennemi = (entite in Ennemi.liste_ennemis)
+            if presence_ennemi:
+                entite.recoie_coup(self.attaque)
 
 # ----------------------------------
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    def __init__(self, path: str, position: tuple, cooldown: int, niveau):
-        self.niveau = niveau
-        super().__init__(path, position, cooldown, niveau)
+    
+    liste_ennemis = {}
+    
+    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
+        super().__init__(game, path, position, cooldown, niveau)
 
     @abstractmethod
-    def attaquer(self):
+    def attaquer(self, direction=""):
         pass
 
     @abstractmethod
-    def attaquer_speciale(self):
+    def attaque_speciale(self, direction=""):
         pass
 
-    def deplacement(self):
+    def deplacement(self, direction=""):
         pass
+    
+    def recoie_coup(self, attaque):
+        chance = self.niveau/40  # chance d'esquive, vaut entre 0 et 0.5
+        prob = np.random.random()  # proba aléatoire
+        if prob > chance:  # si prob > chance, l'ennemi n'arrive pas à esquiver le coup
+            self.niveau -= attaque
 
     def mort(self):
         pass
@@ -188,13 +287,23 @@ class Squelette(Ennemi):
     compteur = 0
     total_compteur = 0
 
-    def __init__(self, position: tuple, niveau):
-        super().__init__("Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
+    def __init__(self, game, position: tuple, niveau):
+        super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
         Squelette.compteur += 1
         Squelette.total_compteur += 1
 
+    def attaquer(self, direction=""):
+        pass
+
+    def attaque_speciale(self, direction=""):
+        pass
+
+    def deplacement(self, direction=""):
+        pass
+
     def mort(self):
         Squelette.compteur -= 1
+        pass
 
 
 if __name__ == '__main__':

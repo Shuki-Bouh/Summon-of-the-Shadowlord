@@ -66,4 +66,4 @@ class Partie(list):
 
 if __name__ == '__main__':
     a = Partie(10, 10)
-    print(type(a))
+    print((a))
