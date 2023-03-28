@@ -1,6 +1,6 @@
-import personnage as perso
 import numpy as np
 from random import randrange
+import personnage as perso
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -22,6 +22,10 @@ class Partie(list):
                 else:
                     self[k].append(None)
 
+    def new_player(self, player):
+        x, y = player.position
+        self[y][x] = player
+
     @property
     def h(self):
         return self.__h
@@ -34,17 +38,6 @@ class Partie(list):
         """Ca permet de faire le lien entre personnage et partie (en appelant la map dans personnage)"""
         return self
 
-    def rien_autour_position(self, pos, direction):
-        x, y = pos # x corespond au self.l et y au self.h
-        if direction == 'up' and self[y-1][x] == None:
-            return True
-        elif direction == 'down' and self[y+1][x] == None:
-            return True
-        elif direction == 'left' and self[y][x-1] == None:
-            return True
-        elif direction == 'right' and self[y][x+1] == None:
-            return True
-        return False
 
     def spawn_ennemi(self, niveau):
         x = randrange(1, 11)
@@ -52,7 +45,7 @@ class Partie(list):
         while self[y][x] != None:
             x = randrange(1, 11)
             y = randrange(1, 11)
-        ennemi = perso.Ennemi((x, y), niveau)
+        ennemi = perso.Squelette((x, y), niveau)
 
 
     def open_save(self):
@@ -65,7 +58,7 @@ class Partie(list):
     def __str__(self):
         canvas = ""
         for k in range(self.h):
-            for j in range(self.l):
+            for j in range(self.l-1):
                 canvas += str(self[k][j]) + ", "
             canvas += str(self[k][self.l-1])
             canvas += "\n"

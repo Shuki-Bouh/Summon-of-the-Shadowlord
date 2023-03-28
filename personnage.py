@@ -16,27 +16,44 @@ from abc import abstractmethod, ABCMeta
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
 
-    direction = {'up': 'y-1, x',
-                 'down': 'y+1, x',
-                 'left': 'y, x-1',
-                 'right': 'y, x+1'}
-    def __init__(self, path, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
-        self.niveau = niveau  # permet de creer vie, attaque, defense, mana
-        self.path = path
-        self.__position = position
-        self.cooldown = cooldown
+    direction = {'up': 'x, y - 1', # C'est peut-être un peu tordu mais c'est plus rapide à coder...
+                 'down': 'x, y + 1',
+                 'left': 'x - 1, y',
+                 'right': 'x + 1 , y'}
+
+    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
+        self.path = path # Permet de lire le fichier dans lequel sont contenues les statistiques du perso pour chaque niveau
+        self.__position = position # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
+        self.cooldown = cooldown # Est là pour ralentir l'utilisation des attaques
         self.__niveau = niveau
+        self.niveau = niveau  # Dans niveau.setter, on va créer vie, attaque, défense et mana
+        self.game = game
+        self.position = position
+
+    @property
+    def position(self):
+        return self.__position
+
+    @position.setter
+    def position(self, newpos):
+        x1, y1 = self.position
+        x2, y2 = newpos
+        if self.game[y2][x2] == None:
+            self.__position = x2, y2
+            self.game[y1][x1] = None
+            self.game[y2][x2] = self
 
     @property
     def niveau(self):
-        return (self.__niveau)
+        return self.__niveau # Pauvre fou, jamais de parenthèses !
     @niveau.setter
     def niveau(self, niveau):
-        self.niveau = niveau
+        self.__niveau = niveau
         with open(self.path, 'r') as lvl:
-            lvl = lvl.readline()
-            lvl = lvl[self.niveau] # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
-            lvl = lvl.split()
+            lvl = lvl.readlines()
+            lvl = lvl[self.niveau].split() # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
+            for k in range(len(lvl)):
+                lvl[k] = int(lvl[k])
             self.vie, self.attaque, self.defense, self.mana = lvl[:]
 
     @abstractmethod
@@ -48,7 +65,7 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deplacement(self):
+    def deplacement(self, direction):
         pass
 
     @abstractmethod
@@ -61,8 +78,8 @@ class Entite(metaclass=ABCMeta):
 
 
 class Personnage(Entite):
-    def __init__(self, path, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
-        super().__init__(path, position, cooldown, niveau)
+    def __init__(self, game, path: str, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
+        super().__init__(game, path, position, cooldown, niveau)
         self.inventory = inventaire  # Objet item
         self.nom = nom
 
@@ -75,10 +92,10 @@ class Personnage(Entite):
     def attaquer_speciale(self):
         pass
 
-    def deplacement(self):
-        pass
-
-
+    def deplacement(self, direction):
+        x, y = self.position
+        x, y = eval(Entite.direction[direction])
+        self.position = x, y
     def interagir(self):
         """Permet d'utiliser objet"""
         pass
@@ -87,16 +104,17 @@ class Personnage(Entite):
         self.niveau += 1
 
     def mort(self):
-        assert (self.vie == 0)  #Vérifie la mort du personnage
+        assert self.vie == 0  #Vérifie la mort du personnage
         pass
+
+    def __str__(self):
+        return self.nom
 
 
 class Epeiste(Personnage):
-    def __init__(self, position: tuple, cooldown: int, nom: str, inventaire = {}, niveau = 1):
+    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire = {}, niveau = 1):
         # Pour position, à voir comment on génère ça, ptet pas en arg
-        self.niveau = niveau
-        self.path = "Epeiste_lvl.txt"
-        super().__init__(self.path, position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         pass
@@ -104,12 +122,10 @@ class Epeiste(Personnage):
     def attaquer_speciale(self):
         pass
 
+
 class Garde(Personnage):
     def __init__(self, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        # Pour position, à voir comment on génère ça, ptet pas en arg
-        self.niveau = niveau
-        self.path = "Garde_lvl.txt"
-        super().__init__(self.path, position, cooldown, nom, inventaire, niveau)
+        super().__init__("Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         pass
@@ -150,14 +166,15 @@ class Druide(Personnage):
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    def __init__(self, position: tuple, cooldown: int, niveau):
+    def __init__(self, path: str, position: tuple, cooldown: int, niveau):
         self.niveau = niveau
-        self.path = ''
-        super().__init__(self.path, position, cooldown, niveau)
+        super().__init__(path, position, cooldown, niveau)
 
+    @abstractmethod
     def attaquer(self):
         pass
 
+    @abstractmethod
     def attaquer_speciale(self):
         pass
 
@@ -166,3 +183,17 @@ class Ennemi(Entite):
 
     def mort(self):
         pass
+
+class Squelette(Ennemi):
+    compteur = 0
+
+    def __init__(self, position: tuple, niveau):
+        super().__init__("Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
+        Squelette.compteur += 1
+
+    def mort(self):
+        Squelette.compteur -= 1
+
+
+if __name__ == '__main__':
+    pass
