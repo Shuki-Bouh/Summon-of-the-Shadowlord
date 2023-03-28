@@ -1,15 +1,19 @@
 import personnage as perso
+import numpy as np
+
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
+
     def __init__(self, h, l):
         super().__init__()
         self.__h = h + 2 # Pour compenser les False qui apparaissent
         self.__l = l + 2
-        self.gen_map()  #Jai modifier gen map car le __ servait pas en l'occurrence
+        self.__generation_map()
+        self.map = self.get_map()
         self.entites = {}
 
-    def gen_map(self):
+    def __generation_map(self):
         for k in range(self.h+3):
             self.append([])
             for j in range(self.l+3):
@@ -41,6 +45,21 @@ class Partie(list):
         elif direction == 'right' and self[y][x+1] == None:
             return True
         return False
+
+    def spawn_ennemi(self):
+        list_pos = []
+        for k in range(len(self.map)):
+            for j in range(len(self.map[0])):
+                if self.map[k][j] == None:
+                    list_pos.append([k,j])
+        if len(list_pos) != 0:
+            a = 0
+            b = len(list_pos)
+            n = np.random.randint(a, b)
+            pos = list_pos[n]
+            x, y = pos[0], pos[1]
+            self.map[x][y] = 'Ennemi'
+            return (x,y)
 
     def open_save(self):
         pass
