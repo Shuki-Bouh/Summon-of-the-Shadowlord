@@ -1,6 +1,6 @@
 import personnage as perso
 import numpy as np
-
+from random import randrange
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -14,9 +14,9 @@ class Partie(list):
         self.entites = {}
 
     def __generation_map(self):
-        for k in range(self.h+3):
+        for k in range(self.h):
             self.append([])
-            for j in range(self.l+3):
+            for j in range(self.l):
                 if k == 0 or k == self.h-1 or j == 0 or j == self.l-1:
                     self[k].append(False)
                 else:
@@ -46,20 +46,14 @@ class Partie(list):
             return True
         return False
 
-    def spawn_ennemi(self):
-        list_pos = []
-        for k in range(len(self.map)):
-            for j in range(len(self.map[0])):
-                if self.map[k][j] == None:
-                    list_pos.append([k,j])
-        if len(list_pos) != 0:
-            a = 0
-            b = len(list_pos)
-            n = np.random.randint(a, b)
-            pos = list_pos[n]
-            x, y = pos[0], pos[1]
-            self.map[x][y] = 'Ennemi'
-            return (x,y)
+    def spawn_ennemi(self, niveau):
+        x = randrange(1, 11)
+        y = randrange(1, 11)
+        while self[y][x] != None:
+            x = randrange(1, 11)
+            y = randrange(1, 11)
+        ennemi = perso.Ennemi((x, y), niveau)
+
 
     def open_save(self):
         pass
@@ -71,7 +65,7 @@ class Partie(list):
     def __str__(self):
         canvas = ""
         for k in range(self.h):
-            for j in range(self.l-1):
+            for j in range(self.l):
                 canvas += str(self[k][j]) + ", "
             canvas += str(self[k][self.l-1])
             canvas += "\n"
@@ -80,5 +74,3 @@ class Partie(list):
 if __name__ == '__main__':
     a = Partie(10, 10)
     print(a)
-    a._l = 11
-    print(a.l)
