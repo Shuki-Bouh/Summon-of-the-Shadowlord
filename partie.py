@@ -1,6 +1,7 @@
 import numpy as np
-from random import randrange
+from random import randrange, choice, random
 import personnage as perso
+import os
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -11,7 +12,8 @@ class Partie(list):
         self.__l = l + 2
         self.__generation_map()
         self.map = self.get_map()
-        self.entites = {}
+        self.joueurs = {}
+        self.ennemis = {}
 
     def __generation_map(self):
         for k in range(self.h):
@@ -38,14 +40,18 @@ class Partie(list):
         """Ca permet de faire le lien entre personnage et partie (en appelant la map dans personnage)"""
         return self
 
-
+    def spawn_ennemi(self, niveau):
+        if perso.Ennemi.compteur < 15:
+            if random() < 0.8:
+                self.spawn_squelette(niveau)
     def spawn_squelette(self, niveau):
-        x = randrange(1, 11)
-        y = randrange(1, 11)
-        while self[y][x] != None:
-            x = randrange(1, 11)
-            y = randrange(1, 11)
-        ennemi = perso.Squelette((x, y), niveau)
+        cases_possibles = []
+        for i in range(self.h):
+            for j in range(self.l):
+                if self[j][i] == None:
+                    cases_possibles.append((i, j))
+        x, y = choice(cases_possibles)
+        ennemi = perso.Squelette(self, (x, y), niveau)
 
 
     def open_save(self):
@@ -66,4 +72,4 @@ class Partie(list):
 
 if __name__ == '__main__':
     a = Partie(10, 10)
-    print((a))
+    print(a)

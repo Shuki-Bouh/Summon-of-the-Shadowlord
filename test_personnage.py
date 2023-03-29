@@ -21,6 +21,16 @@ class TestEpeiste(unittest.TestCase):
         Saria.deplacement('down')
         self.assertEqual(Saria.game[7][5], Saria)
 
+    def test_attaque(self):
+        game = prt.Partie(10, 10)
+        LeHeroDuTemps = perso.Epeiste(game, (4, 5), 5, 'Link', niveau=5)
+        squelette = perso.Squelette(game, (4, 4), niveau=5)
+        test = LeHeroDuTemps.attaquer()
+        self.assertTrue(test)
+        LeHeroDuTemps.orientation = 'left'
+        test = LeHeroDuTemps.attaquer()
+        self.assertFalse(test)
+
 # Il faut creer le doc "Squelette_lvl.txt" ...
 
     # def test_squelette(self):

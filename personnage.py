@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABCMeta
 import numpy as np
+from random import random
 
 
 ## ESPACES COMMENTAIRES
@@ -30,6 +31,7 @@ class Entite(metaclass=ABCMeta):
         self.niveau = niveau  # Dans niveau.setter, on va créer vie, attaque, défense et mana
         self.game = game
         self.position = position
+        self.nom = 'entite'
 
     @property
     def position(self):
@@ -73,6 +75,9 @@ class Entite(metaclass=ABCMeta):
     def mort(self):
         pass
 
+    def __str__(self):
+        return self.nom
+
 # ------------------------------------
 # Développement des classes Personnage
 
@@ -82,6 +87,7 @@ class Personnage(Entite):
         super().__init__(game, path, position, cooldown, niveau)
         self.inventory = inventaire  # Objet item
         self.nom = nom
+        self.orientation = 'up'
 
 
     @abstractmethod
@@ -96,6 +102,7 @@ class Personnage(Entite):
         x, y = self.position
         x, y = eval(Entite.direction[direction])
         self.position = (x, y)
+        self.orientation = direction
 
     def interagir(self):
         """Permet d'utiliser objet"""
@@ -108,8 +115,6 @@ class Personnage(Entite):
         assert self.vie == 0  #Vérifie la mort du personnage
         pass
 
-    def __str__(self):
-        return self.nom
 
 
 class Epeiste(Personnage):
@@ -117,14 +122,18 @@ class Epeiste(Personnage):
         # Pour position, à voir comment on génère ça, ptet pas en arg
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
-    def attaquer(self, direction):
+    def attaquer(self):
         """Rappel : attaque d'épéiste est un simple coup dans la direction regardée"""
         x, y = self.position
-        x_att, y_att = eval(Entite.direction[direction])
-        entite = self.game[x_att][y_att]
-        presence_ennemi = (entite in Ennemi.liste_ennemis)
-        if presence_ennemi:
-            entite.recoie_coup(self.attaque)
+        x_att, y_att = eval(Entite.direction[self.orientation])
+        entite = self.game[y_att][x_att]
+        if entite in self.game.ennemis.values():
+            if entite.defense / self.niveau / 3 < random(): # Nécessité de le faire en deux if au cas où entite == None
+                entite.vie -= self.attaque
+                return 2
+            else:
+                return 1
+        return 0
 
     def attaque_speciale(self, direction):
         """
@@ -257,11 +266,12 @@ class Druide(Personnage):
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    
+    compteur = 0
     liste_ennemis = {}
     
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
         super().__init__(game, path, position, cooldown, niveau)
+        Ennemi.compteur += 1
 
     @abstractmethod
     def attaquer(self, direction=""):
@@ -291,6 +301,8 @@ class Squelette(Ennemi):
         super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
         Squelette.compteur += 1
         Squelette.total_compteur += 1
+        self.nom = "Squelette " + str(Squelette.total_compteur)
+        self.game.ennemis[self.nom] = self
 
     def attaquer(self, direction=""):
         pass
@@ -303,7 +315,11 @@ class Squelette(Ennemi):
 
     def mort(self):
         Squelette.compteur -= 1
-        pass
+        Ennemi.compteur -= 1
+        del self.game.ennemis[self.nom]
+        x, y = self.position
+        self.game[y][x] = None
+
 
 
 if __name__ == '__main__':
