@@ -14,10 +14,12 @@ class TestPartie(unittest.TestCase):
         game = Partie(10, 10)
         for k in range(20):
             game.spawn_ennemi(5)
+            print(game)
         self.assertEqual(game.ennemis['Squelette 5'].vie, 31)
         game.ennemis["Squelette 4"].mort()
         self.assertEqual(p.Ennemi.compteur, p.Squelette.compteur)
         self.assertTrue(p.Ennemi.compteur <= 15)
+
 
 if __name__ == '__main__':
     unittest.main()

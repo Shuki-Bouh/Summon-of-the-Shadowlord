@@ -41,10 +41,10 @@ class Entite(metaclass=ABCMeta):
     def position(self, newpos):
         x1, y1 = self.position
         x2, y2 = newpos
-        if self.game[y2][x2] == None:
+        if self.game[x2][y2] == None:
             self.__position = x2, y2
-            self.game[y1][x1] = None
-            self.game[y2][x2] = self
+            self.game[x1][y1] = None
+            self.game[x2][y2] = self
 
     @property
     def niveau(self):
@@ -57,7 +57,25 @@ class Entite(metaclass=ABCMeta):
             lvl = lvl[self.niveau].split() # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
             for k in range(len(lvl)):
                 lvl[k] = int(lvl[k])
-            self.vie, self.attaque, self.defense, self.mana = lvl[:]
+            self.__viemax, self.attaque, self.defense, self.mana = lvl[:]
+            self.__vie = self.__viemax
+
+    @property
+    def viemax(self):
+        return self.__viemax
+
+    @property
+    def vie(self):
+        return self.__vie
+
+    @vie.setter
+    def vie(self, x):
+        if x <= 0:
+            self.mort()
+        elif x >= self.viemax:
+            self.__vie = self.viemax
+        else:
+            self.__vie = x
 
     @abstractmethod
     def attaquer(self, direction):
@@ -118,17 +136,18 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
-    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire = {}, niveau = 1):
+    def __init__(self, game, position: tuple, nom: str, inventaire = {}, niveau = 1):
         # Pour position, à voir comment on génère ça, ptet pas en arg
+        cooldown = 0
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Rappel : attaque d'épéiste est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
-        entite = self.game[y_att][x_att]
+        entite = self.game[x_att][y_att]
         if entite in self.game.ennemis.values():
-            if entite.defense / self.niveau / 3 < random(): # Nécessité de le faire en deux if au cas où entite == None
+            if entite.defense / (self.niveau * 3) < random(): # Nécessité de le faire en deux if au cas où entite == None
                 entite.vie -= self.attaque
                 return 2
             else:

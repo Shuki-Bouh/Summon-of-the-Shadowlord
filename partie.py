@@ -6,7 +6,7 @@ import os
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
-    def __init__(self, h, l):
+    def __init__(self, l, h):
         super().__init__()
         self.__h = h + 2 # Pour compenser les False qui apparaissent
         self.__l = l + 2
@@ -16,13 +16,13 @@ class Partie(list):
         self.ennemis = {}
 
     def __generation_map(self):
-        for k in range(self.h):
+        for x in range(self.l):
             self.append([])
-            for j in range(self.l):
-                if k == 0 or k == self.h-1 or j == 0 or j == self.l-1:
-                    self[k].append(False)
+            for y in range(self.h):
+                if x == 0 or x == self.l-1 or y == 0 or y == self.h-1:
+                    self[x].append(False)
                 else:
-                    self[k].append(None)
+                    self[x].append(None)
 
     def new_player(self, player):
         x, y = player.position
@@ -63,13 +63,15 @@ class Partie(list):
 
     def __str__(self):
         canvas = ""
-        for k in range(self.h):
-            for j in range(self.l-1):
-                canvas += str(self[k][j]) + ", "
-            canvas += str(self[k][self.l-1])
+        for y in range(self.h):
+            for x in range(self.l-1):
+                canvas += str(self[x][y]) + ", "
+            canvas += str(self[x][self.h-1])
             canvas += "\n"
         return canvas
 
 if __name__ == '__main__':
-    a = Partie(10, 10)
+    a = Partie(10,5)
     print(a)
+    print(a.h)
+    print(a.l)
