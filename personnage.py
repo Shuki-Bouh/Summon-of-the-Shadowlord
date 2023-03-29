@@ -60,6 +60,14 @@ class Entite(metaclass=ABCMeta):
             self.__viemax, self.attaque, self.defense, self.mana = lvl[:]
             self.__vie = self.__viemax
 
+    @staticmethod
+    def esquive(type_attaque, attaquant, cible):
+        if type_attaque = "attaque":
+            pass
+        else:
+            pass
+
+
     @property
     def viemax(self):
         return self.__viemax
@@ -303,11 +311,7 @@ class Ennemi(Entite):
     def deplacement(self, direction=""):
         pass
     
-    def recoie_coup(self, attaque):
-        chance = self.niveau/40  # chance d'esquive, vaut entre 0 et 0.5
-        prob = np.random.random()  # proba aléatoire
-        if prob > chance:  # si prob > chance, l'ennemi n'arrive pas à esquiver le coup
-            self.niveau -= attaque
+
 
     def mort(self):
         pass
