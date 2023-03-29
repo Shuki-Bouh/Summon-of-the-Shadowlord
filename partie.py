@@ -2,6 +2,7 @@ import numpy as np
 from random import randrange, choice, random
 import personnage as perso
 import os
+import threading
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -24,9 +25,17 @@ class Partie(list):
                 else:
                     self[x].append(None)
 
-    def new_player(self, player):
-        x, y = player.position
-        self[y][x] = player
+    def new_player(self, nom, classe, multi = False):
+        differentes_classes = {'epeiste': perso.Epeiste,
+                               'garde': perso.Garde,
+                               'sorcier': perso.Sorcier,
+                               'druide': perso.Druide}
+        classe = differentes_classes[classe]
+        if not multi:
+            joueur = classe(self, (self.l - self.l // 4, self.h // 2), nom)
+        else:
+            pass # On l'implémentera plus tard
+        return
 
     @property
     def h(self):
@@ -61,6 +70,17 @@ class Partie(list):
     def write_save():
         pass
 
+    def action_mechant(self):
+        """Cette fonction va tourner sur une thread avec une clock spécifique qui ralentira la cadence
+        (comme dans bca en fait)"""
+        while True:
+            for mechant in self.ennemis.values():
+                if mechant.cible:
+                    mechant.deplacement(mechant.cible)
+                    # ça c'est nul : je dois reprendre pour qu'il attaque s'il se retrouve à côté... Reflexion reflexion !!
+                else:
+                    mechant.agro()
+
     def __str__(self):
         canvas = ""
         for y in range(self.h):
@@ -71,7 +91,4 @@ class Partie(list):
         return canvas
 
 if __name__ == '__main__':
-    a = Partie(10,5)
-    print(a)
-    print(a.h)
-    print(a.l)
+    print(help(np.linalg.norm))
