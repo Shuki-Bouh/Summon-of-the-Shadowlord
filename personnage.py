@@ -1,9 +1,6 @@
 from abc import abstractmethod, ABCMeta
 from random import random
 
-import numpy as np
-
-
 ## ESPACES COMMENTAIRES
 # Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
 # plus tard, ie, faire une methode pour ou bien utliser __repr__
@@ -24,10 +21,12 @@ class Entite(metaclass=ABCMeta):
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
 
+    # Id ennemis
     id_ennemi = {'Squelette': 0,
                  'Crane': 1,
                  'Armure': 2}
 
+    # Les probas correspondent au couple (Perso,ennemi), selon les id précédents
     proba_attaque = {'Epeiste': [0.2, 0.3, 0.6],
                      'Garde': [0.2, 0.4, 0.5],
                      'Sorcier': [0.1, 0.2, 0.9],
@@ -59,6 +58,7 @@ class Entite(metaclass=ABCMeta):
     @property
     def niveau(self):
         return self.__niveau # Pauvre fou, jamais de parenthèses !
+
     @niveau.setter
     def niveau(self, niveau):
         self.__niveau = niveau
@@ -74,8 +74,8 @@ class Entite(metaclass=ABCMeta):
     def attJ_E(joueur, ennemi):
         """proba = cible.defense/(2*attaquant.attaque)
         si on veut fonctionner avec des probas évolutives, mais le sorcier devient OP avec la meilleure attaque"""
-        id = Entite.id_ennemi[ennemi]
-        prob = Entite.proba_attaque[joueur][id]
+        id = Entite.id_ennemi[ennemi.type]
+        prob = Entite.proba_attaque[joueur.type][id]
         if prob < random():
             ennemi.vie -= joueur.attaque
 
@@ -117,6 +117,7 @@ class Entite(metaclass=ABCMeta):
 
     @abstractmethod
     def mort(self):
+        assert (self.vie <= 0)
         pass
 
     def __str__(self):
@@ -132,7 +133,6 @@ class Personnage(Entite):
         self.inventory = inventaire  # Objet item
         self.nom = nom
         self.orientation = 'up'
-
 
     @abstractmethod
     def attaquer(self):
@@ -156,14 +156,13 @@ class Personnage(Entite):
         self.niveau += 1
 
     def mort(self):
-        assert self.vie == 0  #Vérifie la mort du personnage
         pass
-
 
 
 class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire = {}, niveau = 1):
         # Pour position, à voir comment on génère ça, ptet pas en arg
+        self.type = 'Epeiste'
         cooldown = 0
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
@@ -197,7 +196,9 @@ class Epeiste(Personnage):
 
 class Garde(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
+        self.type = 'Garde'
         super().__init__(game, "Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
+
 
     def attaquer(self):
         """Rappel : attaque de garde est un simple coup dans la direction regardée"""
@@ -232,7 +233,7 @@ class Garde(Personnage):
 
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        self.path = "Sorcier_lvl.txt"
+        self.type = 'Sorcier'
         super().__init__(game, "Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -270,6 +271,7 @@ class Sorcier(Personnage):
 
 class Druide(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
+        self.type = 'Druide'
         super().__init__(game, "Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -332,6 +334,7 @@ class Squelette(Ennemi):
         Squelette.total_compteur += 1
         self.nom = "Squelette " + str(Squelette.total_compteur)
         self.game.ennemis[self.nom] = self
+        self.type = 'Squelette'
 
     def attaquer(self, direction=""):
         for x,y in Entite.direction.values():
