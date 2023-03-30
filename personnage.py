@@ -11,20 +11,22 @@ import numpy as np
 # donc je mets le get/set dans "Entité" directement.
 
 # --------------------------------------------------------------------------
-# Classe mère abstraite Entité, où Personnages et Ennemis héritent de Entité
+# Classe mère abstraite Entité, où Personnages et Ennemis héritent d'Entité
 
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
 
-    direction = {'up': 'x, y - 1', # C'est peut-être un peu tordu, mais c'est plus rapide à coder...
+    direction = {'up': 'x, y - 1',
                  'down': 'x, y + 1',
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
 
-    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
-        self.path = path # Permet de lire le fichier dans lequel sont contenues les statistiques du perso pour chaque niveau
-        self.__position = position # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
-        self.cooldown = cooldown # Est là pour ralentir l'utilisation des attaques
+    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau=1):
+        # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
+        self.path = path  # Permet de lire le fichier dans lequel
+        # sont contenues les statistiques du perso pour chaque niveau
+        self.__position = position  # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
+        self.cooldown = cooldown  # Est là pour ralentir l'utilisation des attaques
         self.__niveau = niveau
         self.niveau = niveau  # Dans niveau.setter, on va créer vie, attaque, défense et mana
         self.game = game
@@ -113,7 +115,6 @@ class Personnage(Entite):
         self.nom = nom
         self.orientation = 'up'
 
-
     @abstractmethod
     def attaquer(self):
         pass
@@ -136,19 +137,17 @@ class Personnage(Entite):
         self.niveau += 1
 
     def mort(self):
-        assert self.vie == 0  #Vérifie la mort du personnage
         pass
-
 
 
 class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        # Pour position, à voir comment on génère ça, ptet pas en arg
+        # Pour position, à voir comment on génère ça, peut-être pas en argument...
         cooldown = 0
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
-        """Rappel : attaque d'épéiste est un simple coup dans la direction regardée"""
+        """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
@@ -157,7 +156,7 @@ class Epeiste(Personnage):
 
     def attaque_speciale(self):
         """
-        Rappel : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision
+        Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision
         Cooldown COURT !
         """
         x, y = self.position
@@ -180,7 +179,7 @@ class Garde(Personnage):
         super().__init__(game, "Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
-        """Rappel : attaque de garde est un simple coup dans la direction regardée"""
+        """Nota : attaque de garde est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
@@ -189,7 +188,7 @@ class Garde(Personnage):
 
     def attaque_speciale(self):
         """
-        Rappel : attaque spéciale de garde est une attaque sur les deux cases dans la direction regardée
+        Nota : attaque spéciale de garde est une attaque sur les deux cases dans la direction regardée
         Cooldown COURT
         """
         x, y = self.position
@@ -216,7 +215,7 @@ class Sorcier(Personnage):
         super().__init__(game, "Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
-        """Rappel : attaque de sorcier est un simple coup dans la direction regardée"""
+        """Nota : attaque de sorcier est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
@@ -225,7 +224,7 @@ class Sorcier(Personnage):
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
-        Rappel : attaque spéciale de sorcier agit sur tous les ennemis dont la distance est au maximum 2 cases
+        Nota : attaque spéciale de sorcier agit sur tous les ennemis dont la distance est au maximum 2 cases
         Cooldown : LONG
         """
         # C'est long à écrire, mais au moins c'est fait et on ne perd pas le temp sde calcul des boucles, et on est
@@ -253,7 +252,7 @@ class Druide(Personnage):
         super().__init__(game, "Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
-        """Rappel : attaque de druide est un simple coup dans la direction regardée"""
+        """Nota : attaque de druide est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
@@ -262,7 +261,7 @@ class Druide(Personnage):
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
-        Rappel : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case
+        Nota : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case
         Cooldown : MOYEN
         """
         x_att, y_att = self.position
@@ -303,6 +302,7 @@ class Ennemi(Entite):
     def mort(self):
         pass
 
+
 class Squelette(Ennemi):
     compteur = 0
     total_compteur = 0
@@ -311,22 +311,30 @@ class Squelette(Ennemi):
         super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
         Squelette.compteur += 1
         Squelette.total_compteur += 1
+        Ennemi.compteur += 1
         self.nom = "Squelette " + str(Squelette.total_compteur)
         self.game.ennemis[self.nom] = self
 
     def attaquer(self, direction=""):
-        for x,y in Entite.direction.values():
+        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
+        for x, y in Entite.direction.values():
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
                 self.coup(self, entity)
 
     def attaque_speciale(self, direction=""):
+        """
+        Nota : attaque spéciale de squelette est un coup de dégâts (x2), sur le modèle de son attaque classique
+        Cooldown : COURT
+        """
         for x, y in Entite.direction.values():
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
-                entity -= 2*self.attaque  #Double coup
+                entity -= 2*self.attaque  # Double coup
 
     def deplacement(self, direction=""):
+        # A CODER : Déplacement vers ennemi le plus proche quand agro()
+        """Déplacement aléatoire d'une case"""
         direction = random.choice(tuple(Entite.direction.keys()))
         x, y = self.position
         x, y = eval(Entite.direction[direction])
@@ -340,10 +348,74 @@ class Squelette(Ennemi):
         self.game[x][y] = None
 
     def agro(self):
+        """Vision MOYENNE (4 cases)"""
         for joueur in self.game.values():
             if np.linalg.norm(np.array(self.position), np.array(joueur.position)) < 4:
                 self.cible = joueur
 
+
+class Crane(Ennemi):
+    compteur = 0
+    total_compteur = 0
+
+    def __init__(self, game, position: tuple, niveau):
+        super().__init__(game, "Crane_lvl.txt", position, cooldown=5, niveau=niveau)
+        Crane.compteur += 1
+        Crane.total_compteur += 1
+        Ennemi.compteur += 1
+        self.nom = "Crane " + str(Squelette.total_compteur)
+        self.game.ennemis[self.nom] = self
+
+    def attaquer(self, direction=""):
+        """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
+        for x, y in Entite.direction.values():
+            entity = self.game[x][y]
+            if entity in self.game.joueurs.values():
+                self.coup(self, entity)
+
+    def attaque_speciale(self, direction=""):
+        """
+        Nota : Bump le personnage de 2 cases en arrière (dans la mesure du possible),
+        et lui vole 1/3 de sa vie pour se régénérer
+        Cooldown : LONG
+        """
+        for x, y in Entite.direction.values():
+            entity = self.game[x][y]
+            if entity in self.game.joueurs.values():
+                entity.vie = np.floor(entity.vie*(2/3))
+                direction = entity.direction
+                if direction == 'up':
+                    opp_dir = 'down'
+                elif direction == 'down':
+                    opp_dir = 'up'
+                elif direction == 'left':
+                    opp_dir = 'right'
+                else:
+                    opp_dir = 'left'
+                entity.deplacement(opp_dir)
+                entity.deplacement(opp_dir)
+
+    def deplacement(self, direction=""):
+        # A CODER : Déplacement vers ennemi le plus proche quand agro()
+        """Double déplacement"""
+        for k in range(2):
+            direction = random.choice(tuple(Entite.direction.keys()))
+            x, y = self.position
+            x, y = eval(Entite.direction[direction])
+            self.position = (x, y)
+
+    def mort(self):
+        Crane.compteur -= 1
+        Ennemi.compteur -= 1
+        del self.game.ennemis[self.nom]
+        x, y = self.position
+        self.game[x][y] = None
+
+    def agro(self):
+        """Vision LONGUE (6 cases)"""
+        for joueur in self.game.values():
+            if np.linalg.norm(np.array(self.position), np.array(joueur.position)) < 6:
+                self.cible = joueur
 
 
 if __name__ == '__main__':
