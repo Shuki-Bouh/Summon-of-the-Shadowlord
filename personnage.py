@@ -24,15 +24,6 @@ class Entite(metaclass=ABCMeta):
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
 
-    id_ennemi = {'Squelette': 0,
-                 'Crane': 1,
-                 'Armure': 2}
-
-    proba_attaque = {'Epeiste': [0.2, 0.3, 0.6],
-                     'Garde': [0.2, 0.4, 0.5],
-                     'Sorcier': [0.1, 0.2, 0.9],
-                     'Druide': [0.2, 0.2, 0.4]}
-
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau = 1): # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
         self.path = path # Permet de lire le fichier dans lequel sont contenues les statistiques du perso pour chaque niveau
         self.__position = position # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
@@ -42,7 +33,7 @@ class Entite(metaclass=ABCMeta):
         self.game = game
         self.position = position
         self.nom = 'entite'
-        game.joueur[self.nom] = self
+        game.joueurs[self.nom] = self
 
     @property
     def position(self):
@@ -72,20 +63,11 @@ class Entite(metaclass=ABCMeta):
             self.__vie = self.__viemax
 
     @staticmethod
-    def attJ_E(joueur, ennemi):
-        """proba = cible.defense/(2*attaquant.attaque)
-        si on veut fonctionner avec des probas évolutives, mais le sorcier devient OP avec la meilleure attaque"""
-        id = Entite.id_ennemi[ennemi]
-        prob = Entite.proba_attaque[joueur][id]
-        if prob < random():
-            ennemi.vie -= joueur.attaque
-
-    @staticmethod
-    def attE_J(ennemi, joueur):
-        id = Entite.id_ennemi[ennemi]
-        prob = Entite.proba_attaque[joueur][id]
-        if (1-prob) < random():
-            joueur.vie -= ennemi.attaque
+    def coup(attaquant, cible):
+        if (attaquant.defense/cible.defense) < 1:
+            cible.vie -= np.floor(attaquant.attaque*(attaquant.defense/cible.defense))
+        else:
+            cible.vie -= attaquant.attaque
 
     @property
     def viemax(self):
@@ -174,7 +156,7 @@ class Epeiste(Personnage):
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
         if entity in self.game.ennemis.values():
-            self.attJ_E(self, entity)
+            self.coup(self, entity)
 
     def attaque_speciale(self):
         """
@@ -193,7 +175,7 @@ class Epeiste(Personnage):
                 liste_entite.append(self.game[x_att, y_att + k])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.attJ_E(self, entity)
+                self.coup(self, entity)
 
 
 class Garde(Personnage):
@@ -206,7 +188,7 @@ class Garde(Personnage):
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
         if entity in self.game.ennemis.values():
-            self.attJ_E(self, entity)
+            self.coup(self, entity)
 
     def attaque_speciale(self):
         """
@@ -228,7 +210,7 @@ class Garde(Personnage):
         liste_entite.append(self.game[x_2ecase][y_2ecase])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.attJ_E(self, entity)
+                self.coup(self, entity)
 
 
 class Sorcier(Personnage):
@@ -242,7 +224,7 @@ class Sorcier(Personnage):
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
         if entity in self.game.ennemis.values():
-            self.attJ_E(self, entity)
+            self.coup(self, entity)
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
@@ -267,7 +249,7 @@ class Sorcier(Personnage):
         liste_entite.append(self.game[x_att - 1][y_att + 1])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.attJ_E(self, entity)
+                self.coup(self, entity)
 
 class Druide(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
@@ -279,7 +261,7 @@ class Druide(Personnage):
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
         if entity in self.game.ennemis.values():
-            self.attJ_E(self, entity)
+            self.coup(self, entity)
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
@@ -294,7 +276,7 @@ class Druide(Personnage):
         liste_entite.append(self.game[x_att - 1][y_att])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.attJ_E(self, entity)
+                self.coup(self, entity)
 
 
 # ----------------------------------
@@ -339,7 +321,7 @@ class Squelette(Ennemi):
         for x,y in Entite.direction.values():
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
-                self.attE_J(self, entity)
+                self.coup(self, entity)
 
     def attaque_speciale(self, direction=""):
         for x, y in Entite.direction.values():
