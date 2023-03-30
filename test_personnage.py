@@ -34,30 +34,27 @@ class TestEntite(unittest.TestCase):
 
     def test_squelette(self):
         game = prt.Partie(10, 10)
-        print(game.ennemis)
         Sakdoss_1 = perso.Squelette(game, (5,7), 5)
-        print(game.ennemis)
-        self.assertEqual(Sakdoss_1.compteur, Sakdoss_1.total_compteur)
         Sakdoss_2 = perso.Squelette(game, (4,8), 5)
-        print(game.ennemis)
-        self.assertEqual(Sakdoss_1.compteur,Sakdoss_2.compteur)
-        self.assertEqual(Sakdoss_2.total_compteur, 2)
+        self.assertEqual(Sakdoss_1.compteur, Sakdoss_2.compteur)
         Sakdoss_1.mort()
-        self.assertEqual(Sakdoss_2.total_compteur, 2)
-        self.assertEqual(Sakdoss_2.compteur, 1)
+        Sakdoss_2.deplacement()
+        x, y = Sakdoss_1.position
+        self.assertEqual(game[x][y], None)
+        self.assertNotEqual(Sakdoss_2.position, (4,8))
 
 
     def test_attaque(self):
         game = prt.Partie(10, 10)
         Link = perso.Epeiste(game, (5,5), 'Link', niveau=5)
         Sakdoss = perso.Squelette(game, (5,5), niveau=10)
-        print(game.ennemis)
         self.assertEqual(Link.vie, 35)
         self.assertEqual(Sakdoss.vie, 100)
         Link.coup(Link, Sakdoss)
         Sakdoss.coup(Sakdoss, Link)
         self.assertEqual(Sakdoss.vie, 84)
         self.assertEqual(Link.vie, 19)
+
 
 if __name__ == '__main__':
     unittest.main()

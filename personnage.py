@@ -1,20 +1,17 @@
 from abc import abstractmethod, ABCMeta
-from random import random
-
+import random
 import numpy as np
 
 
-## ESPACES COMMENTAIRES
+# ESPACES COMMENTAIRES -----------------------------------------------------
 # Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
-# plus tard, ie, faire une methode pour ou bien utliser __repr__
-# Toutes les entités devraient avoir la même modification de de "__position" donc je mets le get/set dans Entite directement
+# plus tard, c'est-à-dire, faire une methode pour ou bien utiliser __repr__
 
-
-
-
+# Toutes les entités devraient avoir la même modification de "__position"
+# donc je mets le get/set dans "Entité" directement.
 
 # --------------------------------------------------------------------------
-# Classe mère abstraite Entite, où Personnages et Ennemis héritent de Entite
+# Classe mère abstraite Entité, où Personnages et Ennemis héritent de Entité
 
 class Entite(metaclass=ABCMeta):
     """Tous les personnages qui existent dans le jeu"""
@@ -145,7 +142,7 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
-    def __init__(self, game, position: tuple, nom: str, inventaire = {}, niveau = 1):
+    def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         # Pour position, à voir comment on génère ça, ptet pas en arg
         cooldown = 0
         super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
@@ -330,18 +327,17 @@ class Squelette(Ennemi):
                 entity -= 2*self.attaque  #Double coup
 
     def deplacement(self, direction=""):
-        """Vision à definir de maniere efficace"""
-        x = 1 if random() > 0.5 else -1
-        y = 1 if random() > 0.5 else -1
-        x_pos, y_pos = self.position
-        self.position = (x_pos + x, y_pos + y)
+        direction = random.choice(tuple(Entite.direction.keys()))
+        x, y = self.position
+        x, y = eval(Entite.direction[direction])
+        self.position = (x, y)
 
     def mort(self):
         Squelette.compteur -= 1
         Ennemi.compteur -= 1
         del self.game.ennemis[self.nom]
         x, y = self.position
-        self.game[y][x] = None
+        self.game[x][y] = None
 
     def agro(self):
         for joueur in self.game.values():
