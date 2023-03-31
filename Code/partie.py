@@ -78,6 +78,7 @@ class Partie(list):
         # On stock ensuite l'inventaire
         # On finit pas simplement stocker les variables de classes et tout est stocké
         # Autrement je te laisse me proposer une modélisation de bdd
+        # Après utiliser sqlite sur python c'est ez
         pass
 
     def action_mechant(self):
