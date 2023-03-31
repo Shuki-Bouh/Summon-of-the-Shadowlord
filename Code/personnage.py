@@ -340,9 +340,7 @@ class Squelette(Ennemi):
             mechant = self.cible
             xc, yc = mechant.position
             xs, ys = self.position
-            if abs(xc - xs) == 1 or abs(yc - ys) == 1:
-                mechant.attaquer()
-            elif xc < xs:
+            if xc < xs:
                 direction = "left"
             elif xc > xs:
                 direction = "right"
