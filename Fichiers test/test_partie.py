@@ -1,6 +1,5 @@
-from partie import Partie
-from personnage import Epeiste
-import personnage as p
+from Code.partie import Partie
+import Code.personnage as p
 import unittest
 
 class TestPartie(unittest.TestCase):

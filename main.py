@@ -1,7 +1,3 @@
-import partie as prt
-import personnage as p
-import os
-
 def newpartie():
     pass
 

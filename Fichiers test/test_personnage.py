@@ -1,14 +1,18 @@
-import personnage as perso
-import partie as prt
+import Code.personnage as perso
+import Code.partie as prt
 import unittest
+import time
 
 
 class TestEntite(unittest.TestCase):
 
-    def test_stat_lv5(self):
+    def test_gen_joueur(self):
+        t = time.time()
         game = prt.Partie(10, 10)
-        epeiste = perso.Epeiste(game, (5, 5), 'Link', niveau=5)
-        self.assertEqual(epeiste.attaque, 27)
+        game.new_player("Link", "epeiste")
+        Link = game.joueurs["Link"]
+        self.assertEqual(Link.attaque, 7)
+        t1 = time.time()
 
     def test_pointeur(self):
         game = prt.Partie(10, 10)
