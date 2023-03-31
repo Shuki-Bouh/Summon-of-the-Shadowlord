@@ -70,6 +70,7 @@ class TestEntite(unittest.TestCase):
         x, y = Tetdoss_1.position
         self.assertEqual(game[x][y], None)
         self.assertNotEqual(Tetdoss_2.position, (4, 8))
+        """A implémenter !"""
 
 
 

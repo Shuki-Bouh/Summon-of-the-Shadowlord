@@ -19,6 +19,7 @@ class Partie(list):
         self.map = self.get_map()
         self.joueurs = {}
         self.ennemis = {}
+        self.limite_spawn = 5
 
     def __generation_map(self):
         for x in range(self.l):
@@ -54,9 +55,17 @@ class Partie(list):
         return self
 
     def spawn_ennemi(self, niveau):
-        if perso.Ennemi.compteur < 15:
-            if random() < 0.8:
+        if perso.Ennemi.compteur < self.limite_spawn:
+            proba = random()
+            if proba < 0.4:
                 self.spawn_squelette(niveau)
+            elif 0.4 <= proba < 0.8:
+                self.spawn_crane(niveau)
+            elif 0.8 <= proba < 0.9:
+                self.spawn_invocateur(niveau)
+            else:
+                self.spawn_armure(niveau)
+
     def spawn_squelette(self, niveau):
         cases_possibles = []
         for i in range(self.h):
@@ -66,6 +75,32 @@ class Partie(list):
         x, y = choice(cases_possibles)
         ennemi = perso.Squelette(self, (x, y), niveau)
 
+    def spawn_crane(self, niveau):
+        cases_possibles = []
+        for i in range(self.h):
+            for j in range(self.l):
+                if self[j][i] == None:
+                    cases_possibles.append((i, j))
+        x, y = choice(cases_possibles)
+        ennemi = perso.Crane(self, (x, y), niveau)
+
+    def spawn_armure(self, niveau):
+        cases_possibles = []
+        for i in range(self.h):
+            for j in range(self.l):
+                if self[j][i] == None:
+                    cases_possibles.append((i, j))
+        x, y = choice(cases_possibles)
+        ennemi = perso.Armure(self, (x, y), niveau)
+
+    def spawn_invocateur(self, niveau):
+        cases_possibles = []
+        for i in range(self.h):
+            for j in range(self.l):
+                if self[j][i] == None:
+                    cases_possibles.append((i, j))
+        x, y = choice(cases_possibles)
+        ennemi = perso.Invocateur(self, (x, y), niveau)
 
     def open_save(self):
         pass
@@ -79,6 +114,17 @@ class Partie(list):
         # On finit pas simplement stocker les variables de classes et tout est stocké
         # Autrement je te laisse me proposer une modélisation de bdd
         # Après utiliser sqlite sur python c'est ez
+
+        # On peut faire un BDD Joueur avec :
+        # BDD : Joueurs
+        # nom (PK), id_partie (FK), niveau, position, element inventaire 1, element inventaire 2, ...,
+        # BDD : Partie
+        # id_partie (PK), temps de jeu, nombre de mort, nb dennemis tués, nb de squelette tués, nb de crane tués, ...
+        # Ca nous permettra, avec une simple requete, de récuperer ce quil faut sur le joueur...
+        # Apres, on est pas obligé dimplémenter les BDD pour les saves, on peut les ajouter en
+        # plus des saves, pour avoir un write_save et un write BDD sui supprimerait les anciennes
+        # données dun joueurs pour en mettre de nouvelles... ca nous ferait 2 types de fichier,
+        # et la BDD serait notamment utile pour un ScoreBoard, ou je ne sais quoi
         pass
 
     def action_mechant(self):

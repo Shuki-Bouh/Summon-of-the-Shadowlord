@@ -333,8 +333,7 @@ class Squelette(Ennemi):
                 entity.vie -= 2*self.attaque
                 break
 
-    def deplacement(self):
-        # A CODER : Déplacement vers ennemi le plus proche quand agro()
+    def deplacement(self, direction=""):
         """Déplacement aléatoire d'une case"""
         if self.cible:
             mechant = self.cible
@@ -377,15 +376,12 @@ class Crane(Ennemi):
         Crane.compteur += 1
         Crane.total_compteur += 1
         Ennemi.compteur += 1
-        self.nom = "Crane " + str(Squelette.total_compteur)
+        self.nom = "Crane " + str(Crane.total_compteur)
         self.game.ennemis[self.nom] = self
 
     def attaquer(self, direction=""):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
-        for x, y in Entite.direction.items():
-            entity = self.game[x][y]
-            if entity in self.game.joueurs.values():
-                self.coup(self, entity)
+        pass
 
     def attaque_speciale(self, direction=""):
         """
@@ -393,10 +389,16 @@ class Crane(Ennemi):
         et lui vole 1/3 de sa vie pour se régénérer
         Cooldown : LONG
         """
-        for x, y in Entite.direction.values():
+        liste_direction = list(Entite.direction.values())
+        liste_pos = []
+        for k in range(4):
+            liste_pos.append(liste_direction[k])
+        for dir in liste_pos:
+            x, y = self.position
+            x, y = eval(dir)
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
-                vol_vie = np.floor(entity.vie*(1/3))
+                vol_vie = np.floor(entity.vie * (1 / 3))
                 entity.vie -= vol_vie
                 self.vie += vol_vie
                 direction = entity.direction
@@ -412,10 +414,27 @@ class Crane(Ennemi):
                 entity.deplacement(opp_dir)
 
     def deplacement(self, direction=""):
-        # A CODER : Déplacement vers ennemi le plus proche quand agro()
         """Double déplacement"""
-        for k in range(2):
-            direction = random.choice(tuple(Entite.direction.keys()))
+        k = 0
+        while k!=2:
+            k+=1
+            if self.cible:
+                mechant = self.cible
+                xc, yc = mechant.position
+                xs, ys = self.position
+                if abs(xc-xs) <= 1 and abs(yc-ys) <= 1:
+                    self.attaquer()
+                    k = 2
+                elif xc < xs:
+                    direction = "left"
+                elif xc > xs:
+                    direction = "right"
+                elif yc < ys:
+                    direction = "up"
+                else:
+                    direction = "down"
+            else:
+                direction = random.choice(tuple(Entite.direction.keys()))
             x, y = self.position
             x, y = eval(Entite.direction[direction])
             self.position = (x, y)
@@ -431,6 +450,125 @@ class Crane(Ennemi):
         """Vision LONGUE (6 cases)"""
         for joueur in self.game.values():
             if np.linalg.norm(np.array([self.position, joueur.position])) < 6:
+                self.cible = joueur
+
+
+class Armure(Ennemi):
+    compteur = 0
+    total_compteur = 0
+
+    def __init__(self, game, position: tuple, niveau):
+        super().__init__(game, "../Data/Armure_lvl.txt", position, cooldown=5, niveau=niveau)
+        Armure.compteur += 1
+        Armure.total_compteur += 1
+        Ennemi.compteur += 1
+        self.nom = "Armure " + str(Armure.total_compteur)
+        self.game.ennemis[self.nom] = self
+
+    def attaquer(self, direction=""):
+        """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
+        pass
+
+    def attaque_speciale(self, direction=""):
+        """
+        Nota : None, attaque spéciale à trouver...
+        Cooldown : None
+        """
+        pass
+
+    def deplacement(self, direction=""):
+        """Déplacement aléatoire d'une case"""
+        if self.cible:
+            mechant = self.cible
+            xc, yc = mechant.position
+            xs, ys = self.position
+            if xc < xs:
+                direction = "left"
+            elif xc > xs:
+                direction = "right"
+            elif yc < ys:
+                direction = "up"
+            else:
+                direction = "down"
+        else:
+            direction = random.choice(tuple(Entite.direction.keys()))
+        x, y = self.position
+        x, y = eval(Entite.direction[direction])
+        self.position = (x, y)
+
+    def mort(self):
+        Armure.compteur -= 1
+        Ennemi.compteur -= 1
+        del self.game.ennemis[self.nom]
+        x, y = self.position
+        self.game[x][y] = None
+
+    def agro(self):
+        """Vision COURTE (2 cases)"""
+        for joueur in self.game.values():
+            if np.linalg.norm(np.array([self.position, joueur.position])) < 2:
+                self.cible = joueur
+
+
+class Invocateur(Ennemi):
+    compteur = 0
+    total_compteur = 0
+
+    def __init__(self, game, position: tuple, niveau):
+        super().__init__(game, "../Data/Invocateur_lvl.txt", position, cooldown=5, niveau=niveau)
+        Invocateur.compteur += 1
+        Invocateur.total_compteur += 1
+        Ennemi.compteur += 1
+        self.nom = "Invocateur " + str(Invocateur.total_compteur)
+        self.game.ennemis[self.nom] = self
+
+    def attaquer(self, direction=""):
+        """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
+        pass
+
+    def attaque_speciale(self, direction=""):
+        """
+        Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible, sinon, il se régène entièrement.
+        Cooldown : MOYEN
+        """
+        if self.game.limite_spawn - Ennemi.compteur >= 2:
+            # Réfléchir à comment les faire spawn juste à côté de soi...
+            self.game.spawn_crane()
+            self.game.spawn_crane()
+        else:
+            self.vie = self.viemax
+
+    def deplacement(self, direction=""):
+        """Déplacement aléatoire d'une case"""
+        if self.cible:
+            mechant = self.cible
+            xc, yc = mechant.position
+            xs, ys = self.position
+            if xc < xs:
+                direction = "left"
+            elif xc > xs:
+                direction = "right"
+            elif yc < ys:
+                direction = "up"
+            else:
+                direction = "down"
+        else:
+            direction = random.choice(tuple(Entite.direction.keys()))
+        x, y = self.position
+        x, y = eval(Entite.direction[direction])
+        self.position = (x, y)
+
+    def mort(self):
+        Invocateur.compteur -= 1
+        Ennemi.compteur -= 1
+        del self.game.ennemis[self.nom]
+        x, y = self.position
+        self.game[x][y] = None
+
+    def agro(self):
+        """Vision MOYENNE (5 cases)"""
+        for joueur in self.game.values():
+            if np.linalg.norm(np.array([self.position, joueur.position])) < 5:
                 self.cible = joueur
 
 
