@@ -317,20 +317,39 @@ class Squelette(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        for x, y in Entite.direction.values():
+        liste_direction = list(Entite.direction.values())
+        liste_pos = []
+        print(liste_direction)
+        for k in range(4):
+            liste_pos.append(liste_direction[k])
+        for dir in liste_pos:
+            x, y = self.position
+            x, y = eval(dir)
             entity = self.game[x][y]
+            print(entity, self.game.joueurs.values(), self.game.ennemis.values())
             if entity in self.game.joueurs.values():
                 self.coup(self, entity)
+                break
 
     def attaque_speciale(self, direction=""):
         """
-        Nota : attaque spéciale de squelette est un coup de dégâts (x2), sur le modèle de son attaque classique
+        Nota : attaque spéciale de squelette est un coup de dégâts (x2), nécessairement réussi.
         Cooldown : COURT
         """
-        for x, y in Entite.direction.values():
+        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
+        liste_direction = list(Entite.direction.values())
+        liste_pos = []
+        print(liste_direction)
+        for k in range(4):
+            liste_pos.append(liste_direction[k])
+        for dir in liste_pos:
+            x, y = self.position
+            x, y = eval(dir)
             entity = self.game[x][y]
+            print(entity, self.game.joueurs.values(), self.game.ennemis.values())
             if entity in self.game.joueurs.values():
-                entity -= 2*self.attaque  # Double coup
+                entity.vie -= 2*self.attaque
+                break
 
     def deplacement(self, direction=""):
         # A CODER : Déplacement vers ennemi le plus proche quand agro()
@@ -368,7 +387,7 @@ class Crane(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
-        for x, y in Entite.direction.values():
+        for x, y in Entite.direction.items():
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
                 self.coup(self, entity)
@@ -382,7 +401,9 @@ class Crane(Ennemi):
         for x, y in Entite.direction.values():
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
-                entity.vie = np.floor(entity.vie*(2/3))
+                vol_vie = np.floor(entity.vie*(1/3))
+                entity.vie -= vol_vie
+                self.vie += vol_vie
                 direction = entity.direction
                 if direction == 'up':
                     opp_dir = 'down'
