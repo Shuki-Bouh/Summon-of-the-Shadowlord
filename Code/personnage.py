@@ -144,7 +144,6 @@ class Personnage(Entite):
         # Possibilité de recommencer (par un load où on va modifier les vies)
         # Si multi : il meurt, possibilité de respawn ?
         # Une fois que tous les joueurs sont morts, même game over
-
         pass
 
 
@@ -282,7 +281,7 @@ class Ennemi(Entite):
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
         super().__init__(game, path, position, cooldown, niveau)
         Ennemi.compteur += 1
-        self.cible = False
+        self.cible = None
 
     @abstractmethod
     def attaquer(self, direction=""):

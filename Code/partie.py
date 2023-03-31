@@ -72,21 +72,35 @@ class Partie(list):
 
     @staticmethod
     def write_save():
+        # Bon donc ici on met une base de données ?
+        # On peut très très facilement rester sur du txt
+        # On stock chaque joueur sans inventaire
+        # On stock ensuite l'inventaire
+        # On finit pas simplement stocker les variables de classes et tout est stocké
+        # Autrement je te laisse me proposer une modélisation de bdd
         pass
 
     def action_mechant(self):
-        """Cette fonction va tourner sur une thread avec une clock spécifique qui ralentira la cadence
+        """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
         while True:
+            while perso.Ennemi.compteur <= 5:
+                lv = 5 + randrange(-1, 2)
+                self.spawn_ennemi(lv)
+
             for mechant in self.ennemis.values():
                 if mechant.cible:
                     xs, ys = mechant.position
-                    xo, yo = mechant.cible.position
+                    xc, yc = mechant.cible.position
+                    if abs(xc - xs) == 1 or abs(yc - ys) == 1:
+                        mechant.attaquer()
+                # ça c'est nul : je dois reprendre pour qu'il attaque s'il se retrouve à côté... Reflexion reflexion !!
+                mechant.deplacement()
+                mechant.agro()
 
-                    # ça c'est nul : je dois reprendre pour qu'il attaque s'il se retrouve à côté... Reflexion reflexion !!
-                else:
-                    mechant.deplacement()
-                    mechant.agro()
+    def action_joueur(self):
+        """Là je sais pas encore quoi faire, ça dépend grv de PyQt"""
+        pass
 
     def __str__(self):
         canvas = ""
