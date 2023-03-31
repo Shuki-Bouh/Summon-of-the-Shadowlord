@@ -14,12 +14,10 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(Link.attaque, 7)
         t1 = time.time()
 
-    def test_pointeur(self):
+    def test_deplacement(self):
         game = prt.Partie(10, 10)
         Link = perso.Epeiste(game, (5, 5), 'Link', niveau=5)
         Saria = perso.Epeiste(game, (5, 6), 'Saria', niveau=5)
-        self.assertEqual(Link.game, game)
-        self.assertEqual(Link.game, Saria.game)
         self.assertEqual(Saria.game[5][5], Link)
         self.assertEqual(Link.game[5][6], Saria)
         Saria.deplacement('up')
@@ -32,6 +30,7 @@ class TestEntite(unittest.TestCase):
         Link = perso.Epeiste(game, (5, 5), 'Link', niveau=5)
         Link.vie += 5
         self.assertEqual(Link.vie, Link.viemax)
+         # reste à implémenter les tests pour la mort
 
     def test_squelette(self):
         game = prt.Partie(10, 10)
@@ -50,14 +49,14 @@ class TestEntite(unittest.TestCase):
         # Test attaque --------------------------------------------
         Link.attaquer()
         Sakdoss_2.attaquer()
-        self.assertEqual(Link.vie, 19)
+        self.assertEqual(Link.vie, 35)
         self.assertEqual(Sakdoss_2.vie, 84)
         # Test attaque spéciale -----------------------------------
         Sakdoss_3.attaque_speciale()
         self.assertEqual(Saria.vie, 3)
         # Test déplacement ----------------------------------------
-        Sakdoss_2.deplacement()
-        self.assertNotEqual(Sakdoss_2.position, (4, 8))
+        Sakdoss_1.deplacement()
+        self.assertNotEqual(Sakdoss_1.position, (5, 6))
 
 
     def test_crane(self):

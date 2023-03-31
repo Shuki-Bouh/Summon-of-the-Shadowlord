@@ -1,4 +1,4 @@
-import numpy as np
+import time
 from random import randrange, choice, random
 import Code.personnage as perso
 import threading
@@ -6,40 +6,42 @@ import os
 
 path = os.getcwd()
 path = path.split("\\Code")[0] + "\\Data"
-os.chdir("C:\\Users\\cyril\\OneDrive\\Documents\\Workspace\\Summon-of-the-Shadowlord\\Data")
+os.chdir(path)
+
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
     def __init__(self, l, h):
         super().__init__()
-        self.__h = h + 2 # Pour compenser les False qui apparaissent
+        self.__h = h + 2  # Pour compenser les False qui apparaissent
         self.__l = l + 2
         self.__generation_map()
         self.map = self.get_map()
         self.joueurs = {}
         self.ennemis = {}
         self.limite_spawn = 5
+        self.multi = False
 
     def __generation_map(self):
         for x in range(self.l):
             self.append([])
             for y in range(self.h):
-                if x == 0 or x == self.l-1 or y == 0 or y == self.h-1:
+                if x == 0 or x == self.l - 1 or y == 0 or y == self.h - 1:
                     self[x].append(False)
                 else:
                     self[x].append(None)
 
-    def new_player(self, nom, classe, multi = False):
+    def new_player(self, nom, classe):
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
                                'druide': perso.Druide}
         classe = differentes_classes[classe]
-        if not multi:
+        if not self.multi:
             joueur = classe(self, (self.l - self.l // 4, self.h // 2), nom)
         else:
-            pass # On l'implémentera plus tard
+            pass  # On l'implémentera plus tard
         return
 
     @property
@@ -65,12 +67,13 @@ class Partie(list):
                 self.spawn_invocateur(niveau)
             else:
                 self.spawn_armure(niveau)
+            return True
 
     def spawn_squelette(self, niveau):
         cases_possibles = []
         for i in range(self.h):
             for j in range(self.l):
-                if self[j][i] == None:
+                if self[j][i] is None:
                     cases_possibles.append((i, j))
         x, y = choice(cases_possibles)
         ennemi = perso.Squelette(self, (x, y), niveau)
@@ -79,7 +82,7 @@ class Partie(list):
         cases_possibles = []
         for i in range(self.h):
             for j in range(self.l):
-                if self[j][i] == None:
+                if self[j][i] is None:
                     cases_possibles.append((i, j))
         x, y = choice(cases_possibles)
         ennemi = perso.Crane(self, (x, y), niveau)
@@ -88,7 +91,7 @@ class Partie(list):
         cases_possibles = []
         for i in range(self.h):
             for j in range(self.l):
-                if self[j][i] == None:
+                if self[j][i] is None:
                     cases_possibles.append((i, j))
         x, y = choice(cases_possibles)
         ennemi = perso.Armure(self, (x, y), niveau)
@@ -97,7 +100,7 @@ class Partie(list):
         cases_possibles = []
         for i in range(self.h):
             for j in range(self.l):
-                if self[j][i] == None:
+                if self[j][i] is None:
                     cases_possibles.append((i, j))
         x, y = choice(cases_possibles)
         ennemi = perso.Invocateur(self, (x, y), niveau)
@@ -130,10 +133,17 @@ class Partie(list):
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
+        i = 0
+        avg = 0
         while True:
-            while perso.Ennemi.compteur <= 5:
-                lv = 5 + randrange(-1, 2)
-                self.spawn_ennemi(lv)
+            print(self)
+            t0_loop = time.time()
+            while perso.Ennemi.compteur < 5:
+                lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
+                lvl = lv + randrange(-2, 3)
+                if lvl <= 1:
+                    lvl = 1
+                self.spawn_ennemi(lvl)
 
             for mechant in self.ennemis.values():
                 if mechant.cible:
@@ -141,9 +151,23 @@ class Partie(list):
                     xc, yc = mechant.cible.position
                     if abs(xc - xs) == 1 or abs(yc - ys) == 1:
                         mechant.attaquer()
-                # ça c'est nul : je dois reprendre pour qu'il attaque s'il se retrouve à côté... Reflexion reflexion !!
-                mechant.deplacement()
+                    else:
+                        mechant.deplacement()
+                else:
+                    mechant.deplacement()
                 mechant.agro()
+            t_loop = time.time() - t0_loop
+            avg += t_loop
+            print(t_loop)
+            if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
+                time.sleep(1 - t_loop)
+            else:
+                print('Too many computation in this loop')  # Meilleur ref
+            i += 1
+            print(i)
+            if i == 10:
+                break
+        print(avg/i)
 
     def action_joueur(self):
         """Là je sais pas encore quoi faire, ça dépend grv de PyQt"""
@@ -152,11 +176,18 @@ class Partie(list):
     def __str__(self):
         canvas = ""
         for y in range(self.h):
-            for x in range(self.l-1):
+            for x in range(self.l - 1):
                 canvas += str(self[x][y]) + ", "
-            canvas += str(self[x][self.h-1])
+            canvas += str(self[self.l - 1][y])
             canvas += "\n"
         return canvas
 
+    def run_thread(self):
+        self.thread_ennemis = threading.Thread(target=self.action_mechant)
+        if self.multi:
+            pass
+            #self.thread_TCP = threading.Thread(target=tcp_client)
+
 if __name__ == '__main__':
-    pass
+    a = Partie(20, 10)
+    print(a)

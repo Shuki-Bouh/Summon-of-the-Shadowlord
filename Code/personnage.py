@@ -41,20 +41,21 @@ class Entite(metaclass=ABCMeta):
     def position(self, newpos):
         x1, y1 = self.position
         x2, y2 = newpos
-        if self.game[x2][y2] == None:
+        if self.game[x2][y2] is None:
             self.__position = x2, y2
             self.game[x1][y1] = None
             self.game[x2][y2] = self
 
     @property
     def niveau(self):
-        return self.__niveau # Pauvre fou, jamais de parenthèses !
+        return self.__niveau
+
     @niveau.setter
     def niveau(self, niveau):
         self.__niveau = niveau
         with open(self.path, 'r') as lvl:
             lvl = lvl.readlines()
-            lvl = lvl[self.niveau].split() # On récupère la ligne correspondant aux stats du niveau
+            lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
             for k in range(len(lvl)):
                 lvl[k] = int(lvl[k])
             self.__viemax, self.attaque, self.defense, self.mana = lvl[:]
@@ -62,8 +63,8 @@ class Entite(metaclass=ABCMeta):
 
     @staticmethod
     def coup(attaquant, cible):
-        if (attaquant.defense/cible.defense) < 1:
-            cible.vie -= np.floor(attaquant.attaque*(attaquant.defense/cible.defense))
+        if (attaquant.defense / cible.defense) < 1:
+            cible.vie -= np.floor(attaquant.attaque * (attaquant.defense / cible.defense))
         else:
             cible.vie -= attaquant.attaque
 
@@ -93,19 +94,15 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deplacement(self, direction):
-        pass
-
-    @abstractmethod
     def mort(self):
         pass
 
     def __str__(self):
         return self.nom
 
+
 # ------------------------------------
 # Développement des classes Personnage
-
 
 class Personnage(Entite):
     def __init__(self, game, path: str, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
@@ -151,14 +148,14 @@ class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         # Pour position, à voir comment on génère ça, peut-être pas en argument...
         cooldown = 0
-        super().__init__(game, "../Data/Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
         x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation]) # On se sert de Entite.direction comme d'un switch
+        x_att, y_att = eval(Entite.direction[self.orientation])  # On se sert de Entite.direction comme d'un switch
         entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values(): # Permet de vérifier si on est face à un ennemi ou un joueur
+        if entity in self.game.ennemis.values():  # Permet de vérifier si on est face à un ennemi ou un joueur
             self.coup(self, entity)
 
     def attaque_speciale(self):
@@ -178,12 +175,13 @@ class Epeiste(Personnage):
                 liste_entite.append(self.game[x_att, y_att + k])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.coup(self, entity) # On pourrait pas mettre un buff ? Genre c'est un peu triste que le spécial soit pas à peine plus puissant
+                self.coup(self,
+                          entity)  # On pourrait pas mettre un buff ? Genre c'est un peu triste que le spécial soit pas à peine plus puissant
 
 
 class Garde(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        super().__init__(game, "../Data/Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de garde est un simple coup dans la direction regardée"""
@@ -219,7 +217,7 @@ class Garde(Personnage):
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
         self.path = "../Data/Sorcier_lvl.txt"
-        super().__init__(game, "../Data/Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de sorcier est un simple coup dans la direction regardée"""
@@ -245,9 +243,10 @@ class Sorcier(Personnage):
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
 
+
 class Druide(Personnage):
     def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        super().__init__(game, "../Data/Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de druide est un simple coup dans la direction regardée"""
@@ -277,22 +276,22 @@ class Druide(Personnage):
 
 class Ennemi(Entite):
     compteur = 0
-    
+
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
         super().__init__(game, path, position, cooldown, niveau)
         Ennemi.compteur += 1
         self.cible = None
 
     @abstractmethod
-    def attaquer(self, direction=""):
+    def attaquer(self):
         pass
 
     @abstractmethod
-    def attaque_speciale(self, direction=""):
+    def attaque_speciale(self):
         pass
 
     @abstractmethod
-    def deplacement(self, direction=""):
+    def deplacement(self):
         pass
 
     def mort(self):
@@ -304,10 +303,9 @@ class Squelette(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "../Data/Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
         Squelette.compteur += 1
         Squelette.total_compteur += 1
-        Ennemi.compteur += 1
         self.nom = "Squelette " + str(Squelette.total_compteur)
         self.game.ennemis[self.nom] = self
 
@@ -330,10 +328,10 @@ class Squelette(Ennemi):
             x, y = eval(dir)
             entity = self.game[x][y]
             if entity in self.game.joueurs.values():
-                entity.vie -= 2*self.attaque
+                entity.vie -= 2 * self.attaque
                 break
 
-    def deplacement(self, direction=""):
+    def deplacement(self):
         """Déplacement aléatoire d'une case"""
         if self.cible:
             mechant = self.cible
@@ -362,7 +360,7 @@ class Squelette(Ennemi):
 
     def agro(self):
         """Vision MOYENNE (4 cases)"""
-        for joueur in self.game.values():
+        for joueur in self.game.joueurs.values():
             if np.linalg.norm([self.position, joueur.position]) < 4:
                 self.cible = joueur
 
@@ -372,10 +370,9 @@ class Crane(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "../Data/Crane_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Crane_lvl.txt", position, cooldown=5, niveau=niveau)
         Crane.compteur += 1
         Crane.total_compteur += 1
-        Ennemi.compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
         self.game.ennemis[self.nom] = self
 
@@ -416,13 +413,13 @@ class Crane(Ennemi):
     def deplacement(self, direction=""):
         """Double déplacement"""
         k = 0
-        while k!=2:
-            k+=1
+        while k != 2:
+            k += 1
             if self.cible:
                 mechant = self.cible
                 xc, yc = mechant.position
                 xs, ys = self.position
-                if abs(xc-xs) <= 1 and abs(yc-ys) <= 1:
+                if abs(xc - xs) <= 1 and abs(yc - ys) <= 1:
                     self.attaquer()
                     k = 2
                 elif xc < xs:
@@ -448,7 +445,7 @@ class Crane(Ennemi):
 
     def agro(self):
         """Vision LONGUE (6 cases)"""
-        for joueur in self.game.values():
+        for joueur in self.game.joueurs.values():
             if np.linalg.norm(np.array([self.position, joueur.position])) < 6:
                 self.cible = joueur
 
@@ -458,10 +455,9 @@ class Armure(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "../Data/Armure_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Armure_lvl.txt", position, cooldown=5, niveau=niveau)
         Armure.compteur += 1
         Armure.total_compteur += 1
-        Ennemi.compteur += 1
         self.nom = "Armure " + str(Armure.total_compteur)
         self.game.ennemis[self.nom] = self
 
@@ -505,7 +501,7 @@ class Armure(Ennemi):
 
     def agro(self):
         """Vision COURTE (2 cases)"""
-        for joueur in self.game.values():
+        for joueur in self.game.joueurs.values():
             if np.linalg.norm(np.array([self.position, joueur.position])) < 2:
                 self.cible = joueur
 
@@ -515,10 +511,9 @@ class Invocateur(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "../Data/Invocateur_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Invocateur_lvl.txt", position, cooldown=5, niveau=niveau)
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
-        Ennemi.compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
         self.game.ennemis[self.nom] = self
 
@@ -567,7 +562,7 @@ class Invocateur(Ennemi):
 
     def agro(self):
         """Vision MOYENNE (5 cases)"""
-        for joueur in self.game.values():
+        for joueur in self.game.joueurs.values():
             if np.linalg.norm(np.array([self.position, joueur.position])) < 5:
                 self.cible = joueur
 
