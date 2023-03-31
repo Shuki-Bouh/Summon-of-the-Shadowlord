@@ -1,4 +1,3 @@
-import os
 from abc import abstractmethod, ABCMeta
 import random
 import numpy as np
@@ -55,7 +54,7 @@ class Entite(metaclass=ABCMeta):
         self.__niveau = niveau
         with open(self.path, 'r') as lvl:
             lvl = lvl.readlines()
-            lvl = lvl[self.niveau].split() # si je me trompe pas, j'ai récup la ligne correspondant au niveau du gars et j'en ai fait une liste
+            lvl = lvl[self.niveau].split() # On récupère la ligne correspondant aux stats du niveau
             for k in range(len(lvl)):
                 lvl[k] = int(lvl[k])
             self.__viemax, self.attaque, self.defense, self.mana = lvl[:]
@@ -150,9 +149,9 @@ class Epeiste(Personnage):
     def attaquer(self):
         """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
         x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])
+        x_att, y_att = eval(Entite.direction[self.orientation]) # On se sert de Entite.direction comme d'un switch
         entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values():
+        if entity in self.game.ennemis.values(): # Permet de vérifier si on est face à un ennemi ou un joueur
             self.coup(self, entity)
 
     def attaque_speciale(self):
@@ -172,7 +171,7 @@ class Epeiste(Personnage):
                 liste_entite.append(self.game[x_att, y_att + k])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.coup(self, entity)
+                self.coup(self, entity) # On pourrait pas mettre un buff ? Genre c'est un peu triste que le spécial soit pas à peine plus puissant
 
 
 class Garde(Personnage):
@@ -232,18 +231,9 @@ class Sorcier(Personnage):
         # sûr que le résultat est le bon.
         x_att, y_att = self.position
         liste_entite = []
-        liste_entite.append(self.game[x_att][y_att + 1])
-        liste_entite.append(self.game[x_att][y_att - 1])
-        liste_entite.append(self.game[x_att + 1][y_att])
-        liste_entite.append(self.game[x_att - 1][y_att])
-        liste_entite.append(self.game[x_att][y_att + 2])
-        liste_entite.append(self.game[x_att][y_att - 2])
-        liste_entite.append(self.game[x_att + 2][y_att])
-        liste_entite.append(self.game[x_att - 2][y_att])
-        liste_entite.append(self.game[x_att + 1][y_att - 1])
-        liste_entite.append(self.game[x_att + 1][y_att + 1])
-        liste_entite.append(self.game[x_att - 1][y_att - 1])
-        liste_entite.append(self.game[x_att - 1][y_att + 1])
+        for k in range(-2, 3):
+            liste_entite.append(self.game[x_att + k][y_att])
+            liste_entite.append(self.game[x_att][y_att + k])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
@@ -267,10 +257,9 @@ class Druide(Personnage):
         """
         x_att, y_att = self.position
         liste_entite = []
-        liste_entite.append(self.game[x_att][y_att + 1])
-        liste_entite.append(self.game[x_att][y_att - 1])
-        liste_entite.append(self.game[x_att + 1][y_att])
-        liste_entite.append(self.game[x_att - 1][y_att])
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                liste_entite.append(self.game[x_att + i][y_att + j])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
@@ -281,7 +270,6 @@ class Druide(Personnage):
 
 class Ennemi(Entite):
     compteur = 0
-    liste_ennemis = {}
     
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
         super().__init__(game, path, position, cooldown, niveau)
@@ -318,17 +306,7 @@ class Squelette(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        liste_direction = list(Entite.direction.values())
-        liste_pos = []
-        for k in range(4):
-            liste_pos.append(liste_direction[k])
-        for dir in liste_pos:
-            x, y = self.position
-            x, y = eval(dir)
-            entity = self.game[x][y]
-            if entity in self.game.joueurs.values():
-                self.coup(self, entity)
-                break
+        pass
 
     def attaque_speciale(self, direction=""):
         """
@@ -348,10 +326,24 @@ class Squelette(Ennemi):
                 entity.vie -= 2*self.attaque
                 break
 
-    def deplacement(self, direction=""):
+    def deplacement(self):
         # A CODER : Déplacement vers ennemi le plus proche quand agro()
         """Déplacement aléatoire d'une case"""
-        if direction == "":
+        if self.cible:
+            mechant = self.cible
+            xc, yc = mechant.position
+            xs, ys = self.position
+            if abs(xc - xs) == 1 or abs(yc - ys) == 1:
+                mechant.attaquer()
+            elif xc < xs:
+                direction = "left"
+            elif xc > xs:
+                direction = "right"
+            elif yc < ys:
+                direction = "up"
+            else:
+                direction = "down"
+        else:
             direction = random.choice(tuple(Entite.direction.keys()))
         x, y = self.position
         x, y = eval(Entite.direction[direction])
@@ -433,7 +425,7 @@ class Crane(Ennemi):
     def agro(self):
         """Vision LONGUE (6 cases)"""
         for joueur in self.game.values():
-            if np.linalg.norm(np.array(self.position), np.array(joueur.position)) < 6:
+            if np.linalg.norm(np.array([self.position, joueur.position])) < 6:
                 self.cible = joueur
 
 

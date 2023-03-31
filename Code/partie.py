@@ -1,8 +1,8 @@
 import numpy as np
 from random import randrange, choice, random
 import Code.personnage as perso
-import os
 import threading
+import os
 
 path = os.getcwd()
 path = path.split("\\Code")[0] + "\\Data"
@@ -82,16 +82,7 @@ class Partie(list):
                 if mechant.cible:
                     xs, ys = mechant.position
                     xo, yo = mechant.cible.position
-                    if abs(xo - xs) == 1 or abs(yo - ys) == 1:
-                        mechant.attaquer()
-                    elif xo < xs:
-                        mechant.deplacement("left")
-                    elif xo > xs:
-                        mechant.deplacement("right")
-                    elif yo < ys:
-                        mechant.deplacement("up")
-                    elif yo > ys:
-                        mechant.deplacement("down")
+
                     # ça c'est nul : je dois reprendre pour qu'il attaque s'il se retrouve à côté... Reflexion reflexion !!
                 else:
                     mechant.deplacement()

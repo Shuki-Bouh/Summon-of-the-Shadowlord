@@ -1,3 +1,6 @@
+from partie import Partie
+
+
 def newpartie():
     pass
 
@@ -9,3 +12,5 @@ def affichage():
 
 if __name__ == '__main__':
     pass
+
+
