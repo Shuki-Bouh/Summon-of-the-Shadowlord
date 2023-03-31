@@ -137,6 +137,14 @@ class Personnage(Entite):
         self.niveau += 1
 
     def mort(self):
+        """Bon il faut faire quoi là ?"""
+        # Si multi : multi va probablement devenir une variable de classe Partie
+        # Donc s'il est solo, c'est un game over, comment on fait ?
+        # Changement d'image, suppression des ennemis
+        # Possibilité de recommencer (par un load où on va modifier les vies)
+        # Si multi : il meurt, possibilité de respawn ?
+        # Une fois que tous les joueurs sont morts, même game over
+
         pass
 
 
@@ -289,13 +297,6 @@ class Ennemi(Entite):
         pass
 
     def mort(self):
-        """Bon il faut faire quoi là ?"""
-        # Si multi : multi va probablement devenir une variable de classe Partie
-        # Donc s'il est solo, c'est un game over, comment on fait ?
-        # Changement d'image, suppression des ennemis
-        # Possibilité de recommencer (par un load où on va modifier les vies)
-        # Si multi : il meurt, possibilité de respawn ?
-        # Une fois que tous les joueurs sont morts, même game over
         pass
 
 
