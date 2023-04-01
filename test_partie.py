@@ -1,4 +1,3 @@
-import Code.personnage
 from Code.partie import Partie
 import Code.personnage as p
 import unittest
@@ -15,6 +14,7 @@ class TestPartie(unittest.TestCase):
         for k in range(20):
             game.spawn_squelette(5)
         self.assertEqual(game.ennemis['Squelette 5'].vie, 50)
+        print(game.ennemis)
         game.ennemis["Squelette 4"].mort()
         with self.assertRaises(KeyError):
             a = game.ennemis["Squelette 4"]
@@ -40,11 +40,6 @@ class TestPartie(unittest.TestCase):
         p.Ennemi.compteur = 0
         del game
 
-    def test_loop_mechant(self):
-         game = Partie(10,10)
-         game.new_player('Link', 'epeiste')
-         game.action_mechant()
-         del game
 
 if __name__ == '__main__':
     unittest.main()

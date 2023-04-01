@@ -5,7 +5,7 @@ import threading
 import os
 
 path = os.getcwd()
-path = path.split("\\Code")[0] + "\\Data"
+path += "\\Data"
 os.chdir(path)
 
 
@@ -144,17 +144,20 @@ class Partie(list):
                 if lvl <= 1:
                     lvl = 1
                 self.spawn_ennemi(lvl)
-
             for mechant in self.ennemis.values():
+                print(mechant.cible)
                 if mechant.cible:
                     xs, ys = mechant.position
                     xc, yc = mechant.cible.position
-                    if abs(xc - xs) == 1 or abs(yc - ys) == 1:
+                    if abs(xc - xs) == 1 or abs(yc - ys) == 1:  # Wesh j'suis trop con, faudrait une fonction "porté"
                         mechant.attaquer()
+                        print("attaque")
                     else:
                         mechant.deplacement()
+                        print("bouger")
                 else:
                     mechant.deplacement()
+                    print("bouger")
                 mechant.agro()
             t_loop = time.time() - t0_loop
             avg += t_loop

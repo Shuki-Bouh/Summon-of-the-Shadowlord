@@ -68,6 +68,12 @@ class Entite(metaclass=ABCMeta):
         else:
             cible.vie -= attaquant.attaque
 
+    @staticmethod
+    def norm(vect1, vect2):
+        x1, y1 = vect1
+        x2, y2 = vect2
+        return np.linalg.norm(np.array([x1 - x2, y1 - y2]))
+
     @property
     def viemax(self):
         return self.__viemax
@@ -110,6 +116,7 @@ class Personnage(Entite):
         self.inventory = inventaire  # Objet item
         self.nom = nom
         self.orientation = 'up'
+        self.xp = 0
         game.joueurs[self.nom] = self
 
     @abstractmethod
@@ -131,7 +138,19 @@ class Personnage(Entite):
         pass
 
     def levelup(self):
-        self.niveau += 1
+        if self.xp > self.niveau * 10:  # C'est un peu arbitraire pour le moment
+            self.niveau += 1
+
+    @staticmethod
+    def coup(attaquant, cible):
+        if (attaquant.defense / cible.defense) < 1:
+            vie = cible.vie - np.floor(attaquant.attaque * (attaquant.defense / cible.defense))
+        else:
+            vie = cible.vie - attaquant.attaque
+        if not vie:
+            attaquant.xp += cible.xp
+            attaquant.levelup()
+        cible.vie = vie
 
     def mort(self):
         """Bon il faut faire quoi là ?"""
@@ -281,6 +300,7 @@ class Ennemi(Entite):
         super().__init__(game, path, position, cooldown, niveau)
         Ennemi.compteur += 1
         self.cible = None
+        self.vision = 0
 
     @abstractmethod
     def attaquer(self):
@@ -297,6 +317,12 @@ class Ennemi(Entite):
     def mort(self):
         pass
 
+    def agro(self):
+        """Vision MOYENNE (4 cases)"""
+        for joueur in self.game.joueurs.values():
+            if self.norm(self.position, joueur.position) < self.vision:
+                self.cible = joueur
+
 
 class Squelette(Ennemi):
     compteur = 0
@@ -308,6 +334,8 @@ class Squelette(Ennemi):
         Squelette.total_compteur += 1
         self.nom = "Squelette " + str(Squelette.total_compteur)
         self.game.ennemis[self.nom] = self
+        self.xp = 10 * self.niveau / 3
+        self.vision = 4
 
     def attaquer(self, direction=""):
         """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -357,12 +385,9 @@ class Squelette(Ennemi):
         del self.game.ennemis[self.nom]
         x, y = self.position
         self.game[x][y] = None
+        del self
 
-    def agro(self):
-        """Vision MOYENNE (4 cases)"""
-        for joueur in self.game.joueurs.values():
-            if np.linalg.norm([self.position, joueur.position]) < 4:
-                self.cible = joueur
+
 
 
 class Crane(Ennemi):
@@ -374,7 +399,9 @@ class Crane(Ennemi):
         Crane.compteur += 1
         Crane.total_compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
+        self.xp = 10 * self.niveau / 3
         self.game.ennemis[self.nom] = self
+        self.vision = 6
 
     def attaquer(self, direction=""):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -443,12 +470,6 @@ class Crane(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
-    def agro(self):
-        """Vision LONGUE (6 cases)"""
-        for joueur in self.game.joueurs.values():
-            if np.linalg.norm(np.array([self.position, joueur.position])) < 6:
-                self.cible = joueur
-
 
 class Armure(Ennemi):
     compteur = 0
@@ -459,7 +480,9 @@ class Armure(Ennemi):
         Armure.compteur += 1
         Armure.total_compteur += 1
         self.nom = "Armure " + str(Armure.total_compteur)
+        self.xp = 20 * self.niveau / 3
         self.game.ennemis[self.nom] = self
+        self.vision = 2
 
     def attaquer(self, direction=""):
         """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -499,12 +522,6 @@ class Armure(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
-    def agro(self):
-        """Vision COURTE (2 cases)"""
-        for joueur in self.game.joueurs.values():
-            if np.linalg.norm(np.array([self.position, joueur.position])) < 2:
-                self.cible = joueur
-
 
 class Invocateur(Ennemi):
     compteur = 0
@@ -515,7 +532,9 @@ class Invocateur(Ennemi):
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
+        self.xp = 30 * self.niveau / 3
         self.game.ennemis[self.nom] = self
+        self.vision = 5
 
     def attaquer(self, direction=""):
         """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -560,12 +579,9 @@ class Invocateur(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
-    def agro(self):
-        """Vision MOYENNE (5 cases)"""
-        for joueur in self.game.joueurs.values():
-            if np.linalg.norm(np.array([self.position, joueur.position])) < 5:
-                self.cible = joueur
-
 
 if __name__ == '__main__':
-    pass
+    a = np.sqrt((9-9)**2+(8-6)**2)
+    print(a)
+    a = np.linalg.norm([(9,9), (9,8)])
+    print(a)
