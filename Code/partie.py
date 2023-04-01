@@ -180,7 +180,10 @@ class Partie(list):
         canvas = ""
         for y in range(self.h):
             for x in range(self.l - 1):
-                canvas += str(self[x][y]) + ", "
+                a = str(self[x][y])
+                while len(a) < 12:
+                    a += " "
+                canvas += a + " "
             canvas += str(self[self.l - 1][y])
             canvas += "\n"
         return canvas
