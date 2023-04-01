@@ -4,6 +4,10 @@ import Code.personnage as perso
 import threading
 import os
 
+path = os.getcwd()
+path += "\\Data"
+os.chdir(path)
+
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
@@ -115,7 +119,7 @@ class Partie(list):
 
         # On peut faire un BDD Joueur avec :
         # BDD : Joueurs
-        # nom (PK), id_partie (FK), niveau, position, element inventaire 1, element inventaire 2, ...,
+        # nom (PK), id_partie (FK), classe, niveau, position, element inventaire 1, element inventaire 2, ...,
         # BDD : Partie
         # id_partie (PK), temps de jeu, nombre de mort, nb dennemis tués, nb de squelette tués, nb de crane tués, ...
         # Ca nous permettra, avec une simple requete, de récuperer ce quil faut sur le joueur...
