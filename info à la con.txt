@@ -1,0 +1,11 @@
+Map préfaite pour 1024x768
+
+from win32api import GetSystemMetrics
+print ("width =", GetSystemMetrics (0))
+print ("height =",GetSystemMetrics (1))
+
+1 pixel écran = 4 pixels image == > pixel art en 84×84 par case
+
+
+plateau de : 48×27
+environ 21×21 pixels de l'écran par case de jeu
