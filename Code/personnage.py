@@ -583,5 +583,5 @@ class Invocateur(Ennemi):
 if __name__ == '__main__':
     a = np.sqrt((9-9)**2+(8-6)**2)
     print(a)
-    a = np.linalg.norm([(9,9), (9,8)])
+    a = np.linalg.norm([(9,9), (8,6)])
     print(a)

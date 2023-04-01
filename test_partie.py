@@ -32,6 +32,7 @@ class TestPartie(unittest.TestCase):
             a = game.ennemis["Squelette 1"]  # Ici on vérifie le setter de vie, il est bien mort
         p.Ennemi.compteur = 0
         del game
+
     def test_spawn_ennemis(self):
         game = Partie(10, 10)
         for k in range(10):

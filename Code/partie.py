@@ -4,11 +4,6 @@ import Code.personnage as perso
 import threading
 import os
 
-path = os.getcwd()
-path += "\\Data"
-os.chdir(path)
-
-
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
