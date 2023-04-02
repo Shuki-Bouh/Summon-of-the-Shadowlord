@@ -32,7 +32,7 @@ class Partie(list):
                 else:
                     self[x].append(None)
 
-    def new_player(self, nom, classe, niveau, pos=()):
+    def new_player(self, nom, classe, niveau=1, pos=()):
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
