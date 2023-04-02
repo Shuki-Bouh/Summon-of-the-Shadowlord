@@ -5,9 +5,9 @@ import threading
 import os
 import sqlite3
 
-# path = os.getcwd()
-# path += "\\Data"
-# os.chdir(path)
+path = os.getcwd()
+path += "\\Data"
+os.chdir(path)
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
