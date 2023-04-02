@@ -346,7 +346,7 @@ class Ennemi(Entite):
         for joueur in self.game.joueurs.values():
             if self.norm(self.position, joueur.position) < self.vision:  # On vérifie que le joueur est dans le champ
                 dict_normes[joueur] = self.norm(self.position, joueur.position)
-        if len(dict_normes):
+        if len(dict_normes):  # On gère le cas où personne n'est dans la zone
             dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])  # On trie par rapport à la norme
             self.cible = dict_normes[0][0]  # La cible est le min des normes --> 1e élément de la liste triée
 
@@ -356,11 +356,12 @@ class Squelette(Ennemi):
 
     def __init__(self, game, position: tuple, niveau):
         super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
-        Squelette.compteur += 1
-        Squelette.total_compteur += 1
-        self.nom = "Squelette " + str(Squelette.total_compteur)
+        Squelette.compteur += 1  # Nombre de squelettes présents
+        Squelette.total_compteur += 1  # Nb de squelettes étant déjà apparu
+        self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
+        # identiques
         self.game.ennemis[self.nom] = self
-        self.xp = 10 * self.niveau / 3
+        self.xp = 10 * self.niveau / 3  # L'xp que gagne le joueur s'il le tue
         self.vision = 4
 
     def attaquer(self, direction=""):
@@ -376,7 +377,7 @@ class Squelette(Ennemi):
 
     def deplacement(self):
         """Déplacement aléatoire d'une case"""
-        if self.cible:
+        if self.cible:  # S'il a une cible, il essaie de s'en rapprocher : d'abord en horizontal puis en latéral
             mechant = self.cible
             xc, yc = mechant.position
             xs, ys = self.position
@@ -389,7 +390,7 @@ class Squelette(Ennemi):
             else:
                 direction = "down"
         else:
-            direction = random.choice(tuple(Entite.direction.keys()))
+            direction = random.choice(tuple(Entite.direction.keys()))  # S'il n'a pas de cible, il se balade librement
         x, y = self.position
         x, y = eval(Entite.direction[direction])
         self.position = (x, y)
