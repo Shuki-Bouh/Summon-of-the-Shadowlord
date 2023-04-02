@@ -14,10 +14,42 @@ class TestPartie(unittest.TestCase):
         for k in range(20):
             game.spawn_squelette(5)
         self.assertEqual(game.ennemis['Squelette 5'].vie, 50)
-        print(game.ennemis)
         game.ennemis["Squelette 4"].mort()
         with self.assertRaises(KeyError):
             a = game.ennemis["Squelette 4"]
+        p.Ennemi.compteur = 0
+        del game
+
+    def test_spawn_crane(self):
+        game = Partie(10, 10)
+        for k in range(20):
+            game.spawn_crane(5)
+        self.assertEqual(game.ennemis['Crane 5'].vie, 19)
+        game.ennemis["Crane 4"].mort()
+        with self.assertRaises(KeyError):
+            a = game.ennemis["Crane 4"]
+        p.Ennemi.compteur = 0
+        del game
+
+    def test_spawn_armure(self):
+        game = Partie(10, 10)
+        for k in range(20):
+            game.spawn_armure(5)
+        self.assertEqual(game.ennemis['Armure 5'].vie, 115)
+        game.ennemis["Armure 4"].mort()
+        with self.assertRaises(KeyError):
+            a = game.ennemis["Armure 4"]
+        p.Ennemi.compteur = 0
+        del game
+
+    def test_spawn_invocateur(self):
+        game = Partie(10, 10)
+        for k in range(20):
+            game.spawn_invocateur(5)
+        self.assertEqual(game.ennemis['Invocateur 5'].vie, 45)
+        game.ennemis["Invocateur 4"].mort()
+        with self.assertRaises(KeyError):
+            a = game.ennemis["Invocateur 4"]
         p.Ennemi.compteur = 0
         del game
 

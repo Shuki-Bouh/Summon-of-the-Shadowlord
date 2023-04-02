@@ -160,6 +160,13 @@ class Personnage(Entite):
         # Possibilité de recommencer (par un load où on va modifier les vies)
         # Si multi : il meurt, possibilité de respawn ?
         # Une fois que tous les joueurs sont morts, même game over
+
+        # S'il est solo et que le personnage meurt, on écrit une sauvegarde de l'état actuel de sa partie en mettant
+        # une nouvelle variable dans la BDD du style mort=True, ce qui fait qu'au moment de respawn, si mort = True,
+        # on lui impose une vie à 10 (vie max s'il est mort niveau 1 du coup), et il peut reprendre sa partie comme il
+        # veut. NOTA : dans mort, il faut penser à incrémenter la BDD de 1 pour le compteur de mort aussi.
+        # Pour le mutli, si le personnage meurt, le plus simple est quil respawn sur une plateforme prévue
+        # (au hasard, en (0,0)), et il n'y a pas de game over à proprement parler.
         pass
 
 
@@ -179,8 +186,9 @@ class Epeiste(Personnage):
 
     def attaque_speciale(self):
         """
-        Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision
-        Cooldown COURT !
+        Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision.
+        Les dégâts infligés sont certains et doublés.
+        Cooldown : MOYEN (10 sec)
         """
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
@@ -194,8 +202,7 @@ class Epeiste(Personnage):
                 liste_entite.append(self.game[x_att, y_att + k])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.coup(self,
-                          entity)  # On pourrait pas mettre un buff ? Genre c'est un peu triste que le spécial soit pas à peine plus puissant
+                entity.vie -= 2*self.attaque
 
 
 class Garde(Personnage):
@@ -212,8 +219,9 @@ class Garde(Personnage):
 
     def attaque_speciale(self):
         """
-        Nota : attaque spéciale de garde est une attaque sur les deux cases dans la direction regardée
-        Cooldown COURT
+        Nota : attaque spéciale de garde est une attaque sur les deux cases dans la direction regardée.
+        Cette attaque est certaine et expulse les ennemis une case en arrière.
+        Cooldown : COURT (5 sec)
         """
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
@@ -228,9 +236,14 @@ class Garde(Personnage):
         else:
             x_2ecase += 1
         liste_entite.append(self.game[x_2ecase][y_2ecase])
+        liste_entite.sort(reverse=True)  # Pour faire déplacer l'ennemi le plus loin d'abord, sinon, collisions.
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.coup(self, entity)
+                entity.vie -= self.attaque
+                x, y = entity.position
+                x, y = eval(Entite.direction[self.orientation])
+                entity.position = (x, y)
+
 
 
 class Sorcier(Personnage):
@@ -249,7 +262,7 @@ class Sorcier(Personnage):
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
         Nota : attaque spéciale de sorcier agit sur tous les ennemis dont la distance est au maximum 2 cases
-        Cooldown : LONG
+        Cooldown : LONG (20 sec)
         """
         # C'est long à écrire, mais au moins c'est fait et on ne perd pas le temp sde calcul des boucles, et on est
         # sûr que le résultat est le bon.
@@ -277,7 +290,8 @@ class Druide(Personnage):
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
-        Nota : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case
+        Nota : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case,
+        et leur inflige un coup certain.
         Cooldown : MOYEN
         """
         x_att, y_att = self.position
@@ -287,7 +301,7 @@ class Druide(Personnage):
                 liste_entite.append(self.game[x_att + i][y_att + j])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                self.coup(self, entity)
+                entity.vie -= self.attaque
 
 
 # ----------------------------------
@@ -318,11 +332,10 @@ class Ennemi(Entite):
         pass
 
     def agro(self):
-        """Vision MOYENNE (4 cases)"""
+        """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
         for joueur in self.game.joueurs.values():
             if self.norm(self.position, joueur.position) < self.vision:
                 self.cible = joueur
-
 
 class Squelette(Ennemi):
     compteur = 0
@@ -339,25 +352,14 @@ class Squelette(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        pass
+        self.coup(self, self.cible)
 
     def attaque_speciale(self, direction=""):
         """
         Nota : attaque spéciale de squelette est un coup de dégâts (x2), nécessairement réussi.
-        Cooldown : COURT
+        Cooldown : COURT (5 sec)
         """
-        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        liste_direction = list(Entite.direction.values())
-        liste_pos = []
-        for k in range(4):
-            liste_pos.append(liste_direction[k])
-        for dir in liste_pos:
-            x, y = self.position
-            x, y = eval(dir)
-            entity = self.game[x][y]
-            if entity in self.game.joueurs.values():
-                entity.vie -= 2 * self.attaque
-                break
+        self.cible.vie -= 2 * self.attaque
 
     def deplacement(self):
         """Déplacement aléatoire d'une case"""
@@ -388,8 +390,6 @@ class Squelette(Ennemi):
         del self
 
 
-
-
 class Crane(Ennemi):
     compteur = 0
     total_compteur = 0
@@ -405,37 +405,28 @@ class Crane(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
-        pass
+        self.coup(self, self.cible)
 
     def attaque_speciale(self, direction=""):
         """
         Nota : Bump le personnage de 2 cases en arrière (dans la mesure du possible),
         et lui vole 1/3 de sa vie pour se régénérer
-        Cooldown : LONG
+        Cooldown : MOYEN (10 sec)
         """
-        liste_direction = list(Entite.direction.values())
-        liste_pos = []
-        for k in range(4):
-            liste_pos.append(liste_direction[k])
-        for dir in liste_pos:
-            x, y = self.position
-            x, y = eval(dir)
-            entity = self.game[x][y]
-            if entity in self.game.joueurs.values():
-                vol_vie = np.floor(entity.vie * (1 / 3))
-                entity.vie -= vol_vie
-                self.vie += vol_vie
-                direction = entity.direction
-                if direction == 'up':
-                    opp_dir = 'down'
-                elif direction == 'down':
-                    opp_dir = 'up'
-                elif direction == 'left':
-                    opp_dir = 'right'
-                else:
-                    opp_dir = 'left'
-                entity.deplacement(opp_dir)
-                entity.deplacement(opp_dir)
+        vol_vie = np.floor(self.cible.vie * (1 / 3))
+        self.cible.vie -= vol_vie
+        self.vie += vol_vie
+        direction = self.cible.direction
+        if direction == 'up':
+            opp_dir = 'down'
+        elif direction == 'down':
+            opp_dir = 'up'
+        elif direction == 'left':
+            opp_dir = 'right'
+        else:
+            opp_dir = 'left'
+        self.cible.deplacement(opp_dir)
+        self.cible.deplacement(opp_dir)
 
     def deplacement(self, direction=""):
         """Double déplacement"""
@@ -486,14 +477,27 @@ class Armure(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
-        pass
+        self.coup(self, self.cible)
 
     def attaque_speciale(self, direction=""):
         """
-        Nota : None, attaque spéciale à trouver...
-        Cooldown : None
+        Nota : Réduit son attaque de moitié pour se redonner 1/3 de sa vie,
+        attaque sa cible à coup sûr et la fait reculer d'une case
+        Cooldown : LONG (15 sec)
         """
-        pass
+        self.attaque //= 2
+        self.vie = np.floor(self.vie*(4/3))
+        self.cible -= self.attaque
+        direction = self.cible.direction
+        if direction == 'up':
+            opp_dir = 'down'
+        elif direction == 'down':
+            opp_dir = 'up'
+        elif direction == 'left':
+            opp_dir = 'right'
+        else:
+            opp_dir = 'left'
+        self.cible.deplacement(opp_dir)
 
     def deplacement(self, direction=""):
         """Déplacement aléatoire d'une case"""
@@ -538,17 +542,25 @@ class Invocateur(Ennemi):
 
     def attaquer(self, direction=""):
         """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
-        pass
+        self.coup(self, self.cible)
 
     def attaque_speciale(self, direction=""):
         """
-        Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible, sinon, il se régène entièrement.
-        Cooldown : MOYEN
+        Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible,
+        sinon, il régénère entièrement sa vie.
+        Cooldown : LONG (20 sec)
         """
         if self.game.limite_spawn - Ennemi.compteur >= 2:
-            # Réfléchir à comment les faire spawn juste à côté de soi...
-            self.game.spawn_crane()
-            self.game.spawn_crane()
+            dir_joueur = self.cible.direction
+            x, y = self.position
+            if dir_joueur == 'up' or dir_joueur == 'down':
+                x1, y1 = x - 1, y
+                x2, y2 = x + 1, y
+            else:
+                x1, y1 = x, y - 1
+                x2, y2 = x, y + 1
+            self.game.spawn_crane(pos=(x1, y1))
+            self.game.spawn_crane(pos=(x2, y2))
         else:
             self.vie = self.viemax
 

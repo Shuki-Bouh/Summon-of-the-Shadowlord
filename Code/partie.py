@@ -68,40 +68,53 @@ class Partie(list):
                 self.spawn_armure(niveau)
             return True
 
-    def spawn_squelette(self, niveau):
-        cases_possibles = []
-        for i in range(self.h):
-            for j in range(self.l):
-                if self[j][i] is None:
-                    cases_possibles.append((i, j))
-        x, y = choice(cases_possibles)
+    def spawn_squelette(self, niveau, pos=()):
+        """Le paramètre pos=() ne sert que pour les spawn de crânes dans l'attaque spéciale de l'Invocateur"""
+        if pos != ():
+            x, y = pos[0], pos[1]
+        else:
+            cases_possibles = []
+            for i in range(self.h):
+                for j in range(self.l):
+                    if self[j][i] is None:
+                        cases_possibles.append((i, j))
+            x, y = choice(cases_possibles)
         ennemi = perso.Squelette(self, (x, y), niveau)
 
-    def spawn_crane(self, niveau):
-        cases_possibles = []
-        for i in range(self.h):
-            for j in range(self.l):
-                if self[j][i] is None:
-                    cases_possibles.append((i, j))
-        x, y = choice(cases_possibles)
+    def spawn_crane(self, niveau, pos=()):
+        if pos != ():
+            x, y = pos[0], pos[1]
+        else:
+            cases_possibles = []
+            for i in range(self.h):
+                for j in range(self.l):
+                    if self[j][i] is None:
+                        cases_possibles.append((i, j))
+            x, y = choice(cases_possibles)
         ennemi = perso.Crane(self, (x, y), niveau)
 
-    def spawn_armure(self, niveau):
-        cases_possibles = []
-        for i in range(self.h):
-            for j in range(self.l):
-                if self[j][i] is None:
-                    cases_possibles.append((i, j))
-        x, y = choice(cases_possibles)
+    def spawn_armure(self, niveau, pos=()):
+        if pos != ():
+            x, y = pos[0], pos[1]
+        else:
+            cases_possibles = []
+            for i in range(self.h):
+                for j in range(self.l):
+                    if self[j][i] is None:
+                        cases_possibles.append((i, j))
+            x, y = choice(cases_possibles)
         ennemi = perso.Armure(self, (x, y), niveau)
 
-    def spawn_invocateur(self, niveau):
-        cases_possibles = []
-        for i in range(self.h):
-            for j in range(self.l):
-                if self[j][i] is None:
-                    cases_possibles.append((i, j))
-        x, y = choice(cases_possibles)
+    def spawn_invocateur(self, niveau, pos=()):
+        if pos != ():
+            x, y = pos[0], pos[1]
+        else:
+            cases_possibles = []
+            for i in range(self.h):
+                for j in range(self.l):
+                    if self[j][i] is None:
+                        cases_possibles.append((i, j))
+            x, y = choice(cases_possibles)
         ennemi = perso.Invocateur(self, (x, y), niveau)
 
     def open_save(self):

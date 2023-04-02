@@ -48,10 +48,12 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(Sakdoss_2.compteur, compteur-1)
         # Test attaque --------------------------------------------
         Link.attaquer()
+        Sakdoss_2.agro()
         Sakdoss_2.attaquer()
-        self.assertEqual(Link.vie, 35)
+        self.assertEqual(Link.vie, 19)
         self.assertEqual(Sakdoss_2.vie, 84)
         # Test attaque spéciale -----------------------------------
+        Sakdoss_3.agro()
         Sakdoss_3.attaque_speciale()
         self.assertEqual(Saria.vie, 3)
         # Test déplacement ----------------------------------------
