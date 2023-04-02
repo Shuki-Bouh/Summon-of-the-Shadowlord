@@ -1,4 +1,5 @@
-from partie import Partie
+from Code.personnage import Epeiste
+from Code.partie import Partie
 
 
 def newpartie():

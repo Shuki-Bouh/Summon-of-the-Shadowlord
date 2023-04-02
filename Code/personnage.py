@@ -4,17 +4,12 @@ import numpy as np
 
 
 # ESPACES COMMENTAIRES -----------------------------------------------------
-# Il faudrait mettre en place la representation des personnages et ennemis, pour pas nous confondre en les manipulant
-# plus tard, c'est-à-dire, faire une methode pour ou bien utiliser __repr__
-
-# Toutes les entités devraient avoir la même modification de "__position"
-# donc je mets le get/set dans "Entité" directement.
 
 # --------------------------------------------------------------------------
 # Classe mère abstraite Entité, où Personnages et Ennemis héritent d'Entité
 
 class Entite(metaclass=ABCMeta):
-    """Tous les personnages qui existent dans le jeu"""
+    """Tous les personnages/ennemis qui existent dans le jeu"""
 
     direction = {'up': 'x, y - 1',
                  'down': 'x, y + 1',
@@ -22,7 +17,6 @@ class Entite(metaclass=ABCMeta):
                  'right': 'x + 1 , y'}
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau=1):
-        # En réalité, on peut ne pas mettre tout ça en argument, mais juster générer les stats avec niveau
         self.path = path  # Permet de lire le fichier dans lequel
         # sont contenues les statistiques du perso pour chaque niveau
         self.__position = position  # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
@@ -39,11 +33,13 @@ class Entite(metaclass=ABCMeta):
 
     @position.setter
     def position(self, newpos):
+        """Accepte un déplacement ssi la prochaine case est vide et sur la map
+        Nb : Les bords de la map sont False actuellement"""
         x1, y1 = self.position
         x2, y2 = newpos
-        if self.game[x2][y2] is None:
-            self.__position = x2, y2
-            self.game[x1][y1] = None
+        if self.game[x2][y2] is None:  # La nouvelle case est vide
+            self.__position = x2, y2  # On change la position
+            self.game[x1][y1] = None  # On actualise dans game
             self.game[x2][y2] = self
 
     @property
@@ -58,8 +54,8 @@ class Entite(metaclass=ABCMeta):
             lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
             for k in range(len(lvl)):
                 lvl[k] = int(lvl[k])
-            self.__viemax, self.attaque, self.defense, self.mana = lvl[:]
-            self.__vie = self.__viemax
+            self.__viemax, self.attaque, self.defense, self.mana = lvl[:]  # On génère les stats du joueur
+            self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
 
     @staticmethod
     @abstractmethod
@@ -68,6 +64,7 @@ class Entite(metaclass=ABCMeta):
 
     @staticmethod
     def norm(vect1, vect2):
+        """Renvoie la norme entre deux vecteurs"""
         x1, y1 = vect1
         x2, y2 = vect2
         return np.linalg.norm(np.array([x1 - x2, y1 - y2]))
@@ -82,6 +79,7 @@ class Entite(metaclass=ABCMeta):
 
     @vie.setter
     def vie(self, x):
+        """Permet de régler les vies sans dépasser viemax ni descendre en dessous de 0"""
         if x <= 0:
             self.__vie = 0
             self.mort()
@@ -110,11 +108,13 @@ class Entite(metaclass=ABCMeta):
 # Développement des classes Personnage
 
 class Personnage(Entite):
+    """Les personnages jouables"""
+
     def __init__(self, game, path: str, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
         super().__init__(game, path, position, cooldown, niveau)
-        self.inventory = inventaire  # Objet item
+        self.inventory = inventaire
         self.nom = nom
-        self.orientation = 'up'
+        self.orientation = 'up'  # L'orientation va servir pour l'affichage du personnage et pour la direction de ses attaque
         self.xp = 0
         game.joueurs[self.nom] = self
 
@@ -127,8 +127,9 @@ class Personnage(Entite):
         pass
 
     def deplacement(self, direction):
+        """Déplacement du joueur, avec la direction donnée par PyQt"""
         x, y = self.position
-        x, y = eval(Entite.direction[direction])
+        x, y = eval(Entite.direction[direction])  # Renvoie un tuple de type (x + 1, y) (utilisation d'un switch
         self.position = (x, y)
         self.orientation = direction
 
@@ -137,18 +138,20 @@ class Personnage(Entite):
         pass
 
     def levelup(self):
+        """Permet de fiare évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp > self.niveau * 10:  # C'est un peu arbitraire pour le moment
             self.niveau += 1
 
     @staticmethod
     def coup(attaquant, cible):
+        """La fonction qui permet à un joueur de retirer de la vie à un ennemi"""
         if (attaquant.defense / cible.defense) < 1:
             vie = cible.vie - np.floor(attaquant.attaque * (attaquant.defense / cible.defense))
-        else:
+        else:  # Formula dammage
             vie = cible.vie - attaquant.attaque
-        if not vie:
-            attaquant.xp += cible.xp
-            attaquant.levelup()
+        if not vie:  # Si l'ennemi n'a plus de vie
+            attaquant.xp += cible.xp  # Le joueur gagne de l'xp
+            attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
 
     def mort(self):
@@ -307,13 +310,13 @@ class Druide(Personnage):
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
-    compteur = 0
+    compteur = 0  # Ce compteur permet d'éviter de générer trop d'ennemis sur la map en même temps
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
         super().__init__(game, path, position, cooldown, niveau)
-        Ennemi.compteur += 1
-        self.cible = None
-        self.vision = 0
+        Ennemi.compteur += 1  # Il est incrémenté à chaque ennemi créé
+        self.cible = None  # Chaque ennemi va essayer de poursuivre sa cible
+        self.vision = 0  # Pour savoir jusqu'où il cherche une nouvelle cible
 
     @abstractmethod
     def attaquer(self):
@@ -339,16 +342,16 @@ class Ennemi(Entite):
 
     def agro(self):
         """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
-        dict_normes = {}
+        dict_normes = {}  # Ce dictionnaire stock (joueur, norme)
         for joueur in self.game.joueurs.values():
-            if self.norm(self.position, joueur.position) < self.vision:
+            if self.norm(self.position, joueur.position) < self.vision:  # On vérifie que le joueur est dans le champ
                 dict_normes[joueur] = self.norm(self.position, joueur.position)
-        dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])
-        self.cible = dict_normes[0][0]
-
+        if len(dict_normes):
+            dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])  # On trie par rapport à la norme
+            self.cible = dict_normes[0][0]  # La cible est le min des normes --> 1e élément de la liste triée
 
 class Squelette(Ennemi):
-    compteur = 0
+    compteur = 0  #
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
@@ -571,8 +574,8 @@ class Invocateur(Ennemi):
             else:
                 x1, y1 = x, y - 1
                 x2, y2 = x, y + 1
-            self.game.spawn_crane(self.game, pos=(x1, y1))
-            self.game.spawn_crane(self.game, pos=(x2, y2))
+            self.game.spawn_crane(self.niveau, (x1, y1))
+            self.game.spawn_crane(self.niveau, (x2, y2))
         else:
             self.vie = self.viemax
 
