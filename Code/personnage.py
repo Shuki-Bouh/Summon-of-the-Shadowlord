@@ -244,7 +244,6 @@ class Garde(Personnage):
                 entity.position = (x, y)
 
 
-
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
@@ -346,6 +345,7 @@ class Ennemi(Entite):
                 dict_normes[joueur] = self.norm(self.position, joueur.position)
         dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])
         self.cible = dict_normes[0][0]
+
 
 class Squelette(Ennemi):
     compteur = 0
