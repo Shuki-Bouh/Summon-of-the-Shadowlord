@@ -62,11 +62,9 @@ class Entite(metaclass=ABCMeta):
             self.__vie = self.__viemax
 
     @staticmethod
+    @abstractmethod
     def coup(attaquant, cible):
-        if (attaquant.defense / cible.defense) < 1:
-            cible.vie -= np.floor(attaquant.attaque * (attaquant.defense / cible.defense))
-        else:
-            cible.vie -= attaquant.attaque
+        pass
 
     @staticmethod
     def norm(vect1, vect2):
@@ -85,6 +83,7 @@ class Entite(metaclass=ABCMeta):
     @vie.setter
     def vie(self, x):
         if x <= 0:
+            self.__vie = 0
             self.mort()
         elif x >= self.viemax:
             self.__vie = self.viemax
@@ -172,9 +171,8 @@ class Personnage(Entite):
 
 class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        # Pour position, à voir comment on génère ça, peut-être pas en argument...
-        cooldown = 0
-        super().__init__(game, "Epeiste_lvl.txt", position, cooldown, nom, inventaire, niveau)
+        self.cooldown = 0
+        super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
@@ -206,8 +204,9 @@ class Epeiste(Personnage):
 
 
 class Garde(Personnage):
-    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        super().__init__(game, "Garde_lvl.txt", position, cooldown, nom, inventaire, niveau)
+    def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
+        self.cooldown = 0
+        super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de garde est un simple coup dans la direction regardée"""
@@ -247,9 +246,9 @@ class Garde(Personnage):
 
 
 class Sorcier(Personnage):
-    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        self.path = "../Data/Sorcier_lvl.txt"
-        super().__init__(game, "Sorcier_lvl.txt", position, cooldown, nom, inventaire, niveau)
+    def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
+        self.cooldown = 0
+        super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de sorcier est un simple coup dans la direction regardée"""
@@ -277,8 +276,9 @@ class Sorcier(Personnage):
 
 
 class Druide(Personnage):
-    def __init__(self, game, position: tuple, cooldown: int, nom: str, inventaire={}, niveau=1):
-        super().__init__(game, "Druide_lvl.txt", position, cooldown, nom, inventaire, niveau)
+    def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
+        self.cooldown = 0
+        super().__init__(game, "Druide_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
         """Nota : attaque de druide est un simple coup dans la direction regardée"""
@@ -328,14 +328,24 @@ class Ennemi(Entite):
     def deplacement(self):
         pass
 
+    @staticmethod
+    def coup(attaquant, cible):
+        if (attaquant.defense / cible.defense) < 1:
+            cible.vie -= int(np.floor(attaquant.attaque * (attaquant.defense / cible.defense)))
+        else:
+            cible.vie -= attaquant.attaque
+
     def mort(self):
         pass
 
     def agro(self):
         """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
+        dict_normes = {}
         for joueur in self.game.joueurs.values():
             if self.norm(self.position, joueur.position) < self.vision:
-                self.cible = joueur
+                dict_normes[joueur] = self.norm(self.position, joueur.position)
+        dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])
+        self.cible = dict_normes[0][0]
 
 class Squelette(Ennemi):
     compteur = 0
@@ -413,20 +423,22 @@ class Crane(Ennemi):
         et lui vole 1/3 de sa vie pour se régénérer
         Cooldown : MOYEN (10 sec)
         """
-        vol_vie = np.floor(self.cible.vie * (1 / 3))
+        vol_vie = int(np.floor(self.cible.vie * (1 / 3)))
         self.cible.vie -= vol_vie
         self.vie += vol_vie
-        direction = self.cible.direction
-        if direction == 'up':
-            opp_dir = 'down'
-        elif direction == 'down':
-            opp_dir = 'up'
-        elif direction == 'left':
-            opp_dir = 'right'
+        x1, y1 = self.position
+        x2, y2 = self.cible.position
+        if x1 == x2 :
+            if y1 > y2:
+                direction = 'up'
+            else:
+                direction = 'down'
+        elif x1 < x2:
+            direction = 'right'
         else:
-            opp_dir = 'left'
-        self.cible.deplacement(opp_dir)
-        self.cible.deplacement(opp_dir)
+            direction = 'left'
+        self.cible.deplacement(direction)
+        self.cible.deplacement(direction)
 
     def deplacement(self, direction=""):
         """Double déplacement"""
@@ -437,10 +449,7 @@ class Crane(Ennemi):
                 mechant = self.cible
                 xc, yc = mechant.position
                 xs, ys = self.position
-                if abs(xc - xs) <= 1 and abs(yc - ys) <= 1:
-                    self.attaquer()
-                    k = 2
-                elif xc < xs:
+                if xc < xs:
                     direction = "left"
                 elif xc > xs:
                     direction = "right"
@@ -486,18 +495,20 @@ class Armure(Ennemi):
         Cooldown : LONG (15 sec)
         """
         self.attaque //= 2
-        self.vie = np.floor(self.vie*(4/3))
-        self.cible -= self.attaque
-        direction = self.cible.direction
-        if direction == 'up':
-            opp_dir = 'down'
-        elif direction == 'down':
-            opp_dir = 'up'
-        elif direction == 'left':
-            opp_dir = 'right'
+        self.vie = int(np.floor(self.vie*(4/3)))
+        self.cible.vie -= self.attaque
+        x1, y1 = self.position
+        x2, y2 = self.cible.position
+        if x1 == x2:
+            if y1 > y2:
+                direction = 'up'
+            else:
+                direction = 'down'
+        elif x1 < x2:
+            direction = 'right'
         else:
-            opp_dir = 'left'
-        self.cible.deplacement(opp_dir)
+            direction = 'left'
+        self.cible.deplacement(direction)
 
     def deplacement(self, direction=""):
         """Déplacement aléatoire d'une case"""
@@ -547,9 +558,10 @@ class Invocateur(Ennemi):
     def attaque_speciale(self, direction=""):
         """
         Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible,
-        sinon, il régénère entièrement sa vie.
+        sinon, il régénère entièrement sa vie. De plus, il porte un coup sûr au joueur.
         Cooldown : LONG (20 sec)
         """
+        self.cible.vie -= self.attaque
         if self.game.limite_spawn - Ennemi.compteur >= 2:
             dir_joueur = self.cible.direction
             x, y = self.position
@@ -559,8 +571,8 @@ class Invocateur(Ennemi):
             else:
                 x1, y1 = x, y - 1
                 x2, y2 = x, y + 1
-            self.game.spawn_crane(pos=(x1, y1))
-            self.game.spawn_crane(pos=(x2, y2))
+            self.game.spawn_crane(self.game, pos=(x1, y1))
+            self.game.spawn_crane(self.game, pos=(x2, y2))
         else:
             self.vie = self.viemax
 
@@ -595,5 +607,5 @@ class Invocateur(Ennemi):
 if __name__ == '__main__':
     a = np.sqrt((9-9)**2+(8-6)**2)
     print(a)
-    a = np.linalg.norm([(9,9), (8,6)])
+    a = np.linalg.norm([(9, 9), (8, 6)])
     print(a)
