@@ -3,10 +3,11 @@ from random import randrange, choice, random
 import Code.personnage as perso
 import threading
 import os
+import sqlite3
 
-path = os.getcwd()
-path += "\\Data"
-os.chdir(path)
+# path = os.getcwd()
+# path += "\\Data"
+# os.chdir(path)
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -31,14 +32,17 @@ class Partie(list):
                 else:
                     self[x].append(None)
 
-    def new_player(self, nom, classe):
+    def new_player(self, nom, classe, niveau, pos=()):
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
                                'druide': perso.Druide}
         classe = differentes_classes[classe]
         if not self.multi:
-            joueur = classe(self, (self.l - self.l // 4, self.h // 2), nom)
+            if pos == ():
+                joueur = classe(self, (self.l - self.l // 4, self.h // 2), nom, niveau=niveau)
+            else:
+                joueur = classe(self, pos, nom, niveau=niveau)
         else:
             pass  # On l'implémentera plus tard
         return
@@ -117,30 +121,126 @@ class Partie(list):
             x, y = choice(cases_possibles)
         ennemi = perso.Invocateur(self, (x, y), niveau)
 
-    def open_save(self):
-        pass
+    @staticmethod
+    def create_save():
+        # Création du fichier si inexistant, ouverture sinon
+        connexion = sqlite3.connect('\\Save\\Base_de_données.db')
+        # Création des tables
+        cursor = connexion.cursor()  # Pour manipuler les BDD
+        cursor.execute("""
+               DROP TABLE Joueurs CASCADE CONSTRAINTS;
+               DROP TABLE Partie CASCADE CONSTRAINTS;    
+            
+               CREATE TABLE IF NOT EXISTS Joueurs(
+                   nom VARCHAR(12) NOT NULL UNIQUE,
+                   id_partie INT(4) NOT NULL UNIQUE,
+                   classe VARCHAR(7) NOT NULL CONSTRAINT classe IN ('Epeiste', 'Garde', 'Sorcier', 'Garde'),
+                   niveau INT(2) NOT NULL CONSTRAINT niveau <= 20,
+                   pos_x INT(2) NOT NULL,
+                   pos_y INT(2) NOT NULL,
+                   potion INT(1) CONSTRAINT potion <= 5,
+                   argent INT(4) CONSTRAINT argent <= 9999,
+                   CODEX INT(1) CONSTRAINT CODEX IN (0, 1),
+                   CONSTRAINT PK_Joueurs PRIMARY KEY (nom)
+               )
+
+               CREATE TABLE IF NOT EXISTS Partie(
+                   id_partie INT(4) NOT NULL UNIQUE,
+                   temps_jeu HOUR() NOT NULL,
+                   nb_mort INT(2) NOT NULL CONSTRAINT nb_mort <= 99,
+                   nb_kill INT() NOT NULL,
+                   nb_squelette INT() NOT NULL,
+                   nb_crane INT() NOT NULL,
+                   nb_armure INT() NOT NULL,
+                   nb_invocateur INT() NOT NULL,
+                   vivant INT(1) NOT NULL CONSTRAINT vivant IN (0, 1),
+                   CONSTRAINT PK_partie PRIMARY KEY (id_partie)
+               )
+               
+               ALTER TABLE Joueurs ADD (
+                    CONSTRAINT FK_Joueurs_Partie
+                        FOREIGN KEY (id_partie)
+                            REFERENCES Partie (id_partie)),
+                
+               """)
+        # Fermeture de la connexion
+        connexion.close()
 
     @staticmethod
-    def write_save():
-        # Bon donc ici on met une base de données ?
-        # On peut très très facilement rester sur du txt
-        # On stock chaque joueur sans inventaire
-        # On stock ensuite l'inventaire
-        # On finit pas simplement stocker les variables de classes et tout est stocké
-        # Autrement je te laisse me proposer une modélisation de bdd
-        # Après utiliser sqlite sur python c'est ez
+    def write_save(player):
+        """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
+        try:
+            open('\\Save\\Base_de_données.db')
+        except FileNotFoundError:
+            Partie.create_save()
+        else:
+            # Récupération des valeurs nécessaire pour la suite
+            kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
+            kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
+            kill_armure = perso.Armure.total_compteur - perso.Armure.compteur
+            kill_invocateur = perso.Invocateur.total_compteur - perso.Invocateur.compteur
+            kill = kill_squelette + kill_crane + kill_armure + kill_invocateur
 
-        # On peut faire un BDD Joueur avec :
-        # BDD : Joueurs
-        # nom (PK), id_partie (FK), classe, niveau, position, element inventaire 1, element inventaire 2, ...,
-        # BDD : Partie
-        # id_partie (PK), temps de jeu, nombre de mort, nb dennemis tués, nb de squelette tués, nb de crane tués, ...
-        # Ca nous permettra, avec une simple requete, de récuperer ce quil faut sur le joueur...
-        # Apres, on est pas obligé dimplémenter les BDD pour les saves, on peut les ajouter en
-        # plus des saves, pour avoir un write_save et un write BDD sui supprimerait les anciennes
-        # données dun joueurs pour en mettre de nouvelles... ca nous ferait 2 types de fichier,
-        # et la BDD serait notamment utile pour un ScoreBoard, ou je ne sais quoi
-        pass
+            # Ouverture du fichier
+            connexion = sqlite3.connect('Base_de_données.db')
+
+            # Test pour savoir si le joueur a déjà une sauvegarde dans la table
+            cursor = connexion.cursor()
+            cursor.execute("""SELECT nom FROM Joueurs WHERE nom=player.nom""")
+            value = cursor.fetchone()
+
+            if value[0] is None:  # Pas de sauvegarde existante
+                # On créer un id_partie aléatoire n'existant pas déjà
+                cursor = connexion.cursor()
+                cursor.execute("""SELECT id_partie FROM Partie""")
+                id_values = cursor.fetchone()
+                id_prt = 1
+                while id_prt in id_values:
+                    id_prt = randrange(1, 9999)
+                # On crée la sauvegarde de la partie et du joueur
+                cursor.execute("""
+                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y) VALUES(player.nom, id_prt, 
+                                                player.classe, player.niveau, player.position[0], player.position[1]),
+                
+                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                nb_invocateur, vivant) VALUES(id_prt, perso.temps_jeu, perso.compteur_mort, kill, kill_squelette,
+                kill_crane, kill_armure, kill_invocateur, player.vivant),
+                """)
+
+            else:  # Sauvegarde existante
+                cursor = connexion.cursor()
+                cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=player.nom""")
+                id_prt = cursor.fetchone()
+                # Suppression anciennes données
+                cursor.execute("""
+                DELETE FROM Joueurs WHERE nom=player.nom
+                DELETE FROM Partie WHERE id_partie=id_prt
+                """)
+                # On remplace la sauvegarde
+                cursor.execute("""
+                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y) VALUES(player.nom, id_prt, 
+                player.classe, player.niveau, player.position[0], player.position[1]),
+
+                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                nb_invocateur, vivant) VALUES(id_prt, perso.temps_jeu, perso.compteur_mort, kill, kill_squelette,
+                kill_crane, kill_armure, kill_invocateur, player.vivant),
+                """)
+
+            # Fermeture de la connexion
+            connexion.close()
+
+    def open_save(self, nom):
+        try:
+            open('\\Save\\Base_de_données.db')
+        except FileNotFoundError:
+            return None  # Dans le cadre où la sauvegarde n'existe pas encore
+        else:
+            connexion = sqlite3.connect('Base_de_données.db')
+            cursor = connexion.cursor()
+            cursor.execute("""SELECT classe, niveau, pos_x, pos_y FROM Joueurs WHERE nom=player.nom""")
+            cls, niv, posx, posy = cursor.fetchone()
+            connexion.close()
+            self.new_player(nom, cls, niv, (posx, posy))
 
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence

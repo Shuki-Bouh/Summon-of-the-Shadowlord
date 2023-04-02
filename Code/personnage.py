@@ -175,6 +175,8 @@ class Personnage(Entite):
 class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
+        self.classe = 'Epeiste'
+        self.vivant = True
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -209,6 +211,8 @@ class Epeiste(Personnage):
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
+        self.classe = 'Garde'
+        self.vivant = True
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -250,6 +254,8 @@ class Garde(Personnage):
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
+        self.classe = 'Sorcier'
+        self.vivant = True
         super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -280,6 +286,8 @@ class Sorcier(Personnage):
 class Druide(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
+        self.classe = 'Druide'
+        self.vivant = True
         super().__init__(game, "Druide_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
