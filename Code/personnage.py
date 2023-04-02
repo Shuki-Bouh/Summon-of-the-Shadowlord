@@ -567,16 +567,25 @@ class Invocateur(Ennemi):
         """
         self.cible.vie -= self.attaque
         if self.game.limite_spawn - Ennemi.compteur >= 2:
-            dir_joueur = self.cible.direction
-            x, y = self.position
-            if dir_joueur == 'up' or dir_joueur == 'down':
-                x1, y1 = x - 1, y
-                x2, y2 = x + 1, y
+            x1, y1 = self.position
+            x2, y2 = self.cible.position
+            if x1 == x2:
+                if y1 > y2:
+                    direction = 'up'
+                else:
+                    direction = 'down'
+            elif x1 < x2:
+                direction = 'right'
             else:
-                x1, y1 = x, y - 1
-                x2, y2 = x, y + 1
-            self.game.spawn_crane(self.niveau, (x1, y1))
-            self.game.spawn_crane(self.niveau, (x2, y2))
+                direction = 'left'
+            if direction == 'up' or direction == 'down':
+                x3, y3 = x1 - 1, y1
+                x4, y4 = x1 + 1, y1
+            else:
+                x3, y3 = x1, y1 - 1
+                x4, y4 = x1, y1 + 1
+            self.game.spawn_crane(self.niveau, (x3, y3))
+            self.game.spawn_crane(self.niveau, (x4, y4))
         else:
             self.vie = self.viemax
 
