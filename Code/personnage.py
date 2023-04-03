@@ -286,15 +286,15 @@ class Sorcier(Personnage):
                 self.coup(self, entity)
 
 
-class Druide(Personnage):
+class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
-        self.classe = 'Druide'
+        self.classe = 'Archer'
         self.vivant = True
-        super().__init__(game, "Druide_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
-        """Nota : attaque de druide est un simple coup dans la direction regardée"""
+        """Nota : attaque d'archer est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])
         entity = self.game[x_att][y_att]
@@ -303,7 +303,7 @@ class Druide(Personnage):
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
-        Nota : attaque spéciale de druide agit sur tous les ennemis dont la distance est au maximum d'une case,
+        Nota : attaque spéciale d'archer agit sur tous les ennemis dont la distance est au maximum d'une case,
         et leur inflige un coup certain.
         Cooldown : MOYEN
         """

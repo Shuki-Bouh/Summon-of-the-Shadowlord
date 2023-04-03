@@ -139,8 +139,8 @@ class TestEntite(unittest.TestCase):
 
     def test_invocateur(self):
         game = prt.Partie(10, 10)
-        Saria = perso.Druide(game, (4, 9), 'Saria', niveau=5)
-        Mizumi = perso.Druide(game, (8, 2), 'Mizumi', niveau=5)
+        Saria = perso.Archer(game, (4, 9), 'Saria', niveau=5)
+        Mizumi = perso.Archer(game, (8, 2), 'Mizumi', niveau=5)
         Invocateur_1 = perso.Invocateur(game, (5, 6), niveau=5)
         Invocateur_2 = perso.Invocateur(game, (4, 8), niveau=10)
         Invocateur_3 = perso.Invocateur(game, (8, 3), niveau=10)

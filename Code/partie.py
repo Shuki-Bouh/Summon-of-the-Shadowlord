@@ -42,7 +42,7 @@ class Partie(list):
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
-                               'druide': perso.Druide}
+                               'archer': perso.Archer}
         classe = differentes_classes[classe]
         if not self.multi:
             if pos == ():
