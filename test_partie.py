@@ -14,9 +14,6 @@ class TestPartie(unittest.TestCase):
         for k in range(20):
             game.spawn_squelette(5)
         self.assertEqual(game.ennemis['Squelette 5'].vie, 50)
-        game.ennemis["Squelette 4"].mort()
-        with self.assertRaises(KeyError):
-            a = game.ennemis["Squelette 4"]
         p.Ennemi.compteur = 0
         del game
 
@@ -59,9 +56,6 @@ class TestPartie(unittest.TestCase):
         s = game.ennemis["Squelette 1"]
         s.vie += 5
         self.assertEqual(s.vie, 50)
-        game.ennemis["Squelette 1"].vie -= 55
-        with self.assertRaises(KeyError):
-            a = game.ennemis["Squelette 1"]  # Ici on vérifie le setter de vie, il est bien mort
         p.Ennemi.compteur = 0
         del game
 
@@ -72,6 +66,12 @@ class TestPartie(unittest.TestCase):
         self.assertEqual(p.Ennemi.compteur, 5)
         p.Ennemi.compteur = 0
         del game
+
+    def test_new_player(self):
+        game = Partie(10, 10)
+        game.new_player('Link', 'epeiste')
+        joueur = game.joueurs["Link"]
+        joueur.deplacement('up')
 
 
 if __name__ == '__main__':

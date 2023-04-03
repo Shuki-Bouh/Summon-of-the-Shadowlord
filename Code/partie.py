@@ -4,8 +4,11 @@ import Code.personnage as perso
 import threading
 import os
 import sqlite3
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget
 
 path = os.getcwd()
+path = path.split("\\Code")[0]
 path += "\\Data"
 os.chdir(path)
 
@@ -13,7 +16,7 @@ class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
     def __init__(self, l, h):
-        super().__init__()
+        list().__init__()
         self.__h = h + 2  # Pour compenser les False qui apparaissent
         self.__l = l + 2
         self.__generation_map()
@@ -43,7 +46,7 @@ class Partie(list):
         classe = differentes_classes[classe]
         if not self.multi:
             if pos == ():
-                joueur = classe(self, (self.l - self.l // 4, self.h // 2), nom, niveau=niveau)
+                joueur = classe(self, (self.l // 2, self.h - self.h // 4), nom, niveau=niveau)
             else:
                 joueur = classe(self, pos, nom, niveau=niveau)
         else:
@@ -283,18 +286,13 @@ class Partie(list):
             else:
                 t_loop = time.time() - t0_loop
                 if t_loop < 1/24:  # On réessaye à une fréquence de 24 Hz
-                    time.sleep(1 - t_loop)
+                    time.sleep(1/24 - t_loop)
                 else:
                     print('Too many computation in this loop')  # Meilleur ref
 
             i += 1
             if i == 10:
                 break
-
-    def action_joueur(self):
-        """Là je sais pas encore quoi faire, ça dépend grv de PyQt"""
-        pass
-
     def __str__(self):
         canvas = ""
         for y in range(self.h):
