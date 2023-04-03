@@ -48,14 +48,17 @@ class Entite(metaclass=ABCMeta):
 
     @niveau.setter
     def niveau(self, niveau):
-        self.__niveau = niveau
-        with open(self.path, 'r') as lvl:
-            lvl = lvl.readlines()
-            lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
-            for k in range(len(lvl)):
-                lvl[k] = int(lvl[k])
-            self.__viemax, self.attaque, self.defense, self.mana = lvl[:]  # On génère les stats du joueur
-            self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
+        if niveau < 1:
+            niveau = 1
+        if niveau <= 20:
+            self.__niveau = niveau
+            with open(self.path, 'r') as lvl:
+                lvl = lvl.readlines()
+                lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
+                for k in range(len(lvl)):
+                    lvl[k] = int(lvl[k])
+                self.__viemax, self.attaque, self.defense, self.mana = lvl[:]  # On génère les stats du joueur
+                self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
 
     @staticmethod
     @abstractmethod
@@ -114,7 +117,7 @@ class Personnage(Entite):
         super().__init__(game, path, position, cooldown, niveau)
         self.inventory = inventaire
         self.nom = nom
-        self.orientation = 'up'  # L'orientation va servir pour l'affichage du personnage et pour la direction de ses attaque
+        self.orientation = 'up'  # L'orientation sert à l'affichage du personnage et pour la direction de ses attaques
         self.xp = 0
         game.joueurs[self.nom] = self
 
@@ -138,15 +141,15 @@ class Personnage(Entite):
         pass
 
     def levelup(self):
-        """Permet de fiare évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
-        if self.xp > self.niveau * 10:  # C'est un peu arbitraire pour le moment
+        """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
+        if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.niveau += 1
 
     @staticmethod
     def coup(attaquant, cible):
         """La fonction qui permet à un joueur de retirer de la vie à un ennemi"""
         if (attaquant.defense / cible.defense) < 1:
-            vie = cible.vie - np.floor(attaquant.attaque * (attaquant.defense / cible.defense))
+            vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
         else:  # Formula dammage
             vie = cible.vie - attaquant.attaque
         if not vie:  # Si l'ennemi n'a plus de vie
@@ -334,55 +337,6 @@ class Ennemi(Entite):
     def attaque_speciale(self):
         pass
 
-    @abstractmethod
-    def deplacement(self):
-        pass
-
-    @staticmethod
-    def coup(attaquant, cible):
-        if (attaquant.defense / cible.defense) < 1:
-            cible.vie -= int(np.floor(attaquant.attaque * (attaquant.defense / cible.defense)))
-        else:
-            cible.vie -= attaquant.attaque
-
-    def mort(self):
-        pass
-
-    def agro(self):
-        """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
-        dict_normes = {}  # Ce dictionnaire stock (joueur, norme)
-        for joueur in self.game.joueurs.values():
-            if self.norm(self.position, joueur.position) < self.vision:  # On vérifie que le joueur est dans le champ
-                dict_normes[joueur] = self.norm(self.position, joueur.position)
-        if len(dict_normes):  # On gère le cas où personne n'est dans la zone
-            dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])  # On trie par rapport à la norme
-            self.cible = dict_normes[0][0]  # La cible est le min des normes --> 1e élément de la liste triée
-
-class Squelette(Ennemi):
-    compteur = 0  #
-    total_compteur = 0
-
-    def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
-        Squelette.compteur += 1  # Nombre de squelettes présents
-        Squelette.total_compteur += 1  # Nb de squelettes étant déjà apparu
-        self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
-        # identiques
-        self.game.ennemis[self.nom] = self
-        self.xp = 10 * self.niveau / 3  # L'xp que gagne le joueur s'il le tue
-        self.vision = 4
-
-    def attaquer(self, direction=""):
-        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        self.coup(self, self.cible)
-
-    def attaque_speciale(self, direction=""):
-        """
-        Nota : attaque spéciale de squelette est un coup de dégâts (x2), nécessairement réussi.
-        Cooldown : COURT (5 sec)
-        """
-        self.cible.vie -= 2 * self.attaque
-
     def deplacement(self):
         """Déplacement aléatoire d'une case"""
         if self.cible:  # S'il a une cible, il essaie de s'en rapprocher : d'abord en horizontal puis en latéral
@@ -398,18 +352,75 @@ class Squelette(Ennemi):
             else:
                 direction = "down"
         else:
-            direction = random.choice(tuple(Entite.direction.keys()))  # S'il n'a pas de cible, il se balade librement
+            direction = random.choice(
+                tuple(Entite.direction.keys()))  # S'il n'a pas de cible, il se balade librement
         x, y = self.position
         x, y = eval(Entite.direction[direction])
         self.position = (x, y)
 
+    @staticmethod
+    def coup(attaquant, cible):
+        if (attaquant.defense / cible.defense) < 1:
+            cible.vie -= attaquant.attaque * attaquant.defense // cible.defense
+        else:
+            cible.vie -= attaquant.attaque
+
+    def portee(self):
+        x1, y1 = self.position
+        try:
+            x2, y2 = self.cible.position
+            if (x1 == x2 and abs(y1 - y2) == 1) or (abs(x1 - x2) == 1 and y1 == y2):
+                return True
+        except AttributeError:
+            return False
+        return False
+
     def mort(self):
-        Squelette.compteur -= 1
         Ennemi.compteur -= 1
-        del self.game.ennemis[self.nom]
+        self.game.disparition.append(self)
         x, y = self.position
         self.game[x][y] = None
-        del self
+        pass
+
+    def agro(self):
+        """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
+        dict_normes = {}  # Ce dictionnaire stock (joueur, norme)
+        for joueur in self.game.joueurs.values():
+            if self.norm(self.position, joueur.position) < self.vision:  # On vérifie que le joueur est dans le champ
+                dict_normes[joueur] = self.norm(self.position, joueur.position)
+        if len(dict_normes):  # On gère le cas où personne n'est dans la zone
+            dict_normes = sorted(dict_normes.items(), key=lambda t: t[1])  # On trie par rapport à la norme
+            self.cible = dict_normes[0][0]  # La cible est le min des normes → 1e élément de la liste triée
+
+
+class Squelette(Ennemi):
+    compteur = 0  #
+    total_compteur = 0
+
+    def __init__(self, game, position: tuple, niveau):
+        super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
+        Squelette.compteur += 1  # Nombre de squelettes présents
+        Squelette.total_compteur += 1  # Nb de squelettes étant déjà apparu
+        self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
+        # identiques
+        self.game.ennemis[self.nom] = self
+        self.xp = 10 * self.niveau // 3  # L'xp que gagne le joueur s'il le tue
+        self.vision = 4
+
+    def attaquer(self):
+        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
+        self.coup(self, self.cible)
+
+    def attaque_speciale(self):
+        """
+        Nota : attaque spéciale de squelette est un coup de dégâts (x2), nécessairement réussi.
+        Cooldown : COURT (5 sec)
+        """
+        self.cible.vie -= 2 * self.attaque
+
+    def mort(self):
+        Squelette.compteur -= 1
+        Ennemi.mort(self)
 
 
 class Crane(Ennemi):
@@ -421,26 +432,26 @@ class Crane(Ennemi):
         Crane.compteur += 1
         Crane.total_compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
-        self.xp = 10 * self.niveau / 3
+        self.xp = 10 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 6
 
-    def attaquer(self, direction=""):
+    def attaquer(self):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
         self.coup(self, self.cible)
 
-    def attaque_speciale(self, direction=""):
+    def attaque_speciale(self):
         """
         Nota : Bump le personnage de 2 cases en arrière (dans la mesure du possible),
         et lui vole 1/3 de sa vie pour se régénérer
         Cooldown : MOYEN (10 sec)
         """
-        vol_vie = int(np.floor(self.cible.vie * (1 / 3)))
+        vol_vie = self.cible.vie * 1 // 3
         self.cible.vie -= vol_vie
         self.vie += vol_vie
         x1, y1 = self.position
         x2, y2 = self.cible.position
-        if x1 == x2 :
+        if x1 == x2:
             if y1 > y2:
                 direction = 'up'
             else:
@@ -452,28 +463,10 @@ class Crane(Ennemi):
         self.cible.deplacement(direction)
         self.cible.deplacement(direction)
 
-    def deplacement(self, direction=""):
+    def deplacement(self):
         """Double déplacement"""
-        k = 0
-        while k != 2:
-            k += 1
-            if self.cible:
-                mechant = self.cible
-                xc, yc = mechant.position
-                xs, ys = self.position
-                if xc < xs:
-                    direction = "left"
-                elif xc > xs:
-                    direction = "right"
-                elif yc < ys:
-                    direction = "up"
-                else:
-                    direction = "down"
-            else:
-                direction = random.choice(tuple(Entite.direction.keys()))
-            x, y = self.position
-            x, y = eval(Entite.direction[direction])
-            self.position = (x, y)
+        for k in range(2):
+            Ennemi.deplacement(self)
 
     def mort(self):
         Crane.compteur -= 1
@@ -492,22 +485,22 @@ class Armure(Ennemi):
         Armure.compteur += 1
         Armure.total_compteur += 1
         self.nom = "Armure " + str(Armure.total_compteur)
-        self.xp = 20 * self.niveau / 3
+        self.xp = 20 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 2
 
-    def attaquer(self, direction=""):
+    def attaquer(self):
         """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
         self.coup(self, self.cible)
 
-    def attaque_speciale(self, direction=""):
+    def attaque_speciale(self):
         """
         Nota : Réduit son attaque de moitié pour se redonner 1/3 de sa vie,
         attaque sa cible à coup sûr et la fait reculer d'une case
         Cooldown : LONG (15 sec)
         """
         self.attaque //= 2
-        self.vie = int(np.floor(self.vie*(4/3)))
+        self.vie = self.vie * 4 // 3
         self.cible.vie -= self.attaque
         x1, y1 = self.position
         x2, y2 = self.cible.position
@@ -521,26 +514,6 @@ class Armure(Ennemi):
         else:
             direction = 'left'
         self.cible.deplacement(direction)
-
-    def deplacement(self, direction=""):
-        """Déplacement aléatoire d'une case"""
-        if self.cible:
-            mechant = self.cible
-            xc, yc = mechant.position
-            xs, ys = self.position
-            if xc < xs:
-                direction = "left"
-            elif xc > xs:
-                direction = "right"
-            elif yc < ys:
-                direction = "up"
-            else:
-                direction = "down"
-        else:
-            direction = random.choice(tuple(Entite.direction.keys()))
-        x, y = self.position
-        x, y = eval(Entite.direction[direction])
-        self.position = (x, y)
 
     def mort(self):
         Armure.compteur -= 1
@@ -559,15 +532,15 @@ class Invocateur(Ennemi):
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
-        self.xp = 30 * self.niveau / 3
+        self.xp = 30 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 5
 
-    def attaquer(self, direction=""):
+    def attaquer(self):
         """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
         self.coup(self, self.cible)
 
-    def attaque_speciale(self, direction=""):
+    def attaque_speciale(self):
         """
         Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible,
         sinon, il régénère entièrement sa vie. De plus, il porte un coup sûr au joueur.
@@ -588,26 +561,6 @@ class Invocateur(Ennemi):
         else:
             self.vie = self.viemax
 
-    def deplacement(self, direction=""):
-        """Déplacement aléatoire d'une case"""
-        if self.cible:
-            mechant = self.cible
-            xc, yc = mechant.position
-            xs, ys = self.position
-            if xc < xs:
-                direction = "left"
-            elif xc > xs:
-                direction = "right"
-            elif yc < ys:
-                direction = "up"
-            else:
-                direction = "down"
-        else:
-            direction = random.choice(tuple(Entite.direction.keys()))
-        x, y = self.position
-        x, y = eval(Entite.direction[direction])
-        self.position = (x, y)
-
     def mort(self):
         Invocateur.compteur -= 1
         Ennemi.compteur -= 1
@@ -617,7 +570,4 @@ class Invocateur(Ennemi):
 
 
 if __name__ == '__main__':
-    a = np.sqrt((9-9)**2+(8-6)**2)
-    print(a)
-    a = np.linalg.norm([(9, 9), (8, 6)])
-    print(a)
+    pass

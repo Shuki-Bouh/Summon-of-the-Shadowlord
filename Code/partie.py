@@ -20,8 +20,11 @@ class Partie(list):
         self.map = self.get_map()
         self.joueurs = {}
         self.ennemis = {}
+        self.disparition = []
         self.limite_spawn = 5
         self.multi = False
+        self.thread_ennemis = threading.Thread(target=self.action_mechant)
+        self.verrou = threading.Lock()
 
     def __generation_map(self):
         for x in range(self.l):
@@ -242,35 +245,35 @@ class Partie(list):
             connexion.close()
             self.new_player(nom, cls, niv, (posx, posy))
 
+    def suppr_ennemi(self):
+        for mechant in self.disparition:
+            del self.ennemis[mechant]
+            del mechant
+
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
         i = 0
         avg = 0
         while True:
-            print(self)
             t0_loop = time.time()
-            while perso.Ennemi.compteur < 5:
+            if perso.Ennemi.compteur < 5:
                 lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
                 lvl = lv + randrange(-2, 3)
-                if lvl <= 1:
-                    lvl = 1
                 self.spawn_ennemi(lvl)
-            for mechant in self.ennemis.values():
-                print(mechant.cible)
-                if mechant.cible:
-                    xs, ys = mechant.position
-                    xc, yc = mechant.cible.position
-                    if abs(xc - xs) == 1 or abs(yc - ys) == 1:  # Wesh j'suis trop con, faudrait une fonction "porté"
-                        mechant.attaquer()
-                        print("attaque")
-                    else:
-                        mechant.deplacement()
-                        print("bouger")
+            for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
+                self.verrou.acquire()
+                if mechant.portee():
+                    mechant.attaquer()
                 else:
                     mechant.deplacement()
-                    print("bouger")
                 mechant.agro()
+                self.verrou.release()
+
+            self.verrou.acquire()
+            self.suppr_ennemi()
+            self.verrou.release()
+
             t_loop = time.time() - t0_loop
             avg += t_loop
             print(t_loop)
@@ -299,12 +302,6 @@ class Partie(list):
             canvas += str(self[self.l - 1][y])
             canvas += "\n"
         return canvas
-
-    def run_thread(self):
-        self.thread_ennemis = threading.Thread(target=self.action_mechant)
-        if self.multi:
-            pass
-            #self.thread_TCP = threading.Thread(target=tcp_client)
 
 if __name__ == '__main__':
     a = Partie(20, 10)
