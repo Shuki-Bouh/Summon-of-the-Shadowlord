@@ -140,7 +140,7 @@ class TestEntite(unittest.TestCase):
     def test_invocateur(self):
         game = prt.Partie(10, 10)
         Saria = perso.Archer(game, (4, 9), 'Saria', niveau=5)
-        Mizumi = perso.Archer(game, (8, 2), 'Mizumi', niveau=5)
+        Zelda = perso.Archer(game, (8, 2), 'Zelda', niveau=5)
         Invocateur_1 = perso.Invocateur(game, (5, 6), niveau=5)
         Invocateur_2 = perso.Invocateur(game, (4, 8), niveau=10)
         Invocateur_3 = perso.Invocateur(game, (8, 3), niveau=10)
@@ -160,16 +160,16 @@ class TestEntite(unittest.TestCase):
         Invocateur_3.agro()
         Invocateur_3.attaque_speciale()
         # self.assertEqual(perso.Crane.compteur, 2)
-        self.assertEqual(Mizumi.vie, 14)
+        self.assertEqual(Zelda.vie, 14)
         Invocateur_3.vie = 1
-        Mizumi.vie = Mizumi.viemax
+        Zelda.vie = Zelda.viemax
         for k in range(3):
             game.spawn_crane(5)
         # self.assertEqual(perso.Crane.compteur, 5)
         Invocateur_3.agro()
         Invocateur_3.attaque_speciale()
         self.assertEqual(Invocateur_3.vie, Invocateur_3.viemax)
-        self.assertEqual(Mizumi.vie, 14)
+        self.assertEqual(Zelda.vie, 14)
         # Test déplacement ----------------------------------------
         Invocateur_2.position = (6, 9)
         Invocateur_2.deplacement()
