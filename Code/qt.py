@@ -6,23 +6,21 @@ from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
 import threading
 import partie
+from MonAppli import Ui_MainWindow
 from win32api import GetSystemMetrics
 
-Ui_MainWindow, QtBaseClass = uic.loadUiType("ui_MainWindow.ui")
 
-class MyWidget(QMainWindow, QWidget):
+class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self, game):
-        super(MyWidget, self).__init__()
+        QMainWindow.__init__(self)
+        Ui_MainWindow.__init__(self)
+        self.setupUi(self)
         self.game = game
-        self.ui = Ui_MainWindow
-        self.ui.setupUi(self)
 
-
-        # # Définition de la fenêtre de jeu
-        # self.height = GetSystemMetrics(0)  # Hauteur écran utilisateur
-        # self.width = GetSystemMetrics(1)  # Largeur écran utilisateur
-        # self.resize(self.height, self.width)  # Taille plein écran
-        # self.move(0, 0)  # Fenêtre centrée sur l'écran
+        # Définition de la fenêtre de jeu
+        self.height = GetSystemMetrics(0)  # Hauteur écran utilisateur
+        self.width = GetSystemMetrics(1)  # Largeur écran utilisateur
+        self.move(self.height//2 - 400, self.width//2 - 300)  # Fenêtre centrée sur l'écran
 
 
 
