@@ -298,7 +298,7 @@ class Partie(list):
         for y in range(self.h):
             for x in range(self.l - 1):
                 a = str(self[x][y])
-                while len(a) < 12:
+                while len(a) < 1:
                     a += " "
                 canvas += a + " "
             canvas += str(self[self.l - 1][y])
