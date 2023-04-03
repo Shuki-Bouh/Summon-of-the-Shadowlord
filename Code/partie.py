@@ -24,7 +24,7 @@ class Partie(list):
         self.limite_spawn = 5
         self.multi = False
         self.thread_ennemis = threading.Thread(target=self.action_mechant)
-        self.verrou = threading.Lock()
+        self.mutex = threading.Lock()
 
     def __generation_map(self):
         for x in range(self.l):
@@ -246,46 +246,50 @@ class Partie(list):
             self.new_player(nom, cls, niv, (posx, posy))
 
     def suppr_ennemi(self):
-        for mechant in self.disparition:
-            del self.ennemis[mechant]
+        while len(self.disparition) > 0:
+            mechant = self.ennemis.pop()
+            del self.ennemis[mechant.nom]
             del mechant
 
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
         i = 0
-        avg = 0
         while True:
             t0_loop = time.time()
-            if perso.Ennemi.compteur < 5:
-                lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
-                lvl = lv + randrange(-2, 3)
-                self.spawn_ennemi(lvl)
-            for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
-                self.verrou.acquire()
-                if mechant.portee():
-                    mechant.attaquer()
+            if self.mutex.locked():
+                if perso.Ennemi.compteur < 5:
+                    lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
+                    lvl = lv + randrange(-2, 3)
+                    self.spawn_ennemi(lvl)
+                for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
+                    self.mutex.acquire()
+                    if mechant.portee():
+                        mechant.attaquer()
+                    else:
+                        mechant.deplacement()
+                    mechant.agro()
+                    self.mutex.release()
+
+                self.mutex.acquire()
+                self.suppr_ennemi()
+                self.mutex.release()
+
+                t_loop = time.time() - t0_loop
+                if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
+                    time.sleep(1 - t_loop)
                 else:
-                    mechant.deplacement()
-                mechant.agro()
-                self.verrou.release()
-
-            self.verrou.acquire()
-            self.suppr_ennemi()
-            self.verrou.release()
-
-            t_loop = time.time() - t0_loop
-            avg += t_loop
-            print(t_loop)
-            if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
-                time.sleep(1 - t_loop)
+                    print('Too many computation in this loop')  # Meilleur ref
             else:
-                print('Too many computation in this loop')  # Meilleur ref
+                t_loop = time.time() - t0_loop
+                if t_loop < 1/24:  # On réessaye à une fréquence de 24 Hz
+                    time.sleep(1 - t_loop)
+                else:
+                    print('Too many computation in this loop')  # Meilleur ref
+
             i += 1
-            print(i)
             if i == 10:
                 break
-        print(avg/i)
 
     def action_joueur(self):
         """Là je sais pas encore quoi faire, ça dépend grv de PyQt"""
