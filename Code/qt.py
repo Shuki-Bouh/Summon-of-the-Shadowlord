@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
 import threading
 import partie
-from MonAppli import Ui_MainWindow
+from Launcher import Ui_MainWindow
 from win32api import GetSystemMetrics
 
 
@@ -21,9 +21,6 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.height = GetSystemMetrics(0)  # Hauteur écran utilisateur
         self.width = GetSystemMetrics(1)  # Largeur écran utilisateur
         self.move(self.height//2 - 400, self.width//2 - 300)  # Fenêtre centrée sur l'écran
-
-
-
 
     def keyPressEvent(self, event):
         t0_loop = time.time()
