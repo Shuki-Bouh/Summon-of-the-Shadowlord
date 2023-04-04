@@ -90,6 +90,9 @@ class Ui_MainWindow(object):
         self.titre_jeu.setText(_translate("MainWindow", "Summon of the ShadowLord"))
         self.nom_createurs.setText(_translate("MainWindow", "@Shuki // @Melinda"))
 
+    def close(self, MainWindow):
+        MainWindow.close()
+
 
 if __name__ == "__main__":
     import sys

@@ -33,6 +33,19 @@ class MyWidget(QMainWindow):
 
     def start_partie(self):
         print("start")
+        self.launcher.close()
+
+        Test_Window = QMainWindow()
+        Test_Window.setObjectName("Test_Window")
+        Test_Window.resize(800, 600)
+        self.centralwidget = QWidget(Test_Window)
+        self.centralwidget.setObjectName("centralwidget")
+        Test_Window.setCentralWidget(self.centralwidget)
+
+        Test_Window.show()
+
+
+
 
 
 if __name__=="__main__":
