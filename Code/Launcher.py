@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLord.exe"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLord"))
         self.bouton_jouer.setText(_translate("MainWindow", "Jouer"))
         self.bouton_start.setText(_translate("MainWindow", "Commencer"))
         self.bouton_multi.setText(_translate("MainWindow", "Multijoueur"))
@@ -89,9 +89,6 @@ class Ui_MainWindow(object):
         self.bouton_quit.setText(_translate("MainWindow", "Quitter"))
         self.titre_jeu.setText(_translate("MainWindow", "Summon of the ShadowLord"))
         self.nom_createurs.setText(_translate("MainWindow", "@Shuki // @Melinda"))
-
-    def close(self, MainWindow):
-        MainWindow.close()
 
 
 if __name__ == "__main__":
