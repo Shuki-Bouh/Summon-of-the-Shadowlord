@@ -114,6 +114,14 @@ class Ui_MainProgram(object):
         Ui_MainProgram.list_widgets.append((self.centralwidget))
         self.centralwidget.setObjectName("centralwidget")
 
+        self.label_image = QLabel(MainWindow)
+        self.image = QtGui.QPixmap("1003880.png")
+        if not self.image.isNull():
+            self.label_image.setPixmap(self.image)
+        else:
+            print("Erreur: impossible de charger l'image")
+        self.label_image.resize(75, 75)
+
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

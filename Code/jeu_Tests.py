@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayo
 # import threading
 import partie
 import Interface_Demarrage as I_Dem
-import Interface_Jeu as I_Jeu
 from win32api import GetSystemMetrics
 
 
@@ -31,7 +30,6 @@ class MyWidget(QMainWindow):
         self.window.bouton_jouer.clicked.connect(self.start_partie)
 
     def start_partie(self):
-        print("start")
         self.window.launcherToGame(self)
 
 
