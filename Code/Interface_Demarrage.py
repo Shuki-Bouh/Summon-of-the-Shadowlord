@@ -8,6 +8,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtGui import QPixmap
 
 
 class Ui_MainProgram(object):
@@ -105,32 +107,42 @@ class Ui_MainProgram(object):
     def setup_Jeu(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1920, 1080)
+        MainWindow.move(0, 0)
         MainWindow.setMinimumSize(QtCore.QSize(1920, 1080))
         MainWindow.setMaximumSize(QtCore.QSize(1920, 1080))
         MainWindow.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Ui_MainProgram.list_widgets.append((self.centralwidget))
         self.centralwidget.setObjectName("centralwidget")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(180, 180, 55, 16))
-        self.label.setObjectName("label")
-        MainWindow.setCentralWidget(self.centralwidget)
+
+        self.build(MainWindow)
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslate_Jeu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "Test"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLord"))
 
     def launcherToGame(self, MainWindow):
         print("Entrée fonction")
         for widget in Ui_MainProgram.list_widgets:
-            print("1")
             widget.deleteLater()
         Ui_MainProgram.list_widgets = []
         self.setup_Jeu(MainWindow)
         self.retranslate_Jeu(MainWindow)
+
+    def build(self, MainWindow):
+        # create a QPixmap object
+        self.img = QPixmap("1003880.png")
+
+        # create a QLabel for image
+        self.lbl_img = QLabel(MainWindow)
+        self.lbl_img.setScaledContents(True)
+
+        # set the QPximap object to the label image
+        self.lbl_img.setPixmap(self.img)
+        self.lbl_img.resize(75, 75)
 
 if __name__ == "__main__":
     import sys

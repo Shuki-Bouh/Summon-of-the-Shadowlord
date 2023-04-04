@@ -35,9 +35,6 @@ class MyWidget(QMainWindow):
         self.window.launcherToGame(self)
 
 
-
-
-
 if __name__=="__main__":
 
     app = QApplication.instance()
@@ -50,6 +47,12 @@ if __name__=="__main__":
 
     window.show()  # Affichage fenêtre
     app.exec_()  # Execution fichier
+
+
+
+
+
+
 
     # def keyPressEvent(self, event):
     #     t0_loop = time.time()
