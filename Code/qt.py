@@ -7,18 +7,17 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayo
 # from PyQt5 import uic
 # import threading
 import partie
-import Launcher
-import TestWindow
+import Interface_Demarrage as I_Dem
+import Interface_Jeu as I_Jeu
 from win32api import GetSystemMetrics
 
 
 class MyWidget(QMainWindow):
     def __init__(self, game):
         QMainWindow.__init__(self)
-        self.launcher = Launcher.Ui_MainWindow()  # Récupérer la classe de launcher
-        self.launcher.setupUi(self)  # Setup la fenêtre créer avec QtDesigner
-        self.launcher.retranslateUi(self)  # Appliquer les modifications de nom
-        self.gameWindow = TestWindow.Ui_Test_Window()
+        self.window = I_Dem.Ui_MainProgram()  # Récupérer la classe de Interface_Demarrage
+        self.window.setup_Dem(self)  # Setup la fenêtre créer avec QtDesigner
+        self.window.retranslate_Dem(self)  # Appliquer les modifications de nom
         self.game = game
 
         # Définition de la fenêtre de jeu
@@ -29,20 +28,11 @@ class MyWidget(QMainWindow):
         self.main_loop()
 
     def main_loop(self):
-        self.launcher.bouton_jouer.clicked.connect(self.start_partie)
+        self.window.bouton_jouer.clicked.connect(self.start_partie)
 
     def start_partie(self):
         print("start")
-        self.launcher.close()
-
-        Test_Window = QMainWindow()
-        Test_Window.setObjectName("Test_Window")
-        Test_Window.resize(800, 600)
-        self.centralwidget = QWidget(Test_Window)
-        self.centralwidget.setObjectName("centralwidget")
-        Test_Window.setCentralWidget(self.centralwidget)
-
-        Test_Window.show()
+        self.window.launcherToGame(self)
 
 
 
