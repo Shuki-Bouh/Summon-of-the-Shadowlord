@@ -3,29 +3,25 @@ import random
 import numpy as np
 
 
-# ESPACES COMMENTAIRES -----------------------------------------------------
-
-# --------------------------------------------------------------------------
-# Classe mère abstraite Entité, où Personnages et Ennemis héritent d'Entité
-
 class Entite(metaclass=ABCMeta):
-    """Tous les personnages/ennemis qui existent dans le jeu"""
+    """Classe mère héritant de metaclass. L'ensemble des personnages et ennemis du jeu en hérite."""
 
+    # Dictionnaire utilisé pour faciliter l'acquisition des coordonnées des cases adjacentes aux entités
     direction = {'up': 'x, y - 1',
                  'down': 'x, y + 1',
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau=1):
-        self.path = path  # Permet de lire le fichier dans lequel
-        # sont contenues les statistiques du perso pour chaque niveau
-        self.__position = position  # N'est pas caché car toutes les vérifications de création se trouvent dans Partie
-        self.cooldown = cooldown  # Est là pour ralentir l'utilisation des attaques
+        self.path = path  # Path vers le fichier devant être ouvert, contenant les informations prédéfinis des entités.
+        # On y retrouve les statistiques des personnages et ennemis pour chaque niveau.
+        self.cooldown = cooldown  # Permet de cadencer la vitesse d'attaque des entités.
         self.__niveau = niveau
-        self.niveau = niveau  # Dans niveau.setter, on va créer vie, attaque, défense et mana
-        self.game = game
-        self.position = position
-        self.nom = 'entite'
+        self.niveau = niveau  # Appel la méthode "niveau.setter", dans laquelle vont être lu les informations de vie,
+        # attaque, défense et mana du personnage, pour lui être attribués.
+        self.game = game  # Permet de considérer la partie actuelle.
+        self.__position = position
+        self.nom = 'entite'  # Nom par défaut, modifié par la suite.
 
     @property
     def position(self):
@@ -33,7 +29,7 @@ class Entite(metaclass=ABCMeta):
 
     @position.setter
     def position(self, newpos):
-        """Accepte un déplacement ssi la prochaine case est vide et sur la map
+        """Accepte un déplacement ssi la prochaine case est vide et sur la map.
         Nb : Les bords de la map sont False actuellement"""
         x1, y1 = self.position
         x2, y2 = newpos
@@ -48,6 +44,7 @@ class Entite(metaclass=ABCMeta):
 
     @niveau.setter
     def niveau(self, niveau):
+        """Permet d'attribuer à un personnage ses différentes caractéristiques, en fonction de son niveau."""
         if niveau < 1:
             niveau = 1
         if niveau <= 20:
@@ -63,11 +60,12 @@ class Entite(metaclass=ABCMeta):
     @staticmethod
     @abstractmethod
     def coup(attaquant, cible):
+        """Attaque d'attaquant sur cible."""
         pass
 
     @staticmethod
     def norm(vect1, vect2):
-        """Renvoie la norme entre deux vecteurs"""
+        """Renvoie la norme entre deux vecteurs."""
         x1, y1 = vect1
         x2, y2 = vect2
         return np.linalg.norm(np.array([x1 - x2, y1 - y2]))
@@ -82,7 +80,8 @@ class Entite(metaclass=ABCMeta):
 
     @vie.setter
     def vie(self, x):
-        """Permet de régler les vies sans dépasser viemax ni descendre en dessous de 0"""
+        """Permet de réguler la vie des entités, afin qu'elles ne dépassent pas self.viemax
+        ni qu'elles descendent sous une vie égale à 0."""
         if x <= 0:
             self.__vie = 0
             self.mort()
@@ -93,17 +92,21 @@ class Entite(metaclass=ABCMeta):
 
     @abstractmethod
     def attaquer(self):
+        """Schéma d'attaque classique des entités."""
         pass
 
     @abstractmethod
     def attaque_speciale(self):
+        """Schéma d'attaque spéciale des entités."""
         pass
 
     @abstractmethod
     def mort(self):
+        """Permet de faire mourir une entité, et donc de libérer son espace mémoire associé."""
         pass
 
     def __str__(self):
+        """Permet de représenter une entité par son nom."""
         return self.nom
 
 
@@ -111,7 +114,8 @@ class Entite(metaclass=ABCMeta):
 # Développement des classes Personnage
 
 class Personnage(Entite):
-    """Les personnages jouables"""
+    """Définition ici de l'ensemble des personnages pouvant être joués par l'utilisateur.
+    Au début d'une partie, le joueur choisit un personnage avec lequel il entreprendra son aventure."""
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
         super().__init__(game, path, position, cooldown, niveau)
@@ -150,7 +154,7 @@ class Personnage(Entite):
         """La fonction qui permet à un joueur de retirer de la vie à un ennemi"""
         if (attaquant.defense / cible.defense) < 1:
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
-        else:  # Formula dammage
+        else:  # Formula damage
             vie = cible.vie - attaquant.attaque
         if not vie:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
@@ -321,6 +325,9 @@ class Archer(Personnage):
 # Développement des classes d'Ennemi
 
 class Ennemi(Entite):
+    """Définition ici de l'ensemble des ennemis pouvant être rencontrés par l'utilisateur.
+    Leur nombre est limité à 5 en simultané, de sorte que le jeu soit jouable."""
+
     compteur = 0  # Ce compteur permet d'éviter de générer trop d'ennemis sur la map en même temps
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
