@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayo
 # from PyQt5 import uic
 # import threading
 import partie
-import Interface_Demarrage as I_Dem
+import Interface_Demarrage_Tests as I_Dem
 from win32api import GetSystemMetrics
 
 

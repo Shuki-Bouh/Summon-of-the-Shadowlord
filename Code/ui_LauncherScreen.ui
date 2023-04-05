@@ -26,13 +26,23 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Summon_of_the_ShadowLand</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>logo_jeu.png</normaloff>logo_jeu.png</iconset>
   </property>
   <property name="iconSize">
    <size>
     <width>30</width>
     <height>30</height>
    </size>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonTextOnly</enum>
+  </property>
+  <property name="animated">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -152,5 +162,38 @@
   <tabstop>bouton_quit</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>bouton_quit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>502</x>
+     <y>485</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>595</x>
+     <y>535</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>bouton_jouer</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showFullScreen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

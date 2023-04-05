@@ -9,6 +9,7 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from win32api import GetSystemMetrics
 
 
 class Ui_MainProgram(object):
@@ -16,15 +17,23 @@ class Ui_MainProgram(object):
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
     list_widgets = []
 
+    # Screen resolution
+    width = GetSystemMetrics(0)
+    height = GetSystemMetrics(1)
+
     def setup_Dem(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
         MainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MainWindow.setMaximumSize(QtCore.QSize(800, 600))
         MainWindow.setMouseTracking(False)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("logo_jeu.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setIconSize(QtCore.QSize(30, 30))
+        MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
+        MainWindow.setAnimated(True)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        Ui_MainProgram.list_widgets.append(self.centralwidget)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(200, 220, 400, 284))
@@ -42,6 +51,9 @@ class Ui_MainProgram(object):
         self.widget.setObjectName("widget")
         self.horizontalLayout.addWidget(self.widget)
         self.bouton_start = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.bouton_start.setCheckable(False)
+        self.bouton_start.setChecked(False)
+        self.bouton_start.setFlat(False)
         self.bouton_start.setObjectName("bouton_start")
         self.horizontalLayout.addWidget(self.bouton_start)
         self.horizontalLayout.setStretch(0, 10)
@@ -94,7 +106,7 @@ class Ui_MainProgram(object):
 
     def retranslate_Dem(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
         self.bouton_jouer.setText(_translate("MainWindow", "Jouer"))
         self.bouton_start.setText(_translate("MainWindow", "Commencer"))
         self.bouton_multi.setText(_translate("MainWindow", "Multijoueur"))
@@ -105,35 +117,41 @@ class Ui_MainProgram(object):
 
     def setup_Jeu(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1080)
-        MainWindow.move(0, 0)
-        MainWindow.setMinimumSize(QtCore.QSize(1920, 1080))
-        MainWindow.setMaximumSize(QtCore.QSize(1920, 1080))
+        MainWindow.showfullscreen()
+        # MainWindow.setMinimumSize(QtCore.QSize(Ui_MainProgram.width, Ui_MainProgram.height))
+        # MainWindow.setMaximumSize(QtCore.QSize(Ui_MainProgram.width, Ui_MainProgram.height))
         MainWindow.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        Ui_MainProgram.list_widgets.append((self.centralwidget))
         self.centralwidget.setObjectName("centralwidget")
-
-        self.label_image = QLabel(self.centralwidget)
-        self.image = QtGui.QPixmap("1003880.png")
-        if not self.image.isNull():
-            self.label_image.setPixmap(self.image)
-        else:
-            print("Erreur: impossible de charger l'image")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menuBar = QtWidgets.QMenuBar(MainWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, Ui_MainProgram.width, 26))
+        self.menuBar.setObjectName("menuBar")
+        self.menuOptions = QtWidgets.QMenu(self.menuBar)
+        self.menuOptions.setObjectName("menuOptions")
+        MainWindow.setMenuBar(self.menuBar)
+        self.actionRetour_Menu = QtWidgets.QAction(MainWindow)
+        self.actionRetour_Menu.setObjectName("actionRetour_Menu")
+        self.actionQuitter = QtWidgets.QAction(MainWindow)
+        self.actionQuitter.setObjectName("actionQuitter")
+        self.menuOptions.addAction(self.actionRetour_Menu)
+        self.menuOptions.addAction(self.actionQuitter)
+        self.menuBar.addAction(self.menuOptions.menuAction())
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslate_Jeu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLord"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.menuOptions.setTitle(_translate("MainWindow", "Options"))
+        self.actionRetour_Menu.setText(_translate("MainWindow", "Retour Menu"))
+        self.actionRetour_Menu.setShortcut(_translate("MainWindow", "Ctrl+M"))
+        self.actionQuitter.setText(_translate("MainWindow", "Sauvegarder et quitter"))
 
     def launcherToGame(self, MainWindow):
-        for widget in Ui_MainProgram.list_widgets:
-            widget.deleteLater()
-        Ui_MainProgram.list_widgets = []
+
         self.setup_Jeu(MainWindow)
-        self.retranslate_Jeu(MainWindow)
 
 
 if __name__ == "__main__":
