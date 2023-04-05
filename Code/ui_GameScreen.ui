@@ -29,37 +29,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1920</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuOptions">
-    <property name="title">
-     <string>Options</string>
-    </property>
-    <addaction name="actionRetour_Menu"/>
-    <addaction name="actionQuitter"/>
-   </widget>
-   <addaction name="menuOptions"/>
-  </widget>
-  <action name="actionRetour_Menu">
-   <property name="text">
-    <string>Retour Menu</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+M</string>
-   </property>
-  </action>
-  <action name="actionQuitter">
-   <property name="text">
-    <string>Sauvegarder et quitter</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

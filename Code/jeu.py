@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import partie
-import Interface_Demarrage as I_Dem
+import IHM as I_Dem
 from win32api import GetSystemMetrics
 import numpy as np
 
