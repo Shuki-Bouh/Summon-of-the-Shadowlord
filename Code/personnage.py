@@ -161,10 +161,6 @@ class Personnage(Entite):
             attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
 
-    @abstractmethod
-    def draw_perso(self, qp):
-        pass
-
     def mort(self):
         """Bon il faut faire quoi là ?"""
         # Si multi : multi va probablement devenir une variable de classe Partie
@@ -219,11 +215,6 @@ class Epeiste(Personnage):
             if entity in self.game.ennemis.values():
                 entity.vie -= 2*self.attaque
 
-    def draw_perso(self, qp):
-        qp.setPen(QtCore.Qt.red)
-        qp.drawEllipse(self.position[0], self.position[1], 500, 500)
-
-
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
@@ -266,10 +257,6 @@ class Garde(Personnage):
                 x, y = eval(Entite.direction[self.orientation])
                 entity.position = (x, y)
 
-    def draw_perso(self, qp):
-        qp.setPen(QtCore.Qt.blue)
-        qp.drawEllipse(self.position[0], self.position[1], 500, 500)
-
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
@@ -301,10 +288,6 @@ class Sorcier(Personnage):
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
 
-    def draw_perso(self, qp):
-        qp.setPen(QtCore.Qt.green)
-        qp.drawEllipse(self.position[0], self.position[1], 500, 500)
-
 class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
@@ -335,12 +318,10 @@ class Archer(Personnage):
             if entity in self.game.ennemis.values():
                 entity.vie -= self.attaque
 
-    def draw_perso(self, qp):
-        qp.setPen(QtCore.Qt.yellow)
-        qp.drawEllipse(self.position[0], self.position[1], 500, 500)
 
 # ----------------------------------
 # Développement des classes d'Ennemi
+
 
 class Ennemi(Entite):
     """Définition ici de l'ensemble des ennemis pouvant être rencontrés par l'utilisateur.
@@ -389,10 +370,6 @@ class Ennemi(Entite):
             cible.vie -= attaquant.attaque * attaquant.defense // cible.defense
         else:
             cible.vie -= attaquant.attaque
-
-    @abstractmethod
-    def draw_ennemi(self, qp):
-        pass
 
     def portee(self):
         x1, y1 = self.position
@@ -451,10 +428,6 @@ class Squelette(Ennemi):
         Squelette.compteur -= 1
         Ennemi.mort(self)
 
-    def draw_ennemi(self, qp):
-        qp.setPen(QtCore.Qt.red)
-        qp.drawRect(self.position[0], self.position[1], 500, 500)
-
 
 class Crane(Ennemi):
     compteur = 0
@@ -508,10 +481,6 @@ class Crane(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
-    def draw_ennemi(self, qp):
-        qp.setPen(QtCore.Qt.blue)
-        qp.drawRect(self.position[0], self.position[1], 500, 500)
-
 
 class Armure(Ennemi):
     compteur = 0
@@ -559,10 +528,6 @@ class Armure(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
-    def draw_ennemi(self, qp):
-        qp.setPen(QtCore.Qt.green)
-        qp.drawRect(self.position[0], self.position[1], 500, 500)
-
 
 class Invocateur(Ennemi):
     compteur = 0
@@ -608,10 +573,6 @@ class Invocateur(Ennemi):
         del self.game.ennemis[self.nom]
         x, y = self.position
         self.game[x][y] = None
-
-    def draw_ennemi(self, qp):
-        qp.setPen(QtCore.Qt.yellow)
-        qp.drawRect(self.position[0], self.position[1], 500, 500)
 
 
 if __name__ == '__main__':

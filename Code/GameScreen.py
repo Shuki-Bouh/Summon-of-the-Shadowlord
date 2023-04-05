@@ -28,14 +28,14 @@ class Ui_GameScreen(object):
         self.conteneur.setObjectName("conteneur")
         MainWindow.setCentralWidget(self.centralwidget)
 
-        # pixmap = QtGui.QPixmap("1003880.png")
-        # pixmap = pixmap.scaled(self.centralwidget.size())
-        # pal = QtGui.QPalette()
-        # pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
-        # self.centralwidget.lower()
-        # self.centralwidget.stackUnder(self.centralwidget)
-        # self.centralwidget.setAutoFillBackground(True)
-        # self.centralwidget.setPalette(pal)
+        pixmap = QtGui.QPixmap("1003880.png")
+        pixmap = pixmap.scaled(self.centralwidget.size())
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
 
         Ui_GameScreen.list_widgets.append(self.centralwidget)
 
