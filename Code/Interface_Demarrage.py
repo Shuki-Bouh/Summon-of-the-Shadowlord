@@ -9,6 +9,7 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+import numpy as np
 
 
 class Ui_MainProgram(object):
