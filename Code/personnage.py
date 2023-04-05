@@ -22,6 +22,7 @@ class Entite(metaclass=ABCMeta):
         self.game = game  # Permet de considérer la partie actuelle.
         self.__position = position
         self.nom = 'entite'  # Nom par défaut, modifié par la suite.
+        self.position = position
 
     @property
     def position(self):
@@ -359,8 +360,7 @@ class Ennemi(Entite):
             else:
                 direction = "down"
         else:
-            direction = random.choice(
-                tuple(Entite.direction.keys()))  # S'il n'a pas de cible, il se balade librement
+            direction = random.choice(tuple(Entite.direction.keys()))  # S'il n'a pas de cible, il se balade librement
         x, y = self.position
         x, y = eval(Entite.direction[direction])
         self.position = (x, y)

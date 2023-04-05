@@ -84,9 +84,9 @@ class Partie(list):
             x, y = pos[0], pos[1]
         else:
             cases_possibles = []
-            for i in range(self.h):
-                for j in range(self.l):
-                    if self[j][i] is None:
+            for i in range(self.l):
+                for j in range(self.h):
+                    if self[i][j] is None:
                         cases_possibles.append((i, j))
             x, y = choice(cases_possibles)
         ennemi = perso.Squelette(self, (x, y), niveau)
@@ -96,9 +96,9 @@ class Partie(list):
             x, y = pos[0], pos[1]
         else:
             cases_possibles = []
-            for i in range(self.h):
-                for j in range(self.l):
-                    if self[j][i] is None:
+            for i in range(self.l):
+                for j in range(self.h):
+                    if self[i][j] is None:
                         cases_possibles.append((i, j))
             x, y = choice(cases_possibles)
         ennemi = perso.Crane(self, (x, y), niveau)
@@ -108,9 +108,9 @@ class Partie(list):
             x, y = pos[0], pos[1]
         else:
             cases_possibles = []
-            for i in range(self.h):
-                for j in range(self.l):
-                    if self[j][i] is None:
+            for i in range(self.l):
+                for j in range(self.h):
+                    if self[i][j] is None:
                         cases_possibles.append((i, j))
             x, y = choice(cases_possibles)
         ennemi = perso.Armure(self, (x, y), niveau)
@@ -120,9 +120,9 @@ class Partie(list):
             x, y = pos[0], pos[1]
         else:
             cases_possibles = []
-            for i in range(self.h):
-                for j in range(self.l):
-                    if self[j][i] is None:
+            for i in range(self.l):
+                for j in range(self.h):
+                    if self[i][j] is None:
                         cases_possibles.append((i, j))
             x, y = choice(cases_possibles)
         ennemi = perso.Invocateur(self, (x, y), niveau)
@@ -260,24 +260,22 @@ class Partie(list):
         i = 0
         while True:
             t0_loop = time.time()
-            if self.mutex.locked():
-                if perso.Ennemi.compteur < 5:
+            if not self.mutex.locked():
+                if perso.Ennemi.compteur < 25:
                     lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
                     lvl = lv + randrange(-2, 3)
                     self.spawn_ennemi(lvl)
                 for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
-                    self.mutex.acquire()
-                    if mechant.portee():
-                        mechant.attaquer()
-                    else:
-                        mechant.deplacement()
-                    mechant.agro()
-                    self.mutex.release()
+                    with self.mutex:  # Dès qu'il peut acquérir, il rentre dans le bloc, il libère l'accès à la fin du bloc
+                        if mechant.portee():
+                            mechant.attaquer()
+                        else:
+                            mechant.deplacement()
+                        mechant.agro()
 
-                self.mutex.acquire()
-                self.suppr_ennemi()
-                self.mutex.release()
-
+                with self.mutex:
+                    self.suppr_ennemi()
+                print(self)
                 t_loop = time.time() - t0_loop
                 if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
                     time.sleep(1 - t_loop)
@@ -289,16 +287,15 @@ class Partie(list):
                     time.sleep(1/24 - t_loop)
                 else:
                     print('Too many computation in this loop')  # Meilleur ref
-
             i += 1
-            if i == 10:
+            if i == 50:
                 break
     def __str__(self):
         canvas = ""
         for y in range(self.h):
             for x in range(self.l - 1):
                 a = str(self[x][y])
-                while len(a) < 1:
+                while len(a) < 12:
                     a += " "
                 canvas += a + " "
             canvas += str(self[self.l - 1][y])
@@ -306,5 +303,8 @@ class Partie(list):
         return canvas
 
 if __name__ == '__main__':
-    a = Partie(20, 10)
-    print(a)
+    a = Partie(15, 30)
+    a.new_player("Link", "epeiste", 5)
+    thread = threading.Thread(target=a.action_mechant)
+    thread.start()
+    thread.join()
