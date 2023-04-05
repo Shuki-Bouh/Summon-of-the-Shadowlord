@@ -44,9 +44,9 @@
       <height>284</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,1,10,50,10,1,10">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,1,10">
        <property name="topMargin">
         <number>0</number>
        </property>
@@ -58,20 +58,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        <widget class="QWidget" name="widget" native="true"/>
        </item>
        <item>
         <widget class="QPushButton" name="bouton_start">
@@ -92,20 +79,7 @@
       </layout>
      </item>
      <item>
-      <spacer name="verticalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>13</height>
-        </size>
-       </property>
-      </spacer>
+      <widget class="QWidget" name="widget_4" native="true"/>
      </item>
      <item>
       <widget class="QPushButton" name="bouton_multi">
@@ -115,20 +89,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>13</width>
-         <height>100</height>
-        </size>
-       </property>
-      </spacer>
+      <widget class="QWidget" name="widget_3" native="true"/>
      </item>
      <item>
       <widget class="QPushButton" name="bouton_credits">
@@ -138,20 +99,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>13</width>
-         <height>13</height>
-        </size>
-       </property>
-      </spacer>
+      <widget class="QWidget" name="widget_2" native="true"/>
      </item>
      <item>
       <widget class="QPushButton" name="bouton_quit">
@@ -184,8 +132,8 @@
    <widget class="QLabel" name="nom_createurs">
     <property name="geometry">
      <rect>
-      <x>660</x>
-      <y>540</y>
+      <x>670</x>
+      <y>570</y>
       <width>120</width>
       <height>20</height>
      </rect>
@@ -194,16 +142,6 @@
      <string>@Shuki // @Melinda</string>
     </property>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>26</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <tabstops>
