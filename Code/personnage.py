@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABCMeta
 import random
 import numpy as np
-
+from PyQt5 import QtCore, QtGui
 
 class Entite(metaclass=ABCMeta):
     """Classe mère héritant de metaclass. L'ensemble des personnages et ennemis du jeu en hérite."""
@@ -181,6 +181,7 @@ class Personnage(Entite):
 
 
 class Epeiste(Personnage):
+
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Epeiste'
@@ -214,7 +215,6 @@ class Epeiste(Personnage):
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 entity.vie -= 2*self.attaque
-
 
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
@@ -258,7 +258,6 @@ class Garde(Personnage):
                 x, y = eval(Entite.direction[self.orientation])
                 entity.position = (x, y)
 
-
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
@@ -289,7 +288,6 @@ class Sorcier(Personnage):
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
-
 
 class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
@@ -324,6 +322,7 @@ class Archer(Personnage):
 
 # ----------------------------------
 # Développement des classes d'Ennemi
+
 
 class Ennemi(Entite):
     """Définition ici de l'ensemble des ennemis pouvant être rencontrés par l'utilisateur.

@@ -1,20 +1,17 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'ui_LauncherScreen.ui'
-#
-# Created by: PyQt5 UI code generator 5.14.0
-#
-# WARNING! All changes made in this file will be lost!
-
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from win32api import GetSystemMetrics
 
 
-class Ui_MainProgram(object):
+class Ui_Demarrage(object):
 
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
     list_widgets = []
+
+    # Screen resolution
+    width = GetSystemMetrics(0)
+    height = GetSystemMetrics(1)
 
     def setup_Dem(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -22,9 +19,13 @@ class Ui_MainProgram(object):
         MainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MainWindow.setMaximumSize(QtCore.QSize(800, 600))
         MainWindow.setMouseTracking(False)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("logo_jeu.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setIconSize(QtCore.QSize(30, 30))
+        MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
+        MainWindow.setAnimated(True)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        Ui_MainProgram.list_widgets.append(self.centralwidget)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(200, 220, 400, 284))
@@ -85,6 +86,22 @@ class Ui_MainProgram(object):
         self.nom_createurs.setObjectName("nom_createurs")
         MainWindow.setCentralWidget(self.centralwidget)
 
+        Ui_Demarrage.list_widgets.append([self.widget, 1])
+        Ui_Demarrage.list_widgets.append([self.widget_2, 2])
+        Ui_Demarrage.list_widgets.append([self.widget_3, 3])
+        Ui_Demarrage.list_widgets.append([self.widget_4, 4])
+        Ui_Demarrage.list_widgets.append([self.centralwidget, 5])
+        Ui_Demarrage.list_widgets.append([self.verticalLayoutWidget, 6])
+        Ui_Demarrage.list_widgets.append([self.verticalLayout_2, 7])
+        Ui_Demarrage.list_widgets.append([self.horizontalLayout, 8])
+        Ui_Demarrage.list_widgets.append([self.bouton_start, 9])
+        Ui_Demarrage.list_widgets.append([self.bouton_multi, 10])
+        Ui_Demarrage.list_widgets.append([self.bouton_jouer, 11])
+        Ui_Demarrage.list_widgets.append([self.bouton_credits, 12])
+        Ui_Demarrage.list_widgets.append([self.bouton_quit, 13])
+        Ui_Demarrage.list_widgets.append([self.titre_jeu, 14])
+        Ui_Demarrage.list_widgets.append([self.nom_createurs, 15])
+
         self.retranslate_Dem(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.bouton_jouer, self.bouton_start)
@@ -94,7 +111,7 @@ class Ui_MainProgram(object):
 
     def retranslate_Dem(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
         self.bouton_jouer.setText(_translate("MainWindow", "Jouer"))
         self.bouton_start.setText(_translate("MainWindow", "Commencer"))
         self.bouton_multi.setText(_translate("MainWindow", "Multijoueur"))
@@ -103,44 +120,7 @@ class Ui_MainProgram(object):
         self.titre_jeu.setText(_translate("MainWindow", "Summon of the ShadowLord"))
         self.nom_createurs.setText(_translate("MainWindow", "@Shuki // @Melinda"))
 
-    def setup_Jeu(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1920, 1080)
-        MainWindow.move(0, 0)
-        MainWindow.setMinimumSize(QtCore.QSize(1920, 1080))
-        MainWindow.setMaximumSize(QtCore.QSize(1920, 1080))
-        MainWindow.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        Ui_MainProgram.list_widgets.append((self.centralwidget))
-        self.centralwidget.setObjectName("centralwidget")
-
-        self.label_image = QLabel(self.centralwidget)
-        self.image = QtGui.QPixmap("1003880.png")
-        if not self.image.isNull():
-            self.label_image.setPixmap(self.image)
-        else:
-            print("Erreur: impossible de charger l'image")
-
-        self.retranslate_Jeu(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslate_Jeu(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLord"))
-
-    def launcherToGame(self, MainWindow):
-        for widget in Ui_MainProgram.list_widgets:
-            widget.deleteLater()
-        Ui_MainProgram.list_widgets = []
-        self.setup_Jeu(MainWindow)
-        self.retranslate_Jeu(MainWindow)
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainProgram()
-    ui.setup_Dem(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+    def close(self):
+        for widget in Ui_Demarrage.list_widgets:
+            widget[0].deleteLater()
+        Ui_Demarrage.list_widgets = []

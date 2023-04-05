@@ -1,48 +1,81 @@
-# import time
+import time
 import sys
-import os
-# from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QApplication, QMainWindow
-# from PyQt5.QtGui import QPixmap
-# from PyQt5 import uic
-# import threading
+from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import partie
-import Interface_Demarrage as I_Dem
+from GameScreen import *
+from Demarrage import *
 from win32api import GetSystemMetrics
 
 
-class MyWidget(QMainWindow):
-    def __init__(self, game):
-        QMainWindow.__init__(self)
-        self.window = I_Dem.Ui_MainProgram()  # Récupérer la classe de Interface_Demarrage
-        self.window.setup_Dem(self)  # Setup la fenêtre créer avec QtDesigner
-        self.window.retranslate_Dem(self)  # Appliquer les modifications de nom
-        self.game = game
+class MyWidget(QtWidgets.QMainWindow):
 
-        # Définition de la fenêtre de jeu
-        self.height = GetSystemMetrics(0)  # Hauteur écran utilisateur
-        self.width = GetSystemMetrics(1)  # Largeur écran utilisateur
-        self.move(self.height//2 - 400, self.width//2 - 300)  # Fenêtre centrée sur l'écran
+    width = GetSystemMetrics(0)
+    height = GetSystemMetrics(1)
 
-        self.main_loop()
+    def __init__(self):
+        super().__init__()
+        print("beginning")
+        self.ui_demarrage()
+        self.create_Game()
+        self.ui.bouton_jouer.clicked.connect(self.ui_game)
 
-    def main_loop(self):
-        self.window.bouton_jouer.clicked.connect(self.start_partie)
+    def keyPressEvent(self, event):
+        perso = self.game.joueurs.values()[0]
+        print(perso)
+        if event.key() == QtCore.Qt.Key_Space:
+            pass
+            # print(perso.position)
+            # perso.deplacement("up")
+            # print(perso.position)
 
-    def start_partie(self):
-        self.window.launcherToGame(self)
+    def ui_demarrage(self):
+        try:
+            self.ui.close()
+        except AttributeError:
+            pass
+        self.ui = Ui_Demarrage()
+        self.ui.setup_Dem(self)
+        self.ui.retranslate_Dem(self)
+
+    def ui_game(self):
+        try:
+            self.ui.close()
+        except AttributeError:
+            pass
+        self.ui = Ui_GameScreen()
+        self.ui.setup_Jeu(self)
+        self.ui.retranslate_Jeu(self)
+
+        self.painter = QtGui.QPainter()
+        self.ui.conteneur.paintEvent = self.drawGame
+
+    def create_Game(self):
+        """Test spawn et affichage"""
+        self.game = partie.Partie(MyWidget.width, MyWidget.height)
+        self.game.new_player('Link', 'epeiste', pos=(500, 500))
+
+    def drawGame(self, *args):
+        print("entrée")
+        self.painter.begin(self.ui.conteneur)
+        qp = self.painter
+        for player in self.game.joueurs.values():
+            print(player)
+            qp.setPen(QtCore.Qt.blue)
+            qp.drawEllipse(player.position[0], player.position[1], 20, 20)
+        for ennemy in self.game.ennemis.values():
+            print(ennemy)
+            qp.setPen(QtCore.Qt.red)
+            qp.drawRect(ennemy.position[0], ennemy.position[1], 20, 20)
+        self.painter.end()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
 
-    app = QApplication.instance()
+    app = QtWidgets.QApplication.instance()
     if not app:
-        app = QApplication(sys.argv)
+        app = QtWidgets.QApplication(sys.argv)
 
-    game = partie.Partie(20,10)
-    game.new_player('link', "epeiste")
-    window = MyWidget(game)
-
+    window = MyWidget()
     window.show()  # Affichage fenêtre
     app.exec_()  # Execution fichier
 
