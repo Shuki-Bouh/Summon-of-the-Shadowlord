@@ -43,6 +43,7 @@ class MyWidget(QtWidgets.QMainWindow):
         t1_loop = time.time()
         t_loop = t1_loop - t0_loop
         print(t_loop)
+        self.ui.conteneur.update()
         if t_loop < 1/24:
             time.sleep(1/24 - t_loop)
         else:
@@ -83,7 +84,10 @@ class MyWidget(QtWidgets.QMainWindow):
             print(player)
             qp.setPen(QtCore.Qt.blue)
             x, y = player.position
-            qp.drawEllipse(x, y, 20, 20)
+            x_win = x * 1920 // self.game.l
+            y_win = y * 1080 // self.game.h
+            print(x_win)
+            qp.drawEllipse(x_win, y_win, 20, 20)
         for ennemy in self.game.ennemis.values():
             print(ennemy)
             qp.setPen(QtCore.Qt.red)
