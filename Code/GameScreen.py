@@ -28,7 +28,7 @@ class Ui_GameScreen(object):
         self.conteneur.setObjectName("conteneur")
         MainWindow.setCentralWidget(self.centralwidget)
 
-        pixmap = QtGui.QPixmap("1003880.png")
+        pixmap = QtGui.QPixmap("arriere_plan_jeu.png")
         pixmap = pixmap.scaled(self.centralwidget.size())
         pal = QtGui.QPalette()
         pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
