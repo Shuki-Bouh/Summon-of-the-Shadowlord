@@ -4,13 +4,6 @@ import Code.personnage as perso
 import threading
 import os
 import sqlite3
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget
-
-path = os.getcwd()
-path = path.split("\\Code")[0]
-path += "\\Data"
-os.chdir(path)
 
 class Partie(list):
     """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -303,8 +296,16 @@ class Partie(list):
         return canvas
 
 if __name__ == '__main__':
+    path = os.getcwd()
+    print(path)
+    path = path.split("\\Code")[0]
+    os.chdir(os.path.join(path, "Data"))
     a = Partie(10, 15)
     a.new_player("Link", "epeiste", 5)
     thread = threading.Thread(target=a.action_mechant)
     thread.start()
     thread.join()
+else:
+    path = os.getcwd()
+    path = path.split("\\Code")[0]
+    os.chdir(os.path.join(path, "Data"))

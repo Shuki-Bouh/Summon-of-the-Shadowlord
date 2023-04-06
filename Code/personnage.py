@@ -1,7 +1,6 @@
 from abc import abstractmethod, ABCMeta
 import random
 import numpy as np
-from PyQt5 import QtCore, QtGui
 
 class Entite(metaclass=ABCMeta):
     """Classe mère héritant de metaclass. L'ensemble des personnages et ennemis du jeu en hérite."""

@@ -6,11 +6,10 @@ from GameScreen import *
 from Demarrage import *
 from win32api import GetSystemMetrics
 
-
 class MyWidget(QtWidgets.QMainWindow):
 
-    width = GetSystemMetrics(0)
-    height = GetSystemMetrics(1)
+    width = int(GetSystemMetrics(0) * 1.25)
+    height = int(GetSystemMetrics(1) *1.18)
 
     def __init__(self):
         super().__init__()
@@ -21,13 +20,10 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, event):
         t0_loop = time.time()
-        print(self.game)
         for joueur in self.game.joueurs.values():
-            print(joueur.position)
             self.game.mutex.acquire()
             if event.key() == QtCore.Qt.Key_Z:
                 joueur.deplacement('up')
-                print("Z")
             #elif event.key() == Qt.QMouseEvent
             elif event.key() == QtCore.Qt.Key_S:
                 joueur.deplacement('down')
@@ -42,7 +38,6 @@ class MyWidget(QtWidgets.QMainWindow):
             self.game.mutex.release()
         t1_loop = time.time()
         t_loop = t1_loop - t0_loop
-        print(t_loop)
         self.ui.conteneur.update()
         if t_loop < 1/24:
             time.sleep(1/24 - t_loop)
@@ -73,23 +68,19 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def create_Game(self):
         """Test spawn et affichage"""
-        self.game = partie.Partie(MyWidget.width//10, MyWidget.height//10)
+        self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
         self.game.new_player('Link', 'epeiste')
 
     def drawGame(self, *args):
-        print("entrée")
         self.painter.begin(self.ui.conteneur)
         qp = self.painter
         for player in self.game.joueurs.values():
-            print(player)
             qp.setPen(QtCore.Qt.blue)
             x, y = player.position
-            x_win = x * 1920 // self.game.l
-            y_win = y * 1080 // self.game.h
-            print(x_win)
+            x_win = x * MyWidget.width // self.game.l
+            y_win = y * MyWidget.height // self.game.h
             qp.drawEllipse(x_win, y_win, 20, 20)
         for ennemy in self.game.ennemis.values():
-            print(ennemy)
             qp.setPen(QtCore.Qt.red)
             qp.drawRect(ennemy.position[0], ennemy.position[1], 20, 20)
         self.painter.end()
