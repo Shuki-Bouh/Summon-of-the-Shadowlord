@@ -10,8 +10,8 @@ class Ui_GameScreen(object):
     list_widgets = []
 
     # Screen resolution
-    width = GetSystemMetrics(0) * 1.25
-    height = GetSystemMetrics(1) * 1.18
+    width = int(GetSystemMetrics(0) * 1.25)
+    height = int(GetSystemMetrics(1) * 1.18)
 
     def setup_Jeu(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
