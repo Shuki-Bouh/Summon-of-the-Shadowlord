@@ -1,3 +1,4 @@
+import threading
 import time
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
@@ -17,6 +18,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui_demarrage()
         self.create_Game()
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
+
 
     def keyPressEvent(self, event):
         t0_loop = time.time()
@@ -39,13 +41,20 @@ class MyWidget(QtWidgets.QMainWindow):
             self.game.mutex.release()
         t1_loop = time.time()
         t_loop = t1_loop - t0_loop
-        self.ui.conteneur.update()
         if t_loop < 1/24:
             time.sleep(1/24 - t_loop)
         else:
             print("Too much computation in this loop")
 
-
+    def refresh(self):
+        while True:
+            t0 = time.time()
+            self.ui.conteneur.update()
+            t1 = time.time()
+            if t1 - t0 < 1/24:
+                time.sleep(1/24 - t1 + t0)
+            else:
+                print("c'est cassé")
     def ui_demarrage(self):
         try:
             self.ui.close()
@@ -66,6 +75,8 @@ class MyWidget(QtWidgets.QMainWindow):
 
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
+        maj = threading.Thread(target=self.refresh)
+        maj.start()
 
     def create_Game(self):
         """Test spawn et affichage"""
@@ -73,6 +84,8 @@ class MyWidget(QtWidgets.QMainWindow):
         self.game.new_player('Link', 'epeiste')
         for k in range(5):
             self.game.spawn_ennemi(1)
+        self.game.start()
+
 
     def drawGame(self, *args):
         self.painter.begin(self.ui.conteneur)
