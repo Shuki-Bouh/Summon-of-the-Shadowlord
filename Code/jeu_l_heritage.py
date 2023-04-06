@@ -8,8 +8,8 @@ from win32api import GetSystemMetrics
 
 class MyWidget(QtWidgets.QMainWindow):
 
-    width = int(GetSystemMetrics(0) * 1.25)
-    height = int(GetSystemMetrics(1) *1.18)
+    width = int(GetSystemMetrics(0) * 1.28)
+    height = int(GetSystemMetrics(1) * 1.23)
 
     def __init__(self):
         super().__init__()
