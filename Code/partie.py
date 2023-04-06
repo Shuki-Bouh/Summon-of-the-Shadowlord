@@ -22,6 +22,9 @@ class Partie(list):
         self.thread_ennemis = threading.Thread(target=self.action_mechant)
         self.mutex = threading.Lock()
 
+    def start(self):
+        self.thread_ennemis.start()
+
     def __generation_map(self):
         for x in range(self.l):
             self.append([])
@@ -243,14 +246,13 @@ class Partie(list):
 
     def suppr_ennemi(self):
         while len(self.disparition) > 0:
-            mechant = self.ennemis.pop()
+            mechant = self.disparition.pop()
             del self.ennemis[mechant.nom]
             del mechant
 
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
-        i = 0
         while True:
             t0_loop = time.time()
             if not self.mutex.locked():
@@ -268,7 +270,6 @@ class Partie(list):
 
                 with self.mutex:
                     self.suppr_ennemi()
-                print(self)
                 t_loop = time.time() - t0_loop
                 if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
                     time.sleep(1 - t_loop)
@@ -280,8 +281,6 @@ class Partie(list):
                     time.sleep(1/24 - t_loop)
                 else:
                     print('Too many computation in this loop')  # Meilleur ref
-            i += 1
-            if i == 50:
                 break
     def __str__(self):
         canvas = ""
