@@ -71,8 +71,10 @@ class MyWidget(QtWidgets.QMainWindow):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
         self.game.new_player('Link', 'epeiste')
-        for k in range(5):
-            self.game.spawn_ennemi(1)
+        self.game.spawn_invocateur(1)
+        self.game.spawn_crane(1)
+        self.game.spawn_armure(1)
+        self.game.spawn_squelette(1)
 
     def drawGame(self, *args):
         self.painter.begin(self.ui.conteneur)

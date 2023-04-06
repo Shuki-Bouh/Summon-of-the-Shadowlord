@@ -451,7 +451,10 @@ class Squelette(Ennemi):
 
     def mort(self):
         Squelette.compteur -= 1
-        Ennemi.mort(self)
+        Ennemi.compteur -= 1
+        del self.game.ennemis[self.nom]
+        x, y = self.position
+        self.game[x][y] = None
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
