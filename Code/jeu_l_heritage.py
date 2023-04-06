@@ -33,6 +33,7 @@ class MyWidget(QtWidgets.QMainWindow):
                 joueur.deplacement('right')
             elif event.key() == QtCore.Qt.Key_Space:
                 joueur.attaquer()
+                self.drawGame('attaque')
             else:
                 QWidget().keyPressEvent(event)
             self.game.mutex.release()
@@ -70,19 +71,22 @@ class MyWidget(QtWidgets.QMainWindow):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
         self.game.new_player('Link', 'epeiste')
+        for k in range(5):
+            self.game.spawn_ennemi(1)
 
     def drawGame(self, *args):
         self.painter.begin(self.ui.conteneur)
         qp = self.painter
         for player in self.game.joueurs.values():
-            qp.setPen(QtCore.Qt.blue)
             x, y = player.position
             x_win = x * MyWidget.width // self.game.l
             y_win = y * MyWidget.height // self.game.h
-            qp.drawEllipse(x_win, y_win, 20, 20)
+            player.dessinImage(qp, x_win, y_win)
         for ennemy in self.game.ennemis.values():
-            qp.setPen(QtCore.Qt.red)
-            qp.drawRect(ennemy.position[0], ennemy.position[1], 20, 20)
+            x, y = ennemy.position
+            x_win = x * MyWidget.width // self.game.l
+            y_win = y * MyWidget.height // self.game.h
+            ennemy.dessinImage(qp, x_win, y_win)
         self.painter.end()
 
 

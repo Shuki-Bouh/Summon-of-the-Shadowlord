@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABCMeta
 import random
 import numpy as np
+from PyQt5 import QtCore, QtGui
 
 class Entite(metaclass=ABCMeta):
     """Classe mère héritant de metaclass. L'ensemble des personnages et ennemis du jeu en hérite."""
@@ -105,6 +106,11 @@ class Entite(metaclass=ABCMeta):
         """Permet de faire mourir une entité, et donc de libérer son espace mémoire associé."""
         pass
 
+    @abstractmethod
+    def dessinImage(self, qp, x_win, y_win):
+        pass
+
+
     def __str__(self):
         """Permet de représenter une entité par son nom."""
         return self.nom
@@ -185,6 +191,7 @@ class Epeiste(Personnage):
         self.cooldown = 0
         self.classe = 'Epeiste'
         self.vivant = True
+        self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -215,11 +222,16 @@ class Epeiste(Personnage):
             if entity in self.game.ennemis.values():
                 entity.vie -= 2*self.attaque
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
+
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Garde'
         self.vivant = True
+        self.image = QtGui.QImage("./Garge/Idle/idle.jpg")
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -257,11 +269,16 @@ class Garde(Personnage):
                 x, y = eval(Entite.direction[self.orientation])
                 entity.position = (x, y)
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
+
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Sorcier'
         self.vivant = True
+        self.image = QtGui.QImage("./Sorcier/Idle/idle.jpg")
         super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -288,11 +305,16 @@ class Sorcier(Personnage):
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
+
 class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Archer'
         self.vivant = True
+        self.image = QtGui.QImage("./Archer/Idle/idle.jpg")
         super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaquer(self):
@@ -317,6 +339,9 @@ class Archer(Personnage):
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 entity.vie -= self.attaque
+
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
 # ----------------------------------
@@ -411,6 +436,7 @@ class Squelette(Ennemi):
         self.game.ennemis[self.nom] = self
         self.xp = 10 * self.niveau // 3  # L'xp que gagne le joueur s'il le tue
         self.vision = 4
+        self.image = QtGui.QImage("./Squelette/Idle/idle.jpg")
 
     def attaquer(self):
         """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -427,6 +453,9 @@ class Squelette(Ennemi):
         Squelette.compteur -= 1
         Ennemi.mort(self)
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
 
 class Crane(Ennemi):
     compteur = 0
@@ -440,6 +469,7 @@ class Crane(Ennemi):
         self.xp = 10 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 6
+        self.image = QtGui.QImage("./Crane/Idle/idle.jpg")
 
     def attaquer(self):
         """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -480,6 +510,9 @@ class Crane(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
 
 class Armure(Ennemi):
     compteur = 0
@@ -493,6 +526,7 @@ class Armure(Ennemi):
         self.xp = 20 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 2
+        self.image = QtGui.QImage("./Armure/Idle/idle.jpg")
 
     def attaquer(self):
         """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -527,6 +561,9 @@ class Armure(Ennemi):
         x, y = self.position
         self.game[x][y] = None
 
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
+
 
 class Invocateur(Ennemi):
     compteur = 0
@@ -540,6 +577,7 @@ class Invocateur(Ennemi):
         self.xp = 30 * self.niveau // 3
         self.game.ennemis[self.nom] = self
         self.vision = 5
+        self.image = QtGui.QImage("./Invocateur/Idle/idle.jpg")
 
     def attaquer(self):
         """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
@@ -572,6 +610,9 @@ class Invocateur(Ennemi):
         del self.game.ennemis[self.nom]
         x, y = self.position
         self.game[x][y] = None
+
+    def dessinImage(self, qp, x_win, y_win):
+        qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
 if __name__ == '__main__':
