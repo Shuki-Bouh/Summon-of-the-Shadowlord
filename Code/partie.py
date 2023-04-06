@@ -303,7 +303,7 @@ class Partie(list):
         return canvas
 
 if __name__ == '__main__':
-    a = Partie(15, 30)
+    a = Partie(10, 15)
     a.new_player("Link", "epeiste", 5)
     thread = threading.Thread(target=a.action_mechant)
     thread.start()
