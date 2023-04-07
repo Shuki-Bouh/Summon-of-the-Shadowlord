@@ -261,13 +261,12 @@ class Partie(list):
                     lvl = lv + randrange(-2, 3)
                     self.spawn_ennemi(lvl)
                 for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
-                    with self.mutex:  # Dès qu'il peut acquérir, il rentre dans le bloc, il libère l'accès à la fin du bloc
+                    with self.mutex:
                         if mechant.portee():
                             mechant.attaquer()
                         else:
                             mechant.deplacement()
                         mechant.agro()
-
                 with self.mutex:
                     self.suppr_ennemi()
                 t_loop = time.time() - t0_loop

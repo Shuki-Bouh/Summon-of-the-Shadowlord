@@ -152,8 +152,8 @@ class Personnage(Entite):
     def levelup(self):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
-            self.niveau += 1
             self.xp -= self.niveau*10
+            self.niveau += 1
 
     @staticmethod
     def coup(attaquant, cible):

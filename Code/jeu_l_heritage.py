@@ -77,6 +77,7 @@ class MyWidget(QtWidgets.QMainWindow):
                 time.sleep(1/10 - t1 + t0)
             else:
                 print("c'est cassé")
+
     def ui_demarrage(self):
         try:
             self.ui.close()
