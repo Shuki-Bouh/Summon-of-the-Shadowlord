@@ -90,7 +90,6 @@ class Entite(metaclass=ABCMeta):
             self.__vie = self.viemax
         else:
             self.__vie = x
-
     @abstractmethod
     def attaquer(self):
         """Schéma d'attaque classique des entités."""
@@ -154,6 +153,7 @@ class Personnage(Entite):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.niveau += 1
+            self.xp -= self.niveau*10
 
     @staticmethod
     def coup(attaquant, cible):
@@ -162,7 +162,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
         else:  # Formula damage
             vie = cible.vie - attaquant.attaque
-        if not vie:  # Si l'ennemi n'a plus de vie
+        if vie < 1:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
             attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie

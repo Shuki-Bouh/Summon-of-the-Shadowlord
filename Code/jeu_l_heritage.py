@@ -6,6 +6,7 @@ import partie
 from GameScreen import *
 from Demarrage import *
 from win32api import GetSystemMetrics
+import numpy as np
 
 class MyWidget(QtWidgets.QMainWindow):
 
@@ -49,10 +50,31 @@ class MyWidget(QtWidgets.QMainWindow):
     def refresh(self):
         while True:
             t0 = time.time()
+
+            print(self.game.mutex.locked())
+
             self.ui.conteneur.update()
+            perso = list(self.game.joueurs.values())[0]
+            xp_max = 10 * perso.niveau
+            update_vie = int(np.round(100*(perso.vie/perso.viemax), 0))
+            update_xp = int(np.round(100*(perso.xp/xp_max), 0))
+
+            print("")
+            print("update_vie : "+str(update_vie))
+            print("update_xp : "+str(update_xp))
+            print("")
+
+            self.ui.label_vie.setValue(update_vie)
+            self.ui.label_xp.setValue(update_xp)
+
+            print("")
+            print("niveau : "+str(perso.niveau))
+            print("xp : "+str(perso.xp))
+            print("")
+
             t1 = time.time()
-            if t1 - t0 < 1/24:
-                time.sleep(1/24 - t1 + t0)
+            if t1 - t0 < 1/10:
+                time.sleep(1/10 - t1 + t0)
             else:
                 print("c'est cassé")
     def ui_demarrage(self):
@@ -75,6 +97,7 @@ class MyWidget(QtWidgets.QMainWindow):
 
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
+
         maj = threading.Thread(target=self.refresh)
         maj.start()
 
@@ -85,7 +108,6 @@ class MyWidget(QtWidgets.QMainWindow):
         for k in range(5):
             self.game.spawn_ennemi(1)
         self.game.start()
-
 
     def drawGame(self, *args):
         self.painter.begin(self.ui.conteneur)

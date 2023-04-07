@@ -1,6 +1,6 @@
 import os
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QProgressBar
 from win32api import GetSystemMetrics
 
 
@@ -37,7 +37,41 @@ class Ui_GameScreen(object):
         self.centralwidget.setAutoFillBackground(True)
         self.centralwidget.setPalette(pal)
 
+        self.label_vie = QProgressBar(self.conteneur)
+        self.label_vie.setValue(100)
+        self.label_vie.setFormat("Vie")
+        self.label_vie.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_vie.setGeometry(50, 50, 200, 20)
+        self.label_vie.setStyleSheet("QProgressBar::chunk "
+                                     "{"
+                                     "background-color: red;"
+                                     "}")
+
+        self.label_mana = QProgressBar(self.conteneur)
+        self.label_mana.setValue(100)
+        self.label_mana.setFormat("Mana")
+        self.label_mana.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_mana.setGeometry(50, 80, 200, 20)
+        self.label_mana.setStyleSheet("QProgressBar::chunk "
+                                      "{"
+                                      "background-color: green;"
+                                      "}")
+
+        self.label_xp = QProgressBar(self.conteneur)
+        self.label_xp.setValue(100)
+        self.label_xp.setFormat("xp")
+        self.label_xp.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_xp.setGeometry(50, 110, 200, 20)
+        self.label_xp.setStyleSheet("QProgressBar::chunk "
+                                    "{"
+                                    "background-color: blue;"
+                                    "}")
+
         Ui_GameScreen.list_widgets.append(self.centralwidget)
+        Ui_GameScreen.list_widgets.append(self.conteneur)
+        Ui_GameScreen.list_widgets.append(self.label_vie)
+        Ui_GameScreen.list_widgets.append(self.label_mana)
+        Ui_GameScreen.list_widgets.append(self.label_xp)
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
