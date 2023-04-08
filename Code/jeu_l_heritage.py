@@ -51,26 +51,23 @@ class MyWidget(QtWidgets.QMainWindow):
         while True:
             t0 = time.time()
 
-            print(self.game.mutex.locked())
-
             self.ui.conteneur.update()
             perso = list(self.game.joueurs.values())[0]
             xp_max = 10 * perso.niveau
             update_vie = int(np.round(100*(perso.vie/perso.viemax), 0))
+            update_mana = int(np.round(100*(perso.mana/perso.manamax), 0))
             update_xp = int(np.round(100*(perso.xp/xp_max), 0))
 
-            print("")
-            print("update_vie : "+str(update_vie))
-            print("update_xp : "+str(update_xp))
-            print("")
-
             self.ui.label_vie.setValue(update_vie)
-            self.ui.label_xp.setValue(update_xp)
+            self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.viemax))
 
-            print("")
-            print("niveau : "+str(perso.niveau))
-            print("xp : "+str(perso.xp))
-            print("")
+            self.ui.label_mana.setValue(update_mana)
+            self.ui.label_mana.setFormat("Mana : " + str(perso.mana) + "/" + str(perso.manamax))
+
+            self.ui.label_xp.setValue(update_xp)
+            self.ui.label_xp.setFormat("xp : " + str(perso.xp) + "/" + str(10*perso.niveau))
+
+            self.ui.label_niveau.setText("Niveau : " + str(perso.niveau))
 
             t1 = time.time()
             if t1 - t0 < 1/10:

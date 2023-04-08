@@ -57,11 +57,14 @@ class Ui_GameScreen(object):
                                       "background-color: green;"
                                       "}")
 
+        self.label_niveau = QLabel("Niveau", self.conteneur)
+        self.label_niveau.setGeometry(60, 120, 100, 20)
+
         self.label_xp = QProgressBar(self.conteneur)
         self.label_xp.setValue(100)
         self.label_xp.setFormat("xp")
         self.label_xp.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_xp.setGeometry(50, 110, 200, 20)
+        self.label_xp.setGeometry(50, 140, 200, 20)
         self.label_xp.setStyleSheet("QProgressBar::chunk "
                                     "{"
                                     "background-color: blue;"
@@ -71,6 +74,7 @@ class Ui_GameScreen(object):
         Ui_GameScreen.list_widgets.append(self.conteneur)
         Ui_GameScreen.list_widgets.append(self.label_vie)
         Ui_GameScreen.list_widgets.append(self.label_mana)
+        Ui_GameScreen.list_widgets.append(self.label_niveau)
         Ui_GameScreen.list_widgets.append(self.label_xp)
 
         self.retranslate_Jeu(MainWindow)
