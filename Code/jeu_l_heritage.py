@@ -20,7 +20,6 @@ class MyWidget(QtWidgets.QMainWindow):
         self.create_Game()
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
 
-
     def keyPressEvent(self, event):
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
@@ -36,7 +35,8 @@ class MyWidget(QtWidgets.QMainWindow):
                 joueur.deplacement('right')
             elif event.key() == QtCore.Qt.Key_Space:
                 joueur.attaquer()
-                self.drawGame('attaque')
+            # elif event.key() == QtCore.Qt.Key_E:  # Ca bug, mais je sais pas pourquoi...
+            #     joueur.attaque_speciale()
             else:
                 QWidget().keyPressEvent(event)
             self.game.mutex.release()
@@ -77,7 +77,7 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def ui_demarrage(self):
         try:
-            self.ui.close()
+            self.ui.fermer()
         except AttributeError:
             pass
         self.ui = Ui_Demarrage()

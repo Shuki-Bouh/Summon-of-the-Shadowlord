@@ -120,7 +120,7 @@ class Ui_Demarrage(object):
         self.titre_jeu.setText(_translate("MainWindow", "Summon of the ShadowLord"))
         self.nom_createurs.setText(_translate("MainWindow", "@Shuki // @Melinda"))
 
-    def close(self):
+    def fermer(self):
         for widget in Ui_Demarrage.list_widgets:
             widget[0].deleteLater()
         Ui_Demarrage.list_widgets = []

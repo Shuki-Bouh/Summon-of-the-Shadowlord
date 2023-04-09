@@ -465,7 +465,7 @@ class Squelette(Ennemi):
         self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
         # identiques
         self.game.ennemis[self.nom] = self
-        self.xp = 10 * self.niveau // 3  # L'xp que gagne le joueur s'il le tue
+        self.xp = (10 * self.niveau) // 3  # L'xp que gagne le joueur s'il le tue
         self.vision = 4
         self.image = QtGui.QImage("./Squelette/Idle/idle.jpg")
 
@@ -497,7 +497,7 @@ class Crane(Ennemi):
         Crane.compteur += 1
         Crane.total_compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
-        self.xp = 10 * self.niveau // 3
+        self.xp = (10 * self.niveau) // 3
         self.game.ennemis[self.nom] = self
         self.vision = 6
         self.image = QtGui.QImage("./Crane/Idle/idle.jpg")
@@ -512,7 +512,7 @@ class Crane(Ennemi):
         et lui vole 1/3 de sa vie pour se régénérer
         Cooldown : MOYEN (10 sec)
         """
-        vol_vie = self.cible.vie * 1 // 3
+        vol_vie = self.cible.vie // 3
         self.cible.vie -= vol_vie
         self.vie += vol_vie
         x1, y1 = self.position
@@ -537,7 +537,6 @@ class Crane(Ennemi):
     def mort(self):
         super().mort()
         Crane.compteur -= 1
-
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -568,7 +567,7 @@ class Armure(Ennemi):
         Cooldown : LONG (15 sec)
         """
         self.attaque //= 2
-        self.vie = self.vie * 4 // 3
+        self.vie = (self.vie * 4) // 3
         self.cible.vie -= self.attaque
         x1, y1 = self.position
         x2, y2 = self.cible.position
@@ -600,7 +599,7 @@ class Invocateur(Ennemi):
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
-        self.xp = 30 * self.niveau // 3
+        self.xp = (30 * self.niveau) // 3
         self.game.ennemis[self.nom] = self
         self.vision = 5
         self.image = QtGui.QImage("./Invocateur/Idle/idle.jpg")

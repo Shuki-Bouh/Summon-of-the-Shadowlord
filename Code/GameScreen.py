@@ -84,7 +84,7 @@ class Ui_GameScreen(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
-    def close(self):
+    def fermer(self):
         for widget in Ui_GameScreen.list_widgets:
             widget[0].deleteLater()
         Ui_GameScreen.list_widgets = []
