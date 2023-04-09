@@ -102,7 +102,10 @@ class MyWidget(QtWidgets.QMainWindow):
     def create_Game(self):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
-        self.game.new_player('Link', 'epeiste')
+        # self.game.new_player('Link', 'epeiste')
+        # self.game.new_player('Darunia', 'garde')
+        self.game.new_player('Koume', 'sorcier')
+        # self.game.new_player('Zelda', 'archer')
         for k in range(5):
             self.game.spawn_ennemi(1)
         self.game.start()
