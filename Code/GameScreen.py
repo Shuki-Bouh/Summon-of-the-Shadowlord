@@ -2,6 +2,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QLabel, QProgressBar
 from win32api import GetSystemMetrics
+from PyQt5.QtGui import QPainter, QColor, QFont
 
 
 class Ui_GameScreen(object):
