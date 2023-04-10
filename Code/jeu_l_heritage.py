@@ -19,7 +19,6 @@ class MyWidget(QtWidgets.QMainWindow):
         print("beginning")
         self.ui_demarrage()
         self.create_Game()
-        self.ui.bouton_jouer.clicked.connect(self.ui_game)
 
     def keyPressEvent(self, event):
         t0_loop = time.time()
@@ -84,6 +83,8 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui = Ui_Demarrage()
         self.ui.setup_Dem(self)
         self.ui.retranslate_Dem(self)
+        self.ui.bouton_jouer.clicked.connect(self.ui_game)
+        self.ui.bouton_quit.clicked.connect(self.close)
 
     def ui_game(self):
         try:
@@ -105,6 +106,15 @@ class MyWidget(QtWidgets.QMainWindow):
         # Gestion des threads
         maj = threading.Thread(target=self.refresh)
         maj.start()
+
+    def ui_credits(self):
+        pass
+
+    def ui_multi(self):
+        pass
+
+    def ui_newgame(self):
+        pass
 
     def create_Game(self):
         """Test spawn et affichage"""
