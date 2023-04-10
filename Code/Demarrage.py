@@ -1,17 +1,10 @@
-import os
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
-from win32api import GetSystemMetrics
 
 
 class Ui_Demarrage(object):
 
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
     list_widgets = []
-
-    # Screen resolution
-    width = GetSystemMetrics(0)
-    height = GetSystemMetrics(1)
 
     def setup_Dem(self, MainWindow):
         MainWindow.setObjectName("MainWindow")

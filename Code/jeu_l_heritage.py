@@ -1,11 +1,15 @@
 import threading
 import time
 import sys
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import partie
 from GameScreen import *
 from Demarrage import *
+from Credits import *
+from StartScreen import *
+from MultiScreen import *
 from win32api import GetSystemMetrics
 import numpy as np
 
@@ -16,7 +20,6 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        print("beginning")
         self.ui_demarrage()
         self.create_Game()
 
@@ -80,18 +83,23 @@ class MyWidget(QtWidgets.QMainWindow):
             self.ui.fermer()
         except AttributeError:
             pass
+        # Démarrage fenêtre graphique du menu
         self.ui = Ui_Demarrage()
         self.ui.setup_Dem(self)
         self.ui.retranslate_Dem(self)
+        # Connexion signaux/ bouton
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
         self.ui.bouton_quit.clicked.connect(self.close)
+        self.ui.bouton_credits.clicked.connect(self.ui_credits)
+        self.ui.bouton_multi.clicked.connect(self.ui_multi)
+        self.ui.bouton_start.clicked.connect(self.ui_newgame)
 
     def ui_game(self):
         try:
             self.ui.fermer()
         except AttributeError:
             pass
-        # Démarrage fenêtre graphique de jeu
+        # Démarrage fenêtre graphique du jeu
         self.ui = Ui_GameScreen()
         self.ui.setup_Jeu(self)
         self.ui.retranslate_Jeu(self)
@@ -108,21 +116,46 @@ class MyWidget(QtWidgets.QMainWindow):
         maj.start()
 
     def ui_credits(self):
-        pass
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique des crédits
+        self.ui = Ui_Credits()
+        self.ui.setup_Cred(self)
+        self.ui.retranslate_Cred(self)
+        # Connexion signaux/ bouton
+        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
     def ui_multi(self):
-        pass
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique des crédits
+        self.ui = Ui_Multi()
+        self.ui.setup_Multi(self)
+        self.ui.retranslate_Multi(self)
+        # Connexion signaux/ bouton
+        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
     def ui_newgame(self):
-        pass
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique de la fenêtre de nouveau jeu
+        self.ui = Ui_Start()
+        self.ui.setup_Start(self)
+        self.ui.retranslate_Start(self)
+        # Connexion signaux/ bouton
+        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
+        self.ui.bouton_jouer.clicked.connect(self.ui_game)
 
     def create_Game(self):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
-        # self.game.new_player('Link', 'epeiste')
-        # self.game.new_player('Darunia', 'garde')
-        self.game.new_player('Koume', 'sorcier')
-        # self.game.new_player('Zelda', 'archer')
+        self.game.new_player('Link', 'epeiste')
         for k in range(5):
             self.game.spawn_ennemi()
         self.game.start()
@@ -130,12 +163,12 @@ class MyWidget(QtWidgets.QMainWindow):
     def drawGame(self, *args):
         self.painter.begin(self.ui.conteneur)
         qp = self.painter
-        for player in self.game.joueurs.values():
+        for player in self.game.joueurs.values():  # Affichage personnages
             x, y = player.position
             x_win = x * MyWidget.width // self.game.l
             y_win = y * MyWidget.height // self.game.h
             player.dessinImage(qp, x_win, y_win)
-        for ennemy in self.game.ennemis.values():
+        for ennemy in self.game.ennemis.values():  # Affichage ennemis
             x, y = ennemy.position
             x_win = x * MyWidget.width // self.game.l
             y_win = y * MyWidget.height // self.game.h
