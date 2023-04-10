@@ -58,7 +58,7 @@ class Ui_Credits(object):
 
     def retranslate_Cred(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
         self.bouton_menu.setText(_translate("MainWindow", "Menu"))
 
     def fermer(self):

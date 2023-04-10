@@ -58,7 +58,7 @@ class Ui_Multi(object):
 
     def retranslate_Multi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
         self.bouton_menu.setText(_translate("MainWindow", "Menu"))
 
     def fermer(self):
