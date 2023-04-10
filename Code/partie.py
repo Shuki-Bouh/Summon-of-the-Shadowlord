@@ -272,19 +272,10 @@ class Partie(list):
                 self.suppr_ennemi()
             t_loop = time.time() - t0_loop
             if t_loop < 1/10:  # Les ennemis vont agir à 1 Hz
-                print('flag2')
                 time.sleep(1/10-t_loop)
-                print('flag3')
             else:
-                print('Too many computation in this loop')  # Meilleur ref
+                print('Too many computation in ennemi loop')  # Meilleur ref
 
-            """else:
-                t_loop = time.time() - t0_loop
-                if t_loop < 1/24:  # On réessaye à une fréquence de 24 Hz
-                    time.sleep(1/24 - t_loop)
-                else:
-                    print('Too many computation in this loop')  # Meilleur ref
-                break"""
     def __str__(self):
         canvas = ""
         for y in range(self.h):
