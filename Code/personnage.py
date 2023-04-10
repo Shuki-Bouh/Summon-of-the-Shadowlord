@@ -55,9 +55,8 @@ class Entite(metaclass=ABCMeta):
                 lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
                 for k in range(len(lvl)):
                     lvl[k] = int(lvl[k])
-                self.__viemax, self.attaque, self.defense, self.__manamax = lvl[:]  # On génère les stats du joueur
-                self.__vie = self.__viemax  # à chaque lvlup, il récupère toute sa vie
-                self.__mana = self.__manamax  # à chaque lvlup, il récupère tout son mana
+                self.__viemax, self.attaque, self.defense, self.mana = lvl[:]  # On génère les stats du joueur
+                self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
 
     @staticmethod
     @abstractmethod
@@ -76,10 +75,6 @@ class Entite(metaclass=ABCMeta):
     def viemax(self):
         return self.__viemax
 
-    @viemax.setter
-    def viemax(self, x):
-        self.__viemax = x
-
     @property
     def vie(self):
         return self.__vie
@@ -88,6 +83,7 @@ class Entite(metaclass=ABCMeta):
     def vie(self, x):
         """Permet de réguler la vie des entités, afin qu'elles ne dépassent pas self.viemax
         ni qu'elles descendent sous une vie égale à 0."""
+        print(x)
         if x <= 0:
             self.__vie = 0
             self.mort()
@@ -95,30 +91,6 @@ class Entite(metaclass=ABCMeta):
             self.__vie = self.viemax
         else:
             self.__vie = x
-
-    @property
-    def manamax(self):
-        return self.__manamax
-
-    @manamax.setter
-    def manamax(self, x):
-        self.__manamax = x
-
-    @property
-    def mana(self):
-        return self.__mana
-
-    @mana.setter
-    def mana(self, x):
-        """Permet de réguler le mana des entités, afin qu'elles ne dépassent pas self.manamax
-        ni qu'elles descendent sous un mana égal à 0."""
-        if x <= 0:
-            self.__mana = 0
-        elif x >= self.manamax:
-            self.__mana = self.manamax
-        else:
-            self.__mana = x
-
 
     @abstractmethod
     def attaquer(self):
@@ -181,11 +153,8 @@ class Personnage(Entite):
 
     def levelup(self):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
-        if self.xp >= self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
-            self.xp -= self.niveau*10
+        if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.niveau += 1
-            self.viemax = self.vie
-            self.manamax = self.mana
 
     @staticmethod
     def coup(attaquant, cible):
@@ -194,7 +163,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
         else:  # Formula damage
             vie = cible.vie - attaquant.attaque
-        if vie < 1:  # Si l'ennemi n'a plus de vie
+        if vie < 0:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
             attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
@@ -423,7 +392,7 @@ class Ennemi(Entite):
     @staticmethod
     def coup(attaquant, cible):
         if (attaquant.defense / cible.defense) < 1:
-            cible.vie -= (attaquant.attaque * attaquant.defense) // cible.defense
+            cible.vie -= attaquant.attaque * attaquant.defense // cible.defense
         else:
             cible.vie -= attaquant.attaque
 
@@ -439,9 +408,10 @@ class Ennemi(Entite):
 
     def mort(self):
         Ennemi.compteur -= 1
-        del self.game.ennemis[self.nom]
         x, y = self.position
-        self.game[x][y] = None
+        self.game [x][y] = None
+        self.game.disparition.append(self)
+        pass
 
     def agro(self):
         """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
@@ -481,8 +451,8 @@ class Squelette(Ennemi):
         self.cible.vie -= 2 * self.attaque
 
     def mort(self):
-        super().mort()
         Squelette.compteur -= 1
+        Ennemi.mort(self)
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -535,8 +505,8 @@ class Crane(Ennemi):
             Ennemi.deplacement(self)
 
     def mort(self):
-        super().mort()
         Crane.compteur -= 1
+        Ennemi.mort(self)
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -583,8 +553,8 @@ class Armure(Ennemi):
         self.cible.deplacement(direction)
 
     def mort(self):
-        super().mort()
         Armure.compteur -= 1
+        Ennemi.mort(self)
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -630,8 +600,8 @@ class Invocateur(Ennemi):
             self.vie = self.viemax
 
     def mort(self):
-        super().mort()
         Invocateur.compteur -= 1
+        Ennemi.mort(self)
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
