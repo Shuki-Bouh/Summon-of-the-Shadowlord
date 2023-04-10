@@ -55,8 +55,9 @@ class Entite(metaclass=ABCMeta):
                 lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
                 for k in range(len(lvl)):
                     lvl[k] = int(lvl[k])
-                self.__viemax, self.attaque, self.defense, self.mana = lvl[:]  # On génère les stats du joueur
+                self.__viemax, self.attaque, self.defense, self.__manamax = lvl[:]  # On génère les stats du joueur
                 self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
+                self.__mana = self.__manamax
 
     @staticmethod
     @abstractmethod
@@ -83,7 +84,6 @@ class Entite(metaclass=ABCMeta):
     def vie(self, x):
         """Permet de réguler la vie des entités, afin qu'elles ne dépassent pas self.viemax
         ni qu'elles descendent sous une vie égale à 0."""
-        print(x)
         if x <= 0:
             self.__vie = 0
             self.mort()
@@ -91,6 +91,25 @@ class Entite(metaclass=ABCMeta):
             self.__vie = self.viemax
         else:
             self.__vie = x
+
+    @property
+    def manamax(self):
+        return self.__manamax
+
+    @property
+    def mana(self):
+        return self.__mana
+
+    @mana.setter
+    def mana(self, x):
+        """Permet de réguler le mana des entités, afin qu'elles ne dépassent pas self.manamax
+        ni qu'elles descendent sous un mana égal à 0."""
+        if x <= 0:
+            self.__mana = 0
+        elif x >= self.manamax:
+            self.__mana = self.manamax
+        else:
+            self.__mana = x
 
     @abstractmethod
     def attaquer(self):
@@ -130,6 +149,7 @@ class Personnage(Entite):
         self.nom = nom
         self.orientation = 'up'  # L'orientation sert à l'affichage du personnage et pour la direction de ses attaques
         self.xp = 0
+        self.vivant = True
         game.joueurs[self.nom] = self
 
     @abstractmethod
@@ -154,6 +174,7 @@ class Personnage(Entite):
     def levelup(self):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
+            self.xp -= self.niveau * 10
             self.niveau += 1
 
     @staticmethod
@@ -163,7 +184,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
         else:  # Formula damage
             vie = cible.vie - attaquant.attaque
-        if vie < 0:  # Si l'ennemi n'a plus de vie
+        if vie < 1:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
             attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
@@ -191,7 +212,6 @@ class Epeiste(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Epeiste'
-        self.vivant = True
         self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -231,7 +251,6 @@ class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Garde'
-        self.vivant = True
         self.image = QtGui.QImage("./Garge/Idle/idle.jpg")
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -278,7 +297,6 @@ class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Sorcier'
-        self.vivant = True
         self.image = QtGui.QImage("./Sorcier/Idle/idle.jpg")
         super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -314,7 +332,6 @@ class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Archer'
-        self.vivant = True
         self.image = QtGui.QImage("./Archer/Idle/idle.jpg")
         super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 

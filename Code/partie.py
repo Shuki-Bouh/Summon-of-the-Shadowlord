@@ -61,17 +61,19 @@ class Partie(list):
         """Ca permet de faire le lien entre personnage et partie (en appelant la map dans personnage)"""
         return self
 
-    def spawn_ennemi(self, niveau):
+    def spawn_ennemi(self):
         if perso.Ennemi.compteur < self.limite_spawn:
+            lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
+            lvl = lv + randrange(-2, 3)
             proba = random()
             if proba < 0.4:
-                self.spawn_squelette(niveau)
+                self.spawn_squelette(lvl)
             elif 0.4 <= proba < 0.8:
-                self.spawn_crane(niveau)
+                self.spawn_crane(lvl)
             elif 0.8 <= proba < 0.9:
-                self.spawn_invocateur(niveau)
+                self.spawn_invocateur(lvl)
             else:
-                self.spawn_armure(niveau)
+                self.spawn_armure(lvl)
             return True
 
     def spawn_squelette(self, niveau, pos=()):
@@ -247,7 +249,6 @@ class Partie(list):
     def suppr_ennemi(self):
         while len(self.disparition) > 0:
             mechant = self.disparition.pop()
-            x, y = mechant.position
             del self.ennemis[mechant.nom]
             del mechant
 
@@ -257,10 +258,7 @@ class Partie(list):
         while True:
             t0_loop = time.time()
             if not self.mutex.locked():
-                if perso.Ennemi.compteur < 25:
-                    lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
-                    lvl = lv + randrange(-2, 3)
-                    self.spawn_ennemi(lvl)
+                self.spawn_ennemi()
                 for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
                     with self.mutex:
                         if mechant.portee():
@@ -271,10 +269,13 @@ class Partie(list):
                 with self.mutex:
                     self.suppr_ennemi()
                 t_loop = time.time() - t0_loop
-                if t_loop < 1:  # Les 5 ennemis vont agir à 1 Hz
-                    time.sleep(1 - t_loop)
+                if t_loop < 1:  # Les ennemis vont agir à 1 Hz
+                    print('flag2')
+                    time.sleep(1-t_loop)
+                    print('flag3')
                 else:
                     print('Too many computation in this loop')  # Meilleur ref
+
             else:
                 t_loop = time.time() - t0_loop
                 if t_loop < 1/24:  # On réessaye à une fréquence de 24 Hz

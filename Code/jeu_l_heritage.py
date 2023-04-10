@@ -1,7 +1,8 @@
 import threading
 import time
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets, Qt
+from PyQt5.QtCore import QUrl
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import partie
 from GameScreen import *
 from Demarrage import *
@@ -86,16 +87,22 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def ui_game(self):
         try:
-            self.ui.close()
+            self.ui.fermer()
         except AttributeError:
             pass
+        # Démarrage fenêtre graphique de jeu
         self.ui = Ui_GameScreen()
         self.ui.setup_Jeu(self)
         self.ui.retranslate_Jeu(self)
-
+        # Démarrage musique de fond
+        self.player = QMediaPlayer()
+        audio_file = QMediaContent(QUrl.fromLocalFile("Let the battle begin.mp3"))
+        self.player.setMedia(audio_file)
+        self.player.play()
+        # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
-
+        # Gestion des threads
         maj = threading.Thread(target=self.refresh)
         maj.start()
 
@@ -107,7 +114,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.game.new_player('Koume', 'sorcier')
         # self.game.new_player('Zelda', 'archer')
         for k in range(5):
-            self.game.spawn_ennemi(1)
+            self.game.spawn_ennemi()
         self.game.start()
 
     def drawGame(self, *args):
