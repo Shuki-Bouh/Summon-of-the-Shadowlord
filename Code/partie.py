@@ -255,9 +255,10 @@ class Partie(list):
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
+        i = 0
         while True:
             t0_loop = time.time()
-            if not self.mutex.locked():
+            if i % 10 == 0:
                 self.spawn_ennemi()
                 for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
                     with self.mutex:
@@ -266,23 +267,15 @@ class Partie(list):
                         else:
                             mechant.deplacement()
                         mechant.agro()
-                with self.mutex:
-                    self.suppr_ennemi()
-                t_loop = time.time() - t0_loop
-                if t_loop < 1:  # Les ennemis vont agir à 1 Hz
-                    print('flag2')
-                    time.sleep(1-t_loop)
-                    print('flag3')
-                else:
-                    print('Too many computation in this loop')  # Meilleur ref
-
+            i += 1
+            with self.mutex:
+                self.suppr_ennemi()
+            t_loop = time.time() - t0_loop
+            if t_loop < 1/10:  # Les ennemis vont agir à 1 Hz
+                time.sleep(1/10-t_loop)
             else:
-                t_loop = time.time() - t0_loop
-                if t_loop < 1/24:  # On réessaye à une fréquence de 24 Hz
-                    time.sleep(1/24 - t_loop)
-                else:
-                    print('Too many computation in this loop')  # Meilleur ref
-                break
+                print('Too many computation in ennemi loop')  # Meilleur ref
+
     def __str__(self):
         canvas = ""
         for y in range(self.h):

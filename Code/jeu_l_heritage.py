@@ -48,21 +48,19 @@ class MyWidget(QtWidgets.QMainWindow):
         if t_loop < 1/24:
             time.sleep(1/24 - t_loop)
         else:
-            print("Too much computation in this loop")
+            print("Too much computation in player loop")
 
     def refresh(self):
         while True:
             t0 = time.time()
-
             self.ui.conteneur.update()
             perso = list(self.game.joueurs.values())[0]
             xp_max = 10 * perso.niveau
             update_vie = int(np.round(100*(perso.vie/perso.viemax), 0))
             update_mana = int(np.round(100*(perso.mana/perso.manamax), 0))
             update_xp = int(np.round(100*(perso.xp/xp_max), 0))
-
-            self.ui.label_vie.setValue(update_vie)
-            self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.viemax))
+            #self.ui.label_vie.setValue(update_vie)
+            #self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.viemax))
 
             self.ui.label_mana.setValue(update_mana)
             self.ui.label_mana.setFormat("Mana : " + str(perso.mana) + "/" + str(perso.manamax))
@@ -71,7 +69,6 @@ class MyWidget(QtWidgets.QMainWindow):
             self.ui.label_xp.setFormat("xp : " + str(perso.xp) + "/" + str(10*perso.niveau))
 
             self.ui.label_niveau.setText("Niveau : " + str(perso.niveau))
-
             t1 = time.time()
             if t1 - t0 < 1/10:
                 time.sleep(1/10 - t1 + t0)
