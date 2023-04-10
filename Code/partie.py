@@ -247,6 +247,7 @@ class Partie(list):
     def suppr_ennemi(self):
         while len(self.disparition) > 0:
             mechant = self.disparition.pop()
+            x, y = mechant.position
             del self.ennemis[mechant.nom]
             del mechant
 
