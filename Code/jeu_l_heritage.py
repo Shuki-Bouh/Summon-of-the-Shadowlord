@@ -22,13 +22,13 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui_demarrage()
         self.create_Game()
     def keyPressEvent(self, event):
+        """Gère l'accès aux touches du joueur"""
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
             if not joueur.vivant:
-                break
+                break  # Permet d'arrêter plus ou moins le jeu quand on meurt
             elif event.key() == QtCore.Qt.Key_Z:
                 joueur.deplacement('up')
-            #elif event.key() == Qt.QMouseEvent
             elif event.key() == QtCore.Qt.Key_S:
                 joueur.deplacement('down')
             elif event.key() == QtCore.Qt.Key_Q:
@@ -37,36 +37,37 @@ class MyWidget(QtWidgets.QMainWindow):
                 joueur.deplacement('right')
             elif event.key() == QtCore.Qt.Key_Space:
                 joueur.attaquer()
-            # elif event.key() == QtCore.Qt.Key_E:  # Ca bug, mais je sais pas pourquoi...
-            #     joueur.attaque_speciale()
+            elif event.key() == QtCore.Qt.Key_E:
+                joueur.attaque_speciale()
             else:
                 QWidget().keyPressEvent(event)
         t1_loop = time.time()
         t_loop = t1_loop - t0_loop
-        if t_loop < 1/10:
+        if t_loop < 1/10:  # Permet de mettre un cooldown sur le joueur
             time.sleep(1/10 - t_loop)
-        else:
-            print("Too much computation in player loop")
 
     def refresh(self):
-        self.ui.conteneur.update()
-        self.game.suppr_ennemi()
-        perso = list(self.game.joueurs.values())[0]
-        xp_max = 10 * perso.niveau
+        """Cette fonction permet de modifier l'affichage sur la fenêtre (et la suppression des ennemis aussi car il a
+        clock assez courte --> 24 Hz)"""
+        self.ui.conteneur.update()  # On commence par rafraîchir la position de toutes les entitées sur la map
+        self.game.suppr_ennemi()  # On supprime tous les ennemis morts
+
+        perso = list(self.game.joueurs.values())[0]  # Pour le perso occurent, on met à jour sa vie, son mana et son xp
+
         update_vie = int(np.round(100 * (perso.vie / perso.viemax), 0))
-        update_mana = int(np.round(100 * (perso.mana / perso.manamax), 0))
-        update_xp = int(np.round(100 * (perso.xp / xp_max), 0))
         self.ui.label_vie.setValue(update_vie)
         self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.viemax))
 
+        update_mana = int(np.round(100 * (perso.mana / perso.manamax), 0))
         self.ui.label_mana.setValue(update_mana)
         self.ui.label_mana.setFormat("Mana : " + str(perso.mana) + "/" + str(perso.manamax))
 
+        xp_max = 10 * perso.niveau
+        update_xp = int(np.round(100 * (perso.xp / xp_max), 0))
         self.ui.label_xp.setValue(update_xp)
         self.ui.label_xp.setFormat("xp : " + str(perso.xp) + "/" + str(10 * perso.niveau))
 
         self.ui.label_niveau.setText("Niveau : " + str(perso.niveau))
-
 
     def ui_demarrage(self):
         try:
@@ -101,9 +102,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
-        # Gestion des threads
-        #maj = threading.Thread(target=self.refresh)
-        #maj.start()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.refresh)
@@ -151,8 +149,8 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def create_Game(self):
         """Test spawn et affichage"""
-        self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)
-        self.game.new_player('Link', 'epeiste')
+        self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)  # Pour créer des cases sur la map
+        self.game.new_player('Link', 'epeiste')  # Je suis d'accord, c'est assez restrictif pour le moment
         for k in range(5):
             self.game.spawn_ennemi()
 

@@ -1,18 +1,16 @@
 from random import randrange, choice, random
 import Code.personnage as perso
-import threading
 import os
 import sqlite3
 
 class Partie(list):
-    """dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
+    """Dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
-    def __init__(self, l, h):
+    def __init__(self, l: int, h: int):
         list().__init__()
         self.__h = h + 2  # Pour compenser les False qui apparaissent
         self.__l = l + 2
         self.__generation_map()
-        self.map = self.get_map()
         self.joueurs = {}
         self.ennemis = {}
         self.disparition = []
@@ -20,6 +18,7 @@ class Partie(list):
         self.multi = False
 
     def __generation_map(self):
+        """Ne doit pas être appelé en dehors de la classe. Il crée la forme générale de la map (static array)"""
         for x in range(self.l):
             self.append([])
             for y in range(self.h):
@@ -28,7 +27,8 @@ class Partie(list):
                 else:
                     self[x].append(None)
 
-    def new_player(self, nom, classe, niveau=1, pos=()):
+    def new_player(self, nom: str, classe: str, niveau=1, pos=()):
+        """Création d'un nouveau joueur selon la classe selectionnée par le joueur"""
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
@@ -45,33 +45,37 @@ class Partie(list):
 
     @property
     def h(self):
+        """Ces getter permet d'empêcher la modification de h et l (moyen de faire un int const h, l ...)"""
         return self.__h
 
     @property
     def l(self):
         return self.__l
 
-    def get_map(self):
-        """Ca permet de faire le lien entre personnage et partie (en appelant la map dans personnage)"""
-        return self
-
     def spawn_ennemi(self):
+        """Fais apparaître des ennemis de type aléatoire sur la map
+        La position est aléatoire sur les cases disponibles"""
         if perso.Ennemi.compteur < self.limite_spawn:
             lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
             lvl = lv + randrange(-2, 3)
             proba = random()
             if proba < 0.4:
-                self.spawn_squelette(lvl)
+                self.spawn('squelette', lvl)
             elif 0.4 <= proba < 0.8:
-                self.spawn_crane(lvl)
+                self.spawn('crane', lvl)
             elif 0.8 <= proba < 0.9:
-                self.spawn_invocateur(lvl)
+                self.spawn('invocateur', lvl)
             else:
-                self.spawn_armure(lvl)
+                self.spawn('armure', lvl)
             return True
 
-    def spawn_squelette(self, niveau, pos=()):
+    def spawn(self, classe: str, niveau: int, pos=()):
         """Le paramètre pos=() ne sert que pour les spawn de crânes dans l'attaque spéciale de l'Invocateur"""
+        ennemi = {'squelette': perso.Squelette,
+                  'crane': perso.Crane,
+                  'invocateur': perso.Invocateur,
+                  'armure': perso.Armure}
+        ennemi = ennemi[classe]  # On change le type de ennemi pour avoir directement la classe d'ennemi qu'on va générer
         if pos != ():
             x, y = pos[0], pos[1]
         else:
@@ -81,43 +85,7 @@ class Partie(list):
                     if self[i][j] is None:
                         cases_possibles.append((i, j))
             x, y = choice(cases_possibles)
-        ennemi = perso.Squelette(self, (x, y), niveau)
-
-    def spawn_crane(self, niveau, pos=()):
-        if pos != ():
-            x, y = pos[0], pos[1]
-        else:
-            cases_possibles = []
-            for i in range(self.l):
-                for j in range(self.h):
-                    if self[i][j] is None:
-                        cases_possibles.append((i, j))
-            x, y = choice(cases_possibles)
-        ennemi = perso.Crane(self, (x, y), niveau)
-
-    def spawn_armure(self, niveau, pos=()):
-        if pos != ():
-            x, y = pos[0], pos[1]
-        else:
-            cases_possibles = []
-            for i in range(self.l):
-                for j in range(self.h):
-                    if self[i][j] is None:
-                        cases_possibles.append((i, j))
-            x, y = choice(cases_possibles)
-        ennemi = perso.Armure(self, (x, y), niveau)
-
-    def spawn_invocateur(self, niveau, pos=()):
-        if pos != ():
-            x, y = pos[0], pos[1]
-        else:
-            cases_possibles = []
-            for i in range(self.l):
-                for j in range(self.h):
-                    if self[i][j] is None:
-                        cases_possibles.append((i, j))
-            x, y = choice(cases_possibles)
-        ennemi = perso.Invocateur(self, (x, y), niveau)
+        ennemi = ennemi(self, (x, y), niveau)
 
     @staticmethod
     def create_save():
@@ -241,23 +209,27 @@ class Partie(list):
             self.new_player(nom, cls, niv, (posx, posy))
 
     def suppr_ennemi(self):
+        """Suppression des objets Ennemi"""
         while len(self.disparition) > 0:
             mechant = self.disparition.pop()
-            del self.ennemis[mechant.nom]
-            del mechant
+            del self.ennemis[mechant.nom]  # On vide le dictionnaire
+            del mechant  # On supprime l'objet pour un peu de performance
 
     def action_mechant(self):
-        """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
-        (comme dans bca en fait)"""
-        self.spawn_ennemi()
-        for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
-            if mechant.portee():
+        """Dans cette fonction, on gère les actions de chaque ennemi, cette fonction est appelée par QTimer par la suite
+        (On voulait la mettre sur un thread à part mais PyQt n'apprécie pas tellement)"""
+        self.spawn_ennemi()  # On fait apparaitre les ennemis à chaque iteration s'il n'y en a pas assez
+        for mechant in self.ennemis.values():
+            if mechant.portee():  # Attaque ssi le joueur est assez proche
                 mechant.attaquer()
             else:
-                mechant.deplacement()
-            mechant.agro()
+                mechant.deplacement()  # Sinon il essaie de se rapprocher
+            mechant.agro()  # Quoi qu'il arrive, il essaie de taper le joueur le plus proche donc sa cible est
+            # réactualisé à chaque iteration
+
 
     def __str__(self):
+        """Permet d'afficher le jeu sur terminal, mais le terminal n'est pas assez efficace pour afficher 24 fps..."""
         canvas = ""
         for y in range(self.h):
             for x in range(self.l - 1):

@@ -13,6 +13,7 @@ class Entite(metaclass=ABCMeta):
                  'right': 'x + 1 , y'}
 
     def __init__(self, game, path: str, position: tuple, cooldown: int, niveau=1):
+        """Game est du type Partie du fichier partie.py"""
         self.path = path  # Path vers le fichier devant être ouvert, contenant les informations prédéfinis des entités.
         # On y retrouve les statistiques des personnages et ennemis pour chaque niveau.
         self.cooldown = cooldown  # Permet de cadencer la vitesse d'attaque des entités.
@@ -29,7 +30,7 @@ class Entite(metaclass=ABCMeta):
         return self.__position
 
     @position.setter
-    def position(self, newpos):
+    def position(self, newpos: tuple):
         """Accepte un déplacement ssi la prochaine case est vide et sur la map.
         Nb : Les bords de la map sont False actuellement"""
         x1, y1 = self.position
@@ -44,15 +45,16 @@ class Entite(metaclass=ABCMeta):
         return self.__niveau
 
     @niveau.setter
-    def niveau(self, niveau):
-        """Permet d'attribuer à un personnage ses différentes caractéristiques, en fonction de son niveau."""
-        if niveau < 1:
-            niveau = 1
-        if niveau <= 20:
+    def niveau(self, niveau: int):
+        """Permet d'attribuer à un personnage ses différentes caractéristiques, en fonction de son niveau en lisant
+        les données dans un fichier txt.
+        Dans chaque txt est contenu les vies max du perso, son attaque, sa défense et la magie qu'il dispose"""
+        niveau = max(1, niveau)  # Supprime la possibilité d'avoir un niveau inférieur à 1
+        if niveau <= 20:  # N'évolue plus après le lv 20
             self.__niveau = niveau
             with open(self.path, 'r') as lvl:
                 lvl = lvl.readlines()
-                lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau
+                lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau dans le txt
                 for k in range(len(lvl)):
                     lvl[k] = int(lvl[k])
                 self.__viemax, self.attaque, self.defense, self.__manamax = lvl[:]  # On génère les stats du joueur
@@ -66,7 +68,7 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def norm(vect1, vect2):
+    def norm(vect1: tuple, vect2: tuple):
         """Renvoie la norme entre deux vecteurs."""
         x1, y1 = vect1
         x2, y2 = vect2
@@ -150,7 +152,7 @@ class Personnage(Entite):
         self.orientation = 'up'  # L'orientation sert à l'affichage du personnage et pour la direction de ses attaques
         self.xp = 0
         self.vivant = True
-        game.joueurs[self.nom] = self
+        game.joueurs[self.nom] = self  # On ajoute dans la partie actuelle le joueur dans la case adéquate
 
     @abstractmethod
     def attaquer(self):
@@ -160,10 +162,10 @@ class Personnage(Entite):
     def attaque_speciale(self):
         pass
 
-    def deplacement(self, direction):
+    def deplacement(self, direction: str):
         """Déplacement du joueur, avec la direction donnée par PyQt"""
         x, y = self.position
-        x, y = eval(Entite.direction[direction])  # Renvoie un tuple de type (x + 1, y) (utilisation d'un switch
+        x, y = eval(Entite.direction[direction])  # Renvoie un tuple de type (x + 1, y) (utilisation d'un switch)
         self.position = (x, y)
         self.orientation = direction
 
@@ -190,6 +192,7 @@ class Personnage(Entite):
         cible.vie = vie
 
     def mort(self):
+        """La mort bloque en réalité l'utilisation des touches actions"""
         self.vivant = False
         pass
 
@@ -215,20 +218,22 @@ class Epeiste(Personnage):
         Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision.
         Les dégâts infligés sont certains et doublés.
         Cooldown : MOYEN (10 sec)
-        """
-        x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])
-        list_dir = [-1, 0, 1]
-        liste_entite = []
-        if self.orientation == "up" or self.orientation == "down":
-            for k in list_dir:
-                liste_entite.append(self.game[x_att + k, y_att])
-        else:
-            for k in list_dir:
-                liste_entite.append(self.game[x_att, y_att + k])
-        for entity in liste_entite:
-            if entity in self.game.ennemis.values():
-                entity.vie -= 2*self.attaque
+            """
+        if self.mana:
+            x, y = self.position
+            x_att, y_att = eval(Entite.direction[self.orientation])
+            list_dir = [-1, 0, 1]
+            liste_entite = []
+            if self.orientation == "up" or self.orientation == "down":
+                for k in list_dir:
+                    liste_entite.append(self.game[x_att + k][y_att])
+            else:
+                for k in list_dir:
+                    liste_entite.append(self.game[x_att][y_att + k])
+            for entity in liste_entite:
+                if entity in self.game.ennemis.values():
+                    entity.vie -= 2*self.attaque
+            self.mana -= 1
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -376,7 +381,7 @@ class Ennemi(Entite):
     def deplacement(self):
         """Déplacement aléatoire d'une case"""
         if self.cible:  # S'il a une cible, il essaie de s'en rapprocher : d'abord en horizontal puis en latéral
-            mechant = self.cible
+            mechant = self.cible  # La cible est le joueur qui est rentré dans la zone de vision (cf agro)
             xc, yc = mechant.position
             xs, ys = self.position
             if xc < xs:
@@ -401,8 +406,9 @@ class Ennemi(Entite):
             cible.vie -= attaquant.attaque
 
     def portee(self):
+        """Portée d'un coup : si un joueur est suffisamment proche, l'ennemi attaque (cf action_mechant)"""
         x1, y1 = self.position
-        try:
+        try:  # Si l'ennemi n'a pas encore de cible, self.cible is None
             x2, y2 = self.cible.position
             if (x1 == x2 and abs(y1 - y2) == 1) or (abs(x1 - x2) == 1 and y1 == y2):
                 return True
@@ -411,9 +417,10 @@ class Ennemi(Entite):
         return False
 
     def mort(self):
+        """Mort d'un méchant"""
         Ennemi.compteur -= 1
         x, y = self.position
-        self.game [x][y] = None
+        self.game [x][y] = None  # One le retire de la map immédiatement et on l'ajoute à la liste des ennemis à del
         self.game.disparition.append(self)
         pass
 
@@ -429,7 +436,7 @@ class Ennemi(Entite):
 
 
 class Squelette(Ennemi):
-    compteur = 0  #
+    compteur = 0
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
