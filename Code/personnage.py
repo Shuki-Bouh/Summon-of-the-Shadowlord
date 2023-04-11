@@ -232,8 +232,10 @@ class Epeiste(Personnage):
                     liste_entite.append(self.game[x_att][y_att + k])
             for entity in liste_entite:
                 if entity in self.game.ennemis.values():
-                    entity.vie -= 2*self.attaque
-            self.mana -= 1
+                    self.attaque *= 2
+                    self.coup(self, entity) # Y'a l'air d'avoir problème, à checker hein
+                    self.attaque //= 2
+                    self.mana -= 1
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
