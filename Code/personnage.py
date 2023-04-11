@@ -190,20 +190,7 @@ class Personnage(Entite):
         cible.vie = vie
 
     def mort(self):
-        """Bon il faut faire quoi là ?"""
-        # Si multi : multi va probablement devenir une variable de classe Partie
-        # Donc s'il est solo, c'est un game over, comment on fait ?
-        # Changement d'image, suppression des ennemis
-        # Possibilité de recommencer (par un load où on va modifier les vies)
-        # Si multi : il meurt, possibilité de respawn ?
-        # Une fois que tous les joueurs sont morts, même game over
-
-        # S'il est solo et que le personnage meurt, on écrit une sauvegarde de l'état actuel de sa partie en mettant
-        # une nouvelle variable dans la BDD du style mort=True, ce qui fait qu'au moment de respawn, si mort = True,
-        # on lui impose une vie à 10 (vie max s'il est mort niveau 1 du coup), et il peut reprendre sa partie comme il
-        # veut. NOTA : dans mort, il faut penser à incrémenter la BDD de 1 pour le compteur de mort aussi.
-        # Pour le mutli, si le personnage meurt, le plus simple est quil respawn sur une plateforme prévue
-        # (au hasard, en (0,0)), et il n'y a pas de game over à proprement parler.
+        self.vivant = False
         pass
 
 

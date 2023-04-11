@@ -24,7 +24,9 @@ class MyWidget(QtWidgets.QMainWindow):
     def keyPressEvent(self, event):
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
-            if event.key() == QtCore.Qt.Key_Z:
+            if not joueur.vivant:
+                break
+            elif event.key() == QtCore.Qt.Key_Z:
                 joueur.deplacement('up')
             #elif event.key() == Qt.QMouseEvent
             elif event.key() == QtCore.Qt.Key_S:
@@ -64,6 +66,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.label_xp.setFormat("xp : " + str(perso.xp) + "/" + str(10 * perso.niveau))
 
         self.ui.label_niveau.setText("Niveau : " + str(perso.niveau))
+
 
     def ui_demarrage(self):
         try:
