@@ -154,9 +154,13 @@ class Personnage(Entite):
         self.vivant = True
         game.joueurs[self.nom] = self  # On ajoute dans la partie actuelle le joueur dans la case adéquate
 
-    @abstractmethod
     def attaquer(self):
-        pass
+        """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
+        x, y = self.position
+        x_att, y_att = eval(Entite.direction[self.orientation])  # On se sert de Entite.direction comme d'un switch
+        entity = self.game[x_att][y_att]
+        if entity in self.game.ennemis.values():  # Permet de vérifier si on est face à un ennemi ou un joueur
+            self.coup(self, entity)
 
     @abstractmethod
     def attaque_speciale(self):
@@ -205,14 +209,6 @@ class Epeiste(Personnage):
         self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
-        x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])  # On se sert de Entite.direction comme d'un switch
-        entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values():  # Permet de vérifier si on est face à un ennemi ou un joueur
-            self.coup(self, entity)
-
     def attaque_speciale(self):
         """
         Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision.
@@ -247,14 +243,6 @@ class Garde(Personnage):
         self.classe = 'Garde'
         self.image = QtGui.QImage("./Garge/Idle/idle.jpg")
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
-
-    def attaquer(self):
-        """Nota : attaque de garde est un simple coup dans la direction regardée"""
-        x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])
-        entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values():
-            self.coup(self, entity)
 
     def attaque_speciale(self):
         """
@@ -294,14 +282,6 @@ class Sorcier(Personnage):
         self.image = QtGui.QImage("./Sorcier/Idle/idle.jpg")
         super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
-    def attaquer(self):
-        """Nota : attaque de sorcier est un simple coup dans la direction regardée"""
-        x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])
-        entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values():
-            self.coup(self, entity)
-
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
         Nota : attaque spéciale de sorcier agit sur tous les ennemis dont la distance est au maximum 2 cases
@@ -328,14 +308,6 @@ class Archer(Personnage):
         self.classe = 'Archer'
         self.image = QtGui.QImage("./Archer/Idle/idle.jpg")
         super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
-
-    def attaquer(self):
-        """Nota : attaque d'archer est un simple coup dans la direction regardée"""
-        x, y = self.position
-        x_att, y_att = eval(Entite.direction[self.orientation])
-        entity = self.game[x_att][y_att]
-        if entity in self.game.ennemis.values():
-            self.coup(self, entity)
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """

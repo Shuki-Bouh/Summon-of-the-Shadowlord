@@ -227,7 +227,6 @@ class Partie(list):
             mechant.agro()  # Quoi qu'il arrive, il essaie de taper le joueur le plus proche donc sa cible est
             # réactualisé à chaque iteration
 
-
     def __str__(self):
         """Permet d'afficher le jeu sur terminal, mais le terminal n'est pas assez efficace pour afficher 24 fps..."""
         canvas = ""
@@ -240,6 +239,7 @@ class Partie(list):
             canvas += str(self[self.l - 1][y])
             canvas += "\n"
         return canvas
+
 
 if __name__ == '__main__':
     path = os.getcwd()

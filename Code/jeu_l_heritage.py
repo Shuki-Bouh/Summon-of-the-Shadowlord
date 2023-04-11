@@ -21,11 +21,15 @@ class MyWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.ui_demarrage()
         self.create_Game()
+
     def keyPressEvent(self, event):
         """Gère l'accès aux touches du joueur"""
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
             if not joueur.vivant:
+                # Dans l'idée, c'est là qu'on lance la sauvegarde automatique et qu'on fait
+                # apparaitre l'écran de game over, là ou dans la méthode mort, mais ici
+                # serait plus simple, car on a directement accès à l'interface graphique.
                 break  # Permet d'arrêter plus ou moins le jeu quand on meurt
             elif event.key() == QtCore.Qt.Key_Z:
                 joueur.deplacement('up')
@@ -102,7 +106,7 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
-
+        # Mise en place de la clock d'ennemi sur 24Hz
         self.timer = QTimer()
         self.timer.timeout.connect(self.refresh)
         self.timer.start(int(1/24 * 1000))
