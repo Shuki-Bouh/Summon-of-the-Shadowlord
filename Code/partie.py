@@ -1,4 +1,3 @@
-import time
 from random import randrange, choice, random
 import Code.personnage as perso
 import threading
@@ -19,11 +18,6 @@ class Partie(list):
         self.disparition = []
         self.limite_spawn = 5
         self.multi = False
-        self.thread_ennemis = threading.Thread(target=self.action_mechant)
-        self.mutex = threading.Lock()
-
-    def start(self):
-        self.thread_ennemis.start()
 
     def __generation_map(self):
         for x in range(self.l):
@@ -255,26 +249,13 @@ class Partie(list):
     def action_mechant(self):
         """Cette fonction va tourner sur un thread avec une clock spécifique qui ralentira la cadence
         (comme dans bca en fait)"""
-        i = 0
-        while True:
-            t0_loop = time.time()
-            if i % 10 == 0:
-                self.spawn_ennemi()
-                for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
-                    with self.mutex:
-                        if mechant.portee():
-                            mechant.attaquer()
-                        else:
-                            mechant.deplacement()
-                        mechant.agro()
-            i += 1
-            with self.mutex:
-                self.suppr_ennemi()
-            t_loop = time.time() - t0_loop
-            if t_loop < 1/10:  # Les ennemis vont agir à 1 Hz
-                time.sleep(1/10-t_loop)
+        self.spawn_ennemi()
+        for mechant in self.ennemis.values():  # Y'a une erreur ici faut gérer la suppression des méchants d'une autre façon
+            if mechant.portee():
+                mechant.attaquer()
             else:
-                print('Too many computation in ennemi loop')  # Meilleur ref
+                mechant.deplacement()
+            mechant.agro()
 
     def __str__(self):
         canvas = ""
@@ -295,9 +276,6 @@ if __name__ == '__main__':
     os.chdir(os.path.join(path, "Data"))
     a = Partie(10, 15)
     a.new_player("Link", "epeiste", 5)
-    thread = threading.Thread(target=a.action_mechant)
-    thread.start()
-    thread.join()
 else:
     path = os.getcwd()
     path = path.split("\\Code")[0]
