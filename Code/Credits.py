@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont
 
 
 class Ui_Credits(object):
@@ -77,6 +78,9 @@ class Ui_Credits(object):
         self.scroll_label = QLabel(self.centralwidget)
         self.scroll_label.setAlignment(Qt.AlignCenter)
         self.scroll_label.setGeometry(100, 100, 600, 400)
+        self.font = QFont()
+        self.font.setPointSize(8)  # ajuster la taille de la police en fonction de vos besoins
+        self.scroll_label.setFont(self.font)  # définir la police du QLabel
         self.scroll_label.setText(self.credit_text)
         self.scroll_position = 0  # position initiale de l'étiquette
         self.scroll_defilement = True  # permet de stopper le défilement
@@ -99,6 +103,7 @@ class Ui_Credits(object):
         Ui_Credits.list_widgets.append([self.scroll_position, 12])
         Ui_Credits.list_widgets.append([self.scroll_defilement, 13])
         Ui_Credits.list_widgets.append([self.timer, 14])
+        Ui_Credits.list_widgets.append([self.font, 15])
 
         self.retranslate_Cred(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
