@@ -1,3 +1,5 @@
+import os
+
 from Code.partie import Partie
 import unittest
 
@@ -10,4 +12,8 @@ class TestPartie(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    path = os.getcwd()
+    path = path.split("\\Test_unitaires")[0]
+    os.chdir(os.path.join(path, "Data"))
+
     unittest.main()
