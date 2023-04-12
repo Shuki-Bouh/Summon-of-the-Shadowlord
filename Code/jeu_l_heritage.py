@@ -21,6 +21,11 @@ class MyWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.ui_demarrage()
         self.create_Game()
+        self.timer_refrech = QTimer()
+        self.timer_refrech.timeout.connect(self.refresh)
+        self.timer_ennemi = QTimer()
+        self.timer_ennemi.timeout.connect(self.game.action_mechant)
+        self.pause = 0  # Booléen
 
     def keyPressEvent(self, event):
         """Gère l'accès aux touches du joueur"""
@@ -31,18 +36,22 @@ class MyWidget(QtWidgets.QMainWindow):
                 # apparaitre l'écran de game over, là ou dans la méthode mort, mais ici
                 # serait plus simple, car on a directement accès à l'interface graphique.
                 break  # Permet d'arrêter plus ou moins le jeu quand on meurt
-            elif event.key() == QtCore.Qt.Key_Z:
-                joueur.deplacement('up')
-            elif event.key() == QtCore.Qt.Key_S:
-                joueur.deplacement('down')
-            elif event.key() == QtCore.Qt.Key_Q:
-                joueur.deplacement('left')
-            elif event.key() == QtCore.Qt.Key_D:
-                joueur.deplacement('right')
-            elif event.key() == QtCore.Qt.Key_Space:
-                joueur.attaquer()
-            elif event.key() == QtCore.Qt.Key_E:
-                joueur.attaque_speciale()
+            if not self.pause:
+                if event.key() == QtCore.Qt.Key_Z:
+                    joueur.deplacement('up')
+                elif event.key() == QtCore.Qt.Key_S:
+                    joueur.deplacement('down')
+                elif event.key() == QtCore.Qt.Key_Q:
+                    joueur.deplacement('left')
+                elif event.key() == QtCore.Qt.Key_D:
+                    joueur.deplacement('right')
+                elif event.key() == QtCore.Qt.Key_Space:
+                    joueur.attaquer()
+                elif event.key() == QtCore.Qt.Key_E:
+                    joueur.attaque_speciale()
+            if event.key() == QtCore.Qt.Key_Tab:
+                self.pause = 1 - self.pause
+                self.timer_ennemi.start(1000)
             else:
                 QWidget().keyPressEvent(event)
         t1_loop = time.time()
@@ -72,6 +81,10 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.label_xp.setFormat("xp : " + str(perso.xp) + "/" + str(10 * perso.niveau))
 
         self.ui.label_niveau.setText("Niveau : " + str(perso.niveau))
+
+        if self.pause:
+            self.timer_ennemi.stop()
+
 
     def ui_demarrage(self):
         try:
@@ -107,12 +120,8 @@ class MyWidget(QtWidgets.QMainWindow):
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
         # Mise en place de la clock d'ennemi sur 24Hz
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.refresh)
-        self.timer.start(int(1/24 * 1000))
-        self.timer2 = QTimer()
-        self.timer2.timeout.connect(self.game.action_mechant)
-        self.timer2.start(1000)
+        self.timer_refrech.start(int(1/24 * 1000))
+        self.timer_ennemi.start(1000)
 
     def ui_credits(self):
         try:
