@@ -248,7 +248,3 @@ if __name__ == '__main__':
     os.chdir(os.path.join(path, "Data"))
     a = Partie(10, 15)
     a.new_player("Link", "epeiste", 5)
-else:
-    path = os.getcwd()
-    path = path.split("\\Code")[0]
-    os.chdir(os.path.join(path, "Data"))

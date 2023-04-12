@@ -1,3 +1,6 @@
+import os
+
+import numpy as np
 import time
 import sys
 from PyQt5.QtWidgets import QWidget, QMainWindow
@@ -11,8 +14,6 @@ from StartScreen import *
 from MultiScreen import *
 from PauseScreen import *
 from win32api import GetSystemMetrics
-import numpy as np
-
 class MyWidget(QtWidgets.QMainWindow):
 
     width = int(GetSystemMetrics(0) * 1.25)
@@ -172,18 +173,21 @@ class MyWidget(QtWidgets.QMainWindow):
         qp = self.painter
         for player in self.game.joueurs.values():  # Affichage personnages
             x, y = player.position
-            x_win = x * MyWidget.width // self.game.l
-            y_win = y * MyWidget.height // self.game.h
+            x_win = x * width // self.game.l
+            y_win = y * height // self.game.h
             player.dessinImage(qp, x_win, y_win)
         for ennemy in self.game.ennemis.values():  # Affichage ennemis
             x, y = ennemy.position
-            x_win = x * MyWidget.width // self.game.l
-            y_win = y * MyWidget.height // self.game.h
+            x_win = x * width // self.game.l
+            y_win = y * height // self.game.h
             ennemy.dessinImage(qp, x_win, y_win)
         self.painter.end()
 
 
 if __name__ == "__main__":
+    path = os.getcwd()
+    path = path.split("\\Code")[0]
+    os.chdir(os.path.join(path, "Data"))
 
     app = QtWidgets.QApplication.instance()
     if not app:

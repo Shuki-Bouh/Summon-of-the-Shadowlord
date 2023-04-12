@@ -2,6 +2,7 @@ import Code.personnage as perso
 import Code.partie as prt
 import unittest
 import time
+import os
 
 
 class TestEntite(unittest.TestCase):
@@ -180,4 +181,8 @@ class TestEntite(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    path = os.getcwd()
+    path = path.split("\\Test_unitaires")[0]
+    os.chdir(os.path.join(path, "Data"))
+
     unittest.main()
