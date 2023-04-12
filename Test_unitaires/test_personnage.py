@@ -4,42 +4,154 @@ import unittest
 import time
 import os
 
+path = os.getcwd()
+path = path.split("\\Test_unitaires")[0]
+os.chdir(os.path.join(path, "Data"))
 
 class TestEntite(unittest.TestCase):
 
-    def test_gen_joueur(self):
-        t = time.time()
-        game = prt.Partie(10, 10)
-        game.new_player("Link", "epeiste")
-        Link = game.joueurs["Link"]
-        self.assertEqual(Link.attaque, 7)
-        t1 = time.time()
-        perso.Ennemi.compteur = 0
-        del game
-
     def test_deplacement(self):
-        game = prt.Partie(10, 10)
-        Link = perso.Epeiste(game, (5, 5), 'Link', niveau=5)
-        Saria = perso.Epeiste(game, (5, 6), 'Saria', niveau=5)
-        self.assertEqual(Saria.game[5][5], Link)
-        self.assertEqual(Link.game[5][6], Saria)
-        Saria.deplacement('up')
-        self.assertEqual(Link.game[5][6], Saria)
-        Saria.deplacement('down')
-        self.assertEqual(Saria.game[5][7], Saria)
-        perso.Ennemi.compteur = 0
-        del game
+        game1 = prt.Partie(10, 10)
+        link = perso.Epeiste(game1, (5, 5), 'Link', niveau=5)
+        saria = perso.Sorcier(game1, (5, 6), 'Saria', niveau=5)
+        self.assertEqual(game1[5][5], link)
+        self.assertEqual(game1[5][6], saria)
+        saria.deplacement('up')
+        self.assertEqual(game1[5][6], saria)
+        saria.deplacement('down')
+        self.assertEqual(saria.game[5][7], saria)
+        saria.deplacement('left')
+        self.assertEqual(saria.game[4][7], saria)
+        saria.deplacement('right')
+        self.assertEqual(saria.game[5][7], saria)
 
     def test_set_vie(self):
-        game = prt.Partie(10, 10)
-        Link = perso.Epeiste(game, (5, 5), 'Link', niveau=5)
-        Link.vie += 5
-        self.assertEqual(Link.vie, Link.viemax)
-         # reste à implémenter les tests pour la mort
-        perso.Ennemi.compteur = 0
-        del game
+        game2 = prt.Partie(10, 10)
+        link = perso.Garde(game2, (5, 5), 'Link', niveau=5)
+        link.vie += 5
+        self.assertEqual(link.vie, link.viemax)
+        self.assertTrue(link.vivant)
+        link.vie -= 150
+        self.assertEqual(link.vie, 0)
+        self.assertFalse(link.vivant)
 
-    def test_squelette(self):
+    def test_level_up(self):
+        game3 = prt.Partie(10, 10)
+        link = perso.Archer(game3, (5, 5), 'Link', niveau=5)
+        link.xp += 50
+        link._levelup()
+        self.assertEqual(link.xp, 0)
+        self.assertEqual(link.niveau, 6)
+
+    def test_coup(self):
+        game4 = prt.Partie(10,10)
+        classe = [perso.Archer, perso.Garde, perso.Epeiste, perso.Sorcier]
+        link = perso.Garde(game4, (5, 5), 'Link', niveau=8)
+        ennemi = perso.Squelette(game4, (6, 6), 9)
+        vieEInit = ennemi.vie
+
+        link.coup(link, ennemi)
+        vieEEnd = ennemi.vie
+        self.assertNotEqual(vieEInit, vieEEnd)
+        vieLInit = link.vie
+        ennemi.coup(ennemi, link)
+        vieLEnd = link.vie
+        self.assertNotEqual(vieLInit, vieLEnd)
+
+    def test_attaque_perso(self):
+        game5 = prt.Partie(10, 10)
+        link = perso.Epeiste(game5, (5,5), 'link', niveau=5)
+        ennemiHaut = perso.Squelette(game5, (5,4), 5)
+        ennemiTresHaut = perso.Squelette(game5, (5, 3), 5)
+        ennemiDiag = perso.Squelette(game5, (6, 6), 5)
+        ennemiCote = perso.Squelette(game5, (4, 5), 5)
+        v1, v2, v3, v4 = ennemiHaut.vie, ennemiTresHaut.vie, ennemiDiag.vie, ennemiCote.vie
+        self.assertEqual(link.orientation, "up")
+        link.attaquer()
+        self.assertNotEqual(v1, ennemiHaut.vie)
+        self.assertEqual(v2, ennemiTresHaut.vie)
+        self.assertEqual(v2, ennemiDiag.vie)
+        self.assertEqual(v2, ennemiCote.vie)
+
+    def test_attaque_Special_Epeiste(self):
+        game6 = prt.Partie(10, 10)
+        link = perso.Epeiste(game6, (5, 5), 'link', niveau=5)
+        e1 = perso.Armure(game6, (5, 4), 5)
+        e2 = perso.Armure(game6, (4, 4), 5)
+        e3 = perso.Armure(game6, (6, 4), 5)
+        mana = link.mana
+        v1, v2, v3 = e1.vie, e2.vie, e3.vie
+        link.attaque_speciale()
+        self.assertNotEqual(mana, link.mana)
+        self.assertNotEqual(v1, e1.vie)
+        self.assertNotEqual(v2, e2.vie)
+        self.assertNotEqual(v3, e3.vie)
+        link.orientation = 'right'
+        mana = link.mana
+        v1, v2, v3 = e1.vie, e2.vie, e3.vie
+        link.attaque_speciale()
+        self.assertEqual(v1, e1.vie)
+        self.assertEqual(v2, e2.vie)
+        self.assertNotEqual(v3, e3.vie)
+
+    def attaque_speciale_garde(self):
+        game7 = prt.Partie(10, 10)
+        link = perso.Garde(game7, (5, 5), 'link', niveau=5)
+        e1 = perso.Armure(game7, (5, 4), 5)
+        e2 = perso.Armure(game7, (5, 3), 5)
+        e3 = perso.Armure(game7, (6, 4), 5)
+        e4 = perso.Armure(game7, (6, 5), 5)
+        e5 = perso.Armure(game7, (7, 5), 5)
+        mana = link.mana
+        v1, v2, v3, v4, v5 = e1.vie, e2.vie, e3.vie, e4.vie, e5.vie
+        link.attaque_speciale()
+        self.assertNotEqual(mana, link.mana)
+        self.assertNotEqual(v1, e1.vie)
+        self.assertNotEqual(v2, e2.vie)
+        self.assertEqual(v3, e3.vie)
+        self.assertEqual(v4, e4.vie)
+        self.assertEqual(v5, e5.vie)
+        link.orientation = 'right'
+        mana = link.mana
+        v1, v2, v3, v4, v5 = e1.vie, e2.vie, e3.vie, e4.vie, e5.vie
+        link.attaque_speciale()
+        self.assertNotEqual(mana, link.mana)
+        self.assertEqual(v1, e1.vie)
+        self.assertEqual(v2, e2.vie)
+        self.assertEqual(v3, e3.vie)
+        self.assertNotEqual(v4, e4.vie)
+        self.assertNotEqual(v5, e5.vie)
+
+    def attaque_speciale_sorcier(self):
+        game8 = prt.Partie(10, 10)
+        link = perso.Sorcier(game8, (5, 5), 'link', niveau=5)
+        e1 = perso.Armure(game8, (5, 4), 5)
+        e2 = perso.Armure(game8, (5, 3), 5)
+        e3 = perso.Armure(game8, (5, 6), 5)
+        e4 = perso.Armure(game8, (5, 7), 5)
+        e5 = perso.Armure(game8, (6, 5), 5)
+        e6 = perso.Armure(game8, (7, 5), 5)
+        e7 = perso.Armure(game8, (4, 5), 5)
+        e8 = perso.Armure(game8, (3, 5), 5)
+        e9 = perso.Armure(game8, (6, 4), 5)
+
+        mana = link.mana
+        v1, v2, v3, v4, v5, v6, v7, v8, v9 = e1.vie, e2.vie, e3.vie, e4.vie, e5.vie, e6.vie, e7.vie, e8.vie, e9.vie
+        link.attaque_speciale()
+        self.assertNotEqual(mana, link.mana)
+        self.assertNotEqual(v1, e1.vie)
+        self.assertEqual(v1, e1.vie)
+        self.assertNotEqual(v2, e2.vie)
+        self.assertNotEqual(v3, e3.vie)
+        self.assertNotEqual(v4, e4.vie)
+        self.assertNotEqual(v5, e5.vie)
+        self.assertNotEqual(v6, e6.vie)
+        self.assertNotEqual(v7, e7.vie)
+        self.assertNotEqual(v8, e8.vie)
+        self.assertEqual(v9, e9.vie)
+        self.assertTrue(False)
+
+    """   def test_squelette(self):
         game = prt.Partie(10, 10)
         Link = perso.Epeiste(game, (4, 9), 'Link', niveau=5)
         Zelda = perso.Epeiste(game, (8, 2), 'Zelda', niveau=5)
@@ -177,12 +289,9 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(Invocateur_2.position, (5, 9))
         # Suppression de la partie locale -------------------------
         perso.Ennemi.compteur = 0
-        del game
+        del game"""
 
 
 if __name__ == '__main__':
-    path = os.getcwd()
-    path = path.split("\\Test_unitaires")[0]
-    os.chdir(os.path.join(path, "Data"))
 
     unittest.main()

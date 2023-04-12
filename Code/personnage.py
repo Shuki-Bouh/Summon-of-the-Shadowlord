@@ -89,10 +89,8 @@ class Entite(metaclass=ABCMeta):
         if x <= 0:
             self.__vie = 0
             self.mort()
-        elif x >= self.viemax:
-            self.__vie = self.viemax
         else:
-            self.__vie = x
+            self.__vie = min(x, self.viemax)
 
     @property
     def manamax(self):
@@ -155,7 +153,7 @@ class Personnage(Entite):
         game.joueurs[self.nom] = self  # On ajoute dans la partie actuelle le joueur dans la case adéquate
 
     def attaquer(self):
-        """Nota : attaque d'épéiste est un simple coup dans la direction regardée"""
+        """Nota : l'attaque est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])  # On se sert de Entite.direction comme d'un switch
         entity = self.game[x_att][y_att]
@@ -177,9 +175,9 @@ class Personnage(Entite):
         """Permet d'utiliser objet"""
         pass
 
-    def levelup(self):
+    def _levelup(self):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
-        if self.xp > self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
+        if self.xp >= self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.xp -= self.niveau * 10
             self.niveau += 1
 
@@ -192,7 +190,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque
         if vie < 1:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
-            attaquant.levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
+            attaquant._levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
 
     def mort(self):
@@ -229,7 +227,7 @@ class Epeiste(Personnage):
             for entity in liste_entite:
                 if entity in self.game.ennemis.values():
                     self.attaque *= 2
-                    self.coup(self, entity) # Y'a l'air d'avoir problème, à checker hein
+                    self.coup(self, entity)
                     self.attaque //= 2
                     self.mana -= 1
 
@@ -241,7 +239,7 @@ class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
         self.classe = 'Garde'
-        self.image = QtGui.QImage("./Garge/Idle/idle.jpg")
+        self.image = QtGui.QImage("./Garde/Idle/idle.jpg")
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
     def attaque_speciale(self):
