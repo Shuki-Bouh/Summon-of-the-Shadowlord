@@ -69,19 +69,19 @@ class Ui_GameScreen(object):
                                     "background-color: blue;"
                                     "}")
 
-        Ui_GameScreen.list_widgets.append(self.centralwidget)
-        Ui_GameScreen.list_widgets.append(self.conteneur)
-        Ui_GameScreen.list_widgets.append(self.label_vie)
-        Ui_GameScreen.list_widgets.append(self.label_mana)
-        Ui_GameScreen.list_widgets.append(self.label_niveau)
-        Ui_GameScreen.list_widgets.append(self.label_xp)
+        Ui_GameScreen.list_widgets.append([self.centralwidget, 1])
+        Ui_GameScreen.list_widgets.append([self.conteneur, 2])
+        Ui_GameScreen.list_widgets.append([self.label_vie, 3])
+        Ui_GameScreen.list_widgets.append([self.label_mana, 4])
+        Ui_GameScreen.list_widgets.append([self.label_niveau, 5])
+        Ui_GameScreen.list_widgets.append([self.label_xp, 6])
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslate_Jeu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
 
     def fermer(self):
         for widget in Ui_GameScreen.list_widgets:

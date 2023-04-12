@@ -3,8 +3,8 @@ import os
 import numpy as np
 import time
 import sys
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import QUrl, QTimer
+from PyQt5.QtWidgets import QWidget, QMainWindow
+from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import partie
 from GameScreen import *
@@ -12,6 +12,7 @@ from Demarrage import *
 from Credits import *
 from StartScreen import *
 from MultiScreen import *
+from PauseScreen import *
 from win32api import GetSystemMetrics
 class MyWidget(QtWidgets.QMainWindow):
 
@@ -26,7 +27,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.timer_refrech.timeout.connect(self.refresh)
         self.timer_ennemi = QTimer()
         self.timer_ennemi.timeout.connect(self.game.action_mechant)
-        self.pause = 0  # Booléen
+        self.pause = False  # Booléen
 
     def keyPressEvent(self, event):
         """Gère l'accès aux touches du joueur"""
@@ -51,7 +52,11 @@ class MyWidget(QtWidgets.QMainWindow):
                 elif event.key() == QtCore.Qt.Key_E:
                     joueur.attaque_speciale()
             if event.key() == QtCore.Qt.Key_Tab:
-                self.pause = 1 - self.pause
+                self.pause = not self.pause
+                if self.pause:
+                    self.player.pause()
+                else:
+                    self.player.play()
                 self.timer_ennemi.start(1000)
             else:
                 QWidget().keyPressEvent(event)
@@ -61,12 +66,12 @@ class MyWidget(QtWidgets.QMainWindow):
             time.sleep(1/10 - t_loop)
 
     def refresh(self):
-        """Cette fonction permet de modifier l'affichage sur la fenêtre (et la suppression des ennemis aussi car il a
+        """Cette fonction permet de modifier l'affichage sur la fenêtre (et la suppression des ennemis aussi, car il a
         clock assez courte --> 24 Hz)"""
-        self.ui.conteneur.update()  # On commence par rafraîchir la position de toutes les entitées sur la map
+        self.ui.conteneur.update()  # On commence par rafraîchir la position de toutes les entités sur la map
         self.game.suppr_ennemi()  # On supprime tous les ennemis morts
 
-        perso = list(self.game.joueurs.values())[0]  # Pour le perso occurent, on met à jour sa vie, son mana et son xp
+        perso = list(self.game.joueurs.values())[0]  # Pour le perso joué, on met à jour sa vie, son mana et son xp
 
         update_vie = int(np.round(100 * (perso.vie / perso.viemax), 0))
         self.ui.label_vie.setValue(update_vie)
@@ -95,7 +100,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique du menu
         self.ui = Ui_Demarrage()
         self.ui.setup_Dem(self)
-        self.ui.retranslate_Dem(self)
         # Connexion signaux/ bouton
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
         self.ui.bouton_quit.clicked.connect(self.close)
@@ -111,7 +115,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique du jeu
         self.ui = Ui_GameScreen()
         self.ui.setup_Jeu(self)
-        self.ui.retranslate_Jeu(self)
         # Démarrage musique de fond
         self.player = QMediaPlayer()
         audio_file = QMediaContent(QUrl.fromLocalFile("Let the battle begin.mp3"))
@@ -132,7 +135,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique des crédits
         self.ui = Ui_Credits()
         self.ui.setup_Cred(self)
-        self.ui.retranslate_Cred(self)
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
@@ -144,7 +146,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique des crédits
         self.ui = Ui_Multi()
         self.ui.setup_Multi(self)
-        self.ui.retranslate_Multi(self)
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
@@ -156,7 +157,6 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique de la fenêtre de nouveau jeu
         self.ui = Ui_Start()
         self.ui.setup_Start(self)
-        self.ui.retranslate_Start(self)
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
