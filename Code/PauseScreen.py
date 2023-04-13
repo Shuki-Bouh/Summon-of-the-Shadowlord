@@ -8,8 +8,7 @@ class Ui_PauseScreen(QMainWindow):
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
     list_widgets = []
 
-    def __init__(self):
-        super().__init__()
+    def setup_Pause(self):
         self.setObjectName("MainWindow")
         self.resize(400, 250)
         self.setMinimumSize(QtCore.QSize(400, 250))
@@ -145,5 +144,6 @@ class Ui_PauseScreen(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window1 = Ui_PauseScreen()
+    window1.setup_Pause()
     window1.show()
     sys.exit(app.exec_())

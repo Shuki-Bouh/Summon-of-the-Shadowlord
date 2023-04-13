@@ -6,6 +6,7 @@ import sys
 from PyQt5.QtWidgets import QWidget, QMainWindow
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtOpenGL import QGLWidget
 import partie
 from GameScreen import *
 from Demarrage import *
@@ -14,6 +15,8 @@ from StartScreen import *
 from MultiScreen import *
 from PauseScreen import *
 from win32api import GetSystemMetrics
+
+
 class MyWidget(QtWidgets.QMainWindow):
 
     width = int(GetSystemMetrics(0) * 1.25)
@@ -54,9 +57,9 @@ class MyWidget(QtWidgets.QMainWindow):
             if event.key() == QtCore.Qt.Key_Tab:
                 self.pause = not self.pause
                 if self.pause:
-                    self.player.pause()
+                    self.musique.pause()
                 else:
-                    self.player.play()
+                    self.musique.play()
                 self.timer_ennemi.start(1000)
             else:
                 QWidget().keyPressEvent(event)
@@ -91,7 +94,6 @@ class MyWidget(QtWidgets.QMainWindow):
         if self.pause:
             self.timer_ennemi.stop()
 
-
     def ui_demarrage(self):
         try:
             self.ui.fermer()
@@ -116,10 +118,10 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui = Ui_GameScreen()
         self.ui.setup_Jeu(self)
         # Démarrage musique de fond
-        self.player = QMediaPlayer()
+        self.musique = QMediaPlayer()
         audio_file = QMediaContent(QUrl.fromLocalFile("Let the battle begin.mp3"))
-        self.player.setMedia(audio_file)
-        self.player.play()
+        self.musique.setMedia(audio_file)
+        self.musique.play()
         # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
         self.ui.conteneur.paintEvent = self.drawGame
