@@ -76,16 +76,14 @@ class Partie(list):
                   'invocateur': perso.Invocateur,
                   'armure': perso.Armure}
         ennemi = ennemi[classe]  # On change le type de ennemi pour avoir directement la classe d'ennemi qu'on va générer
-        if pos != ():
-            x, y = pos[0], pos[1]
-        else:
+        if pos == ():
             cases_possibles = []
             for i in range(self.l):
                 for j in range(self.h):
                     if self[i][j] is None:
                         cases_possibles.append((i, j))
-            x, y = choice(cases_possibles)
-        ennemi = ennemi(self, (x, y), niveau)
+            pos = choice(cases_possibles)
+        ennemi = ennemi(self, pos, niveau)
 
     @staticmethod
     def create_save():
@@ -247,4 +245,22 @@ if __name__ == '__main__':
     path = path.split("\\Code")[0]
     os.chdir(os.path.join(path, "Data"))
     a = Partie(10, 15)
-    a.new_player("Link", "epeiste", 5)
+    link = perso.Archer(a, (5, 5), 'link', niveau = 5)
+    a.spawn("squelette", 5, (4, 4))
+    a.spawn("squelette", 5, (4, 5))
+    a.spawn("squelette", 5, (4, 6))
+    a.spawn("squelette", 5, (5, 4))
+    a.spawn("squelette", 5, (5, 6))
+    a.spawn("squelette", 5, (6, 4))
+    a.spawn("squelette", 5, (6, 5))
+    a.spawn("squelette", 5, (6, 6))
+    for ennemi in a.ennemis.values():
+        v = ennemi.vie
+    for joueur in a.joueurs.values():
+        joueur.attaque_speciale()
+    for ennemi in a.ennemis.values():
+        print(ennemi.nom)
+        print(ennemi.position)
+        print(v)
+        print(ennemi.vie)
+

@@ -261,13 +261,13 @@ class Garde(Personnage):
         else:
             x_2ecase += 1
         liste_entite.append(self.game[x_2ecase][y_2ecase])
-        liste_entite.sort(reverse=True)  # Pour faire déplacer l'ennemi le plus loin d'abord, sinon, collisions.
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                entity.vie -= self.attaque
+                self.coup(self, entity)
                 x, y = entity.position
                 x, y = eval(Entite.direction[self.orientation])
                 entity.position = (x, y)
+                self.mana -= 1
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -295,6 +295,7 @@ class Sorcier(Personnage):
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
                 self.coup(self, entity)
+                self.mana -= 1
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -320,7 +321,8 @@ class Archer(Personnage):
                 liste_entite.append(self.game[x_att + i][y_att + j])
         for entity in liste_entite:
             if entity in self.game.ennemis.values():
-                entity.vie -= self.attaque
+                self.coup(self, entity)
+                self.mana -= 1
 
     def dessinImage(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -342,9 +344,8 @@ class Ennemi(Entite):
         self.cible = None  # Chaque ennemi va essayer de poursuivre sa cible
         self.vision = 0  # Pour savoir jusqu'où il cherche une nouvelle cible
 
-    @abstractmethod
     def attaquer(self):
-        pass
+        self.coup(self, self.cible)
 
     @abstractmethod
     def attaque_speciale(self):
@@ -385,7 +386,7 @@ class Ennemi(Entite):
             if (x1 == x2 and abs(y1 - y2) == 1) or (abs(x1 - x2) == 1 and y1 == y2):
                 return True
         except AttributeError:
-            return False
+            pass
         return False
 
     def mort(self):
@@ -394,7 +395,6 @@ class Ennemi(Entite):
         x, y = self.position
         self.game [x][y] = None  # One le retire de la map immédiatement et on l'ajoute à la liste des ennemis à del
         self.game.disparition.append(self)
-        pass
 
     def agro(self):
         """Vision : COURT (2 cases) / MOYEN (4 cases) / LONG (6 cases)"""
@@ -421,10 +421,6 @@ class Squelette(Ennemi):
         self.xp = (10 * self.niveau) // 3  # L'xp que gagne le joueur s'il le tue
         self.vision = 4
         self.image = QtGui.QImage("./Squelette/Idle/idle.jpg")
-
-    def attaquer(self):
-        """Nota : attaque de squelette est un simple coup porté si un joueur se situe à une case adjacente"""
-        self.coup(self, self.cible)
 
     def attaque_speciale(self):
         """
@@ -454,10 +450,6 @@ class Crane(Ennemi):
         self.game.ennemis[self.nom] = self
         self.vision = 6
         self.image = QtGui.QImage("./Crane/Idle/idle.jpg")
-
-    def attaquer(self):
-        """Nota : attaque de crâne est un simple coup porté si un joueur se situe à une case adjacente"""
-        self.coup(self, self.cible)
 
     def attaque_speciale(self):
         """
@@ -509,10 +501,6 @@ class Armure(Ennemi):
         self.vision = 2
         self.image = QtGui.QImage("./Armure/Idle/idle.jpg")
 
-    def attaquer(self):
-        """Nota : attaque d'armure est un simple coup porté si un joueur se situe à une case adjacente"""
-        self.coup(self, self.cible)
-
     def attaque_speciale(self):
         """
         Nota : Réduit son attaque de moitié pour se redonner 1/3 de sa vie,
@@ -557,10 +545,6 @@ class Invocateur(Ennemi):
         self.vision = 5
         self.image = QtGui.QImage("./Invocateur/Idle/idle.jpg")
 
-    def attaquer(self):
-        """Nota : attaque d'invocateur est un simple coup porté si un joueur se situe à une case adjacente"""
-        self.coup(self, self.cible)
-
     def attaque_speciale(self):
         """
         Nota : Fais spawn deux crânes à ses côtés pour combattre si cela est possible,
@@ -568,19 +552,16 @@ class Invocateur(Ennemi):
         Cooldown : LONG (20 sec)
         """
         self.cible.vie -= self.attaque
-        if self.game.limite_spawn - Ennemi.compteur >= 2:
-            x1, y1 = self.position
-            x2, y2 = self.cible.position
-            if x1 == x2:
-                x3, y3 = x1, y1 - 1
-                x4, y4 = x1, y1 + 1
-            else:
-                x3, y3 = x1 - 1, y1
-                x4, y4 = x1 + 1, y1
-            self.game.spawn_crane(self.niveau, (x3, y3))
-            self.game.spawn_crane(self.niveau, (x4, y4))
+        x1, y1 = self.position
+        x2, y2 = self.cible.position
+        if x1 == x2:
+            x3, y3 = x1, y1 - 1
+            x4, y4 = x1, y1 + 1
         else:
-            self.vie = self.viemax
+            x3, y3 = x1 - 1, y1
+            x4, y4 = x1 + 1, y1
+        self.game.spawn("crane", self.niveau, (x3, y3))
+        self.game.spawn("crane", self.niveau, (x4, y4))
 
     def mort(self):
         Invocateur.compteur -= 1
