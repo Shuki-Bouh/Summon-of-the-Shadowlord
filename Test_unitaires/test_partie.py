@@ -6,11 +6,17 @@ import os
 class TestPartie(unittest.TestCase):
 
     def test_shape(self):
-        game = Partie(10, 10)
-        self.assertEqual(game.l, 12)
-        self.assertEqual(game.h, 12)
+        game1 = Partie(10, 10)
+        self.assertEqual(game1.l, 12)
+        self.assertEqual(game1.h, 12)
 
-    def test_spawn_squelette(self):
+    def test_new_player(self):
+        game2 = Partie(10, 10)
+        classes = ['epeiste', 'garde', 'sorcier', 'archer']
+        for c in classes:
+            game2.new_player('link', c)
+
+    def test_spawn(self):
         game = Partie(10, 10)
         for k in range(20):
             game.spawn_squelette(5)
