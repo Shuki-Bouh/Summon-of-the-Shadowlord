@@ -69,6 +69,7 @@ class Ui_Demarrage(object):
         self.verticalLayout_2.setStretch(6, 10)
         self.titre_jeu = QtWidgets.QLabel(self.centralwidget)
         self.titre_jeu.setGeometry(QtCore.QRect(95, 95, 610, 60))
+        self.titre_jeu.setStyleSheet("color: white;")
         font = QtGui.QFont()
         font.setFamily("Viner Hand ITC")
         font.setPointSize(28)
@@ -78,6 +79,14 @@ class Ui_Demarrage(object):
         self.nom_createurs.setGeometry(QtCore.QRect(670, 570, 120, 20))
         self.nom_createurs.setObjectName("nom_createurs")
         MainWindow.setCentralWidget(self.centralwidget)
+
+        pixmap = QtGui.QPixmap("accueil_jeu.jpg")
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
 
         Ui_Demarrage.list_widgets.append([self.widget, 1])
         Ui_Demarrage.list_widgets.append([self.widget_2, 2])
