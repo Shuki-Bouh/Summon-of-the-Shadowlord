@@ -4,8 +4,11 @@ import unittest
 import os
 
 path = os.getcwd()
-path = path.split("\\Test_unitaires")[0]  # Attention à l'OS
-#path = path.split("~/")
+osUser = int(input("Choisir son OS : Windows (0), Linux (1) "))
+if not osUser:
+    path = path.split("\\Test_unitaires")[0]
+else:
+    path = path.split("/Test_unitaires")
 os.chdir(os.path.join(path, "Data"))
 
 class TestPartie(unittest.TestCase):
