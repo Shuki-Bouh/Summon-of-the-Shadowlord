@@ -255,18 +255,24 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual((5, 7), link.position)
 
     def test_attaque_speciale_invocateur(self):
-        game17 = prt.Partie(10, 10)
-        e = perso.Invocateur(game17, (5, 5), 10)
-        link = perso.Archer(game17, (5, 8), 'link', niveau=10)
+        game18 = prt.Partie(10, 10)
+        e = perso.Invocateur(game18, (5, 5), 10)
+        link = perso.Archer(game18, (5, 8), 'link', niveau=10)
         e.cible = link
         e.attaque_speciale()
-        self.assertIsInstance(game17[5][4], perso.Crane)
-        self.assertIsInstance(game17[5][6], perso.Crane)
+        self.assertIsInstance(game18[5][4], perso.Crane)
+        self.assertIsInstance(game18[5][6], perso.Crane)
         link.deplacement("left")
         e.attaque_speciale()
-        self.assertIsInstance(game17[4][5], perso.Crane)
-        self.assertIsInstance(game17[6][5], perso.Crane)
+        self.assertIsInstance(game18[4][5], perso.Crane)
+        self.assertIsInstance(game18[6][5], perso.Crane)
 
+    def test_niveau(self):
+        game19 = prt.Partie(10, 10)
+        for k in range(25):
+            # On teste qu'on arrive bien à instancier les joueurs/ennemis à chaque niveau
+            joueur = perso.Epeiste(game19, (5, 5), 'link', niveau=k)
+            ennemi = perso.Squelette(game19, (5, 5), k)
 
 if __name__ == '__main__':
 

@@ -3,6 +3,11 @@ import Code.personnage as p
 import unittest
 import os
 
+path = os.getcwd()
+path = path.split("\\Test_unitaires")[0]  # Attention à l'OS
+#path = path.split("~/")
+os.chdir(os.path.join(path, "Data"))
+
 class TestPartie(unittest.TestCase):
 
     def test_shape(self):
@@ -12,78 +17,54 @@ class TestPartie(unittest.TestCase):
 
     def test_new_player(self):
         game2 = Partie(10, 10)
-        classes = ['epeiste', 'garde', 'sorcier', 'archer']
-        for c in classes:
-            game2.new_player('link', c)
+        classes = {'epeiste': p.Epeiste,
+                   'garde': p.Garde,
+                   'sorcier': p.Sorcier,
+                   'archer': p.Archer}
+        i = 0
+        for c in classes.keys():
+            game2.new_player('link', c, 5, (1 + i, 5))
+            self.assertIsInstance(game2[1 + i][5], classes[c])
+            i += 1
+        for joueur in game2.joueurs.values():
+            self.assertEqual(joueur.niveau, 5)
 
     def test_spawn(self):
-        game = Partie(10, 10)
-        for k in range(20):
-            game.spawn_squelette(5)
-        self.assertEqual(game.ennemis['Squelette 5'].vie, 50)
-        p.Ennemi.compteur = 0
-        del game
+        game3 = Partie(10, 10)
+        i = 0
+        ennemi = {'squelette': p.Squelette,
+                  'crane': p.Crane,
+                  'invocateur': p.Invocateur,
+                  'armure': p.Armure}
+        for c in ennemi.keys():
+            game3.spawn(c, 5, (1+i, 5))
+            self.assertIsInstance(game3[1+i][5], ennemi[c])
+            i += 1
+        for ennemi in game3.ennemis.values():
+            self.assertEqual(ennemi.niveau, 5)
 
-    def test_spawn_crane(self):
-        game = Partie(10, 10)
-        for k in range(20):
-            game.spawn_crane(5)
-        self.assertEqual(game.ennemis['Crane 5'].vie, 19)
-        game.ennemis["Crane 4"].mort()
-        with self.assertRaises(KeyError):
-            a = game.ennemis["Crane 4"]
-        p.Ennemi.compteur = 0
-        del game
-
-    def test_spawn_armure(self):
-        game = Partie(10, 10)
-        for k in range(20):
-            game.spawn_armure(5)
-        self.assertEqual(game.ennemis['Armure 5'].vie, 115)
-        game.ennemis["Armure 4"].mort()
-        with self.assertRaises(KeyError):
-            a = game.ennemis["Armure 4"]
-        p.Ennemi.compteur = 0
-        del game
-
-    def test_spawn_invocateur(self):
-        game = Partie(10, 10)
-        for k in range(20):
-            game.spawn_invocateur(5)
-        self.assertEqual(game.ennemis['Invocateur 5'].vie, 45)
-        game.ennemis["Invocateur 4"].mort()
-        with self.assertRaises(KeyError):
-            a = game.ennemis["Invocateur 4"]
-        p.Ennemi.compteur = 0
-        del game
-
-    def test_mort(self):
-        game = Partie(10,10)
-        game.spawn_squelette(5)
-        s = game.ennemis["Squelette 1"]
-        s.vie += 5
-        self.assertEqual(s.vie, 50)
-        p.Ennemi.compteur = 0
-        del game
-
-    def test_spawn_ennemis(self):
-        game = Partie(10, 10)
+    def test_spawn_ennemi(self):
+        game4 = Partie(10, 10)
+        game4.new_player('link', 'epeiste', 5, (1, 5))
         for k in range(10):
-            s = game.spawn_ennemi(5)
-        self.assertEqual(p.Ennemi.compteur, 5)
-        p.Ennemi.compteur = 0
-        del game
+            game4.spawn_ennemi()
+        for mechant in game4.ennemis.values():
+            self.assertIsInstance(mechant, p.Ennemi)
+        # On ne peut pas tester la partie sur la limite spawn :((
 
-    def test_new_player(self):
-        game = Partie(10, 10)
-        game.new_player('Link', 'epeiste')
-        joueur = game.joueurs["Link"]
-        joueur.deplacement('up')
-
+    def test_suppr_ennemi(self):
+        game5 = Partie(10, 10)
+        game5.spawn('squelette', 5)
+        game5.spawn('crane', 5)
+        game5.spawn('armure', 5)
+        game5.spawn('invocateur', 5)
+        for mechant in game5.ennemis.values():
+            mechant.mort()
+        self.assertEqual(len(game5.disparition), 4)
+        game5.suppr_ennemi()
+        self.assertEqual(game5.ennemis, {})
+        self.assertEqual(game5.disparition, [])
 
 if __name__ == '__main__':
-    path = os.getcwd()
-    path = path.split("\\Test_unitaires")[0]
-    os.chdir(os.path.join(path, "Data"))
 
     unittest.main()

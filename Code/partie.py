@@ -36,9 +36,9 @@ class Partie(list):
         classe = differentes_classes[classe]
         if not self.multi:
             if pos == ():
-                joueur = classe(self, (self.l // 2, self.h - self.h // 4), nom, niveau=niveau)
+                classe(self, (self.l // 2, self.h - self.h // 4), nom, niveau=niveau)
             else:
-                joueur = classe(self, pos, nom, niveau=niveau)
+                classe(self, pos, nom, niveau=niveau)
         else:
             pass  # On l'implémentera plus tard
         return
@@ -69,7 +69,7 @@ class Partie(list):
                 self.spawn('armure', lvl)
             return True
 
-    def spawn(self, classe: str, niveau: int, pos=()):
+    def  spawn(self, classe: str, niveau: int, pos=()):
         """Le paramètre pos=() ne sert que pour les spawn de crânes dans l'attaque spéciale de l'Invocateur"""
         ennemi = {'squelette': perso.Squelette,
                   'crane': perso.Crane,
@@ -83,7 +83,7 @@ class Partie(list):
                     if self[i][j] is None:
                         cases_possibles.append((i, j))
             pos = choice(cases_possibles)
-        ennemi = ennemi(self, pos, niveau)
+        ennemi(self, pos, niveau)
 
     @staticmethod
     def create_save():
