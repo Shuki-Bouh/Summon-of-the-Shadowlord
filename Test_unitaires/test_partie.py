@@ -4,8 +4,7 @@ import unittest
 import os
 
 path = os.getcwd()
-osUser = int(input("Choisir son OS : Windows (0), Linux (1) "))
-if not osUser:
+if "\\" in path:
     path = path.split("\\Test_unitaires")[0]
 else:
     path = path.split("/Test_unitaires")
