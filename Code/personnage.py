@@ -206,7 +206,7 @@ class Epeiste(Personnage):
 
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
-        self.classe = 'Epeiste'
+        self.classe = 'epeiste'
         self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -241,7 +241,7 @@ class Epeiste(Personnage):
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
-        self.classe = 'Garde'
+        self.classe = 'garde'
         self.image = QtGui.QImage("./Garde/Idle/idle.jpg")
         super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -279,7 +279,7 @@ class Garde(Personnage):
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
-        self.classe = 'Sorcier'
+        self.classe = 'sorcier'
         self.image = QtGui.QImage("./Sorcier/Idle/idle.jpg")
         super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
@@ -307,7 +307,7 @@ class Sorcier(Personnage):
 class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
         self.cooldown = 0
-        self.classe = 'Archer'
+        self.classe = 'archer'
         self.image = QtGui.QImage("./Archer/Idle/idle.jpg")
         super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 

@@ -69,7 +69,7 @@ class Partie(list):
                 self.spawn('armure', lvl)
             return True
 
-    def  spawn(self, classe: str, niveau: int, pos=()):
+    def spawn(self, classe: str, niveau: int, pos=()):
         """Le paramètre pos=() ne sert que pour les spawn de crânes dans l'attaque spéciale de l'Invocateur"""
         ennemi = {'squelette': perso.Squelette,
                   'crane': perso.Crane,
@@ -88,53 +88,52 @@ class Partie(list):
     @staticmethod
     def create_save():
         # Création du fichier si inexistant, ouverture sinon
-        connexion = sqlite3.connect('\\Save\\Base_de_données.db')
+        connexion = sqlite3.connect('./_Save/Base_de_données.db')
         # Création des tables
         cursor = connexion.cursor()  # Pour manipuler les BDD
-        cursor.execute("""
-               DROP TABLE Joueurs CASCADE CONSTRAINTS;
-               DROP TABLE Partie CASCADE CONSTRAINTS;    
-            
+        cursor.execute("""  
                CREATE TABLE IF NOT EXISTS Joueurs(
                    nom VARCHAR(12) NOT NULL UNIQUE,
                    id_partie INT(4) NOT NULL UNIQUE,
-                   classe VARCHAR(7) NOT NULL CONSTRAINT classe IN ('Epeiste', 'Garde', 'Sorcier', 'Garde'),
-                   niveau INT(2) NOT NULL CONSTRAINT niveau <= 20,
+                   classe VARCHAR(7) NOT NULL CHECK (classe IN ('epeiste', 'garde', 'sorcier', 'garde')),
+                   niveau INT(2) NOT NULL CHECK (niveau <= 20),
                    pos_x INT(2) NOT NULL,
                    pos_y INT(2) NOT NULL,
-                   potion INT(1) CONSTRAINT potion <= 5,
-                   argent INT(4) CONSTRAINT argent <= 9999,
-                   CODEX INT(1) CONSTRAINT CODEX IN (0, 1),
+                   potion INT(1) CHECK (potion <= 5),
+                   argent INT(4) CHECK (argent <= 9999),
+                   CODEX INT(1) CHECK (CODEX IN (0, 1)),
                    CONSTRAINT PK_Joueurs PRIMARY KEY (nom)
-               )
-
+               )""")
+        connexion.commit()
+        cursor.execute("""
                CREATE TABLE IF NOT EXISTS Partie(
                    id_partie INT(4) NOT NULL UNIQUE,
-                   temps_jeu HOUR() NOT NULL,
-                   nb_mort INT(2) NOT NULL CONSTRAINT nb_mort <= 99,
-                   nb_kill INT() NOT NULL,
-                   nb_squelette INT() NOT NULL,
-                   nb_crane INT() NOT NULL,
-                   nb_armure INT() NOT NULL,
-                   nb_invocateur INT() NOT NULL,
-                   vivant INT(1) NOT NULL CONSTRAINT vivant IN (0, 1),
+                   temps_jeu HOUR NOT NULL,
+                   nb_mort INT(2) NOT NULL CHECK (nb_mort <= 99),
+                   nb_kill INT NOT NULL,
+                   nb_squelette INT NOT NULL,
+                   nb_crane INT NOT NULL,
+                   nb_armure INT NOT NULL,
+                   nb_invocateur INT NOT NULL,
+                   vivant INT(1) NOT NULL CHECK (vivant IN (0, 1)),
                    CONSTRAINT PK_partie PRIMARY KEY (id_partie)
-               )
-               
-               ALTER TABLE Joueurs ADD (
-                    CONSTRAINT FK_Joueurs_Partie
-                        FOREIGN KEY (id_partie)
-                            REFERENCES Partie (id_partie)),
-                
-               """)
+               )""")
+        connexion.commit()
+        # cursor.execute("""
+        #        ALTER TABLE Joueurs ADD (
+        #             CONSTRAINT FK_Joueurs_Partie
+        #                 FOREIGN KEY (id_partie)
+        #                     REFERENCES Partie (id_partie)),
+        #
+        #        """)
+        # connexion.commit()
         # Fermeture de la connexion
         connexion.close()
 
-    @staticmethod
-    def write_save(player):
+    def write_save(self, player):
         """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
         try:
-            open('\\Save\\Base_de_données.db')
+            open('./_Save/Base_de_données.db')
         except FileNotFoundError:
             Partie.create_save()
         else:
@@ -145,66 +144,80 @@ class Partie(list):
             kill_invocateur = perso.Invocateur.total_compteur - perso.Invocateur.compteur
             kill = kill_squelette + kill_crane + kill_armure + kill_invocateur
 
+            # A implémenter ?
+            temps_jeu = 0
+            compteur_mort = 0
+
             # Ouverture du fichier
-            connexion = sqlite3.connect('Base_de_données.db')
+            connexion = sqlite3.connect('./_Save/Base_de_données.db')
 
             # Test pour savoir si le joueur a déjà une sauvegarde dans la table
             cursor = connexion.cursor()
-            cursor.execute("""SELECT nom FROM Joueurs WHERE nom=player.nom""")
-            value = cursor.fetchone()
+            cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
+            result = cursor.fetchone()
 
-            if value[0] is None:  # Pas de sauvegarde existante
+            if result == None:  # Pas de sauvegarde existante
                 # On créer un id_partie aléatoire n'existant pas déjà
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Partie""")
                 id_values = cursor.fetchone()
                 id_prt = 1
-                while id_prt in id_values:
-                    id_prt = randrange(1, 9999)
+                if id_values:
+                    while id_prt in list(id_values):
+                        id_prt = randrange(1, 9999)
                 # On crée la sauvegarde de la partie et du joueur
                 cursor.execute("""
-                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y) VALUES(player.nom, id_prt, 
-                                                player.classe, player.niveau, player.position[0], player.position[1]),
-                
+                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
+                VALUES(?,?,?,?,?,?,?,?,?)""",
+                               (player.nom, id_prt, player.classe, player.niveau,
+                                player.position[0], player.position[1], 0, 0, 0,))
+                connexion.commit()
+
+                cursor.execute("""
                 INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
-                nb_invocateur, vivant) VALUES(id_prt, perso.temps_jeu, perso.compteur_mort, kill, kill_squelette,
-                kill_crane, kill_armure, kill_invocateur, player.vivant),
-                """)
+                nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
+                                                                      kill_squelette, kill_crane, kill_armure,
+                                                                      kill_invocateur, player.vivant,))
+                connexion.commit()
 
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
-                cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=player.nom""")
+                cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
                 id_prt = cursor.fetchone()
                 # Suppression anciennes données
+                cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (player.nom,))
+                cursor.execute("""DELETE FROM Partie WHERE id_partie=?""", (id_prt))
                 cursor.execute("""
-                DELETE FROM Joueurs WHERE nom=player.nom
-                DELETE FROM Partie WHERE id_partie=id_prt
-                """)
-                # On remplace la sauvegarde
+                                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
+                                VALUES(?,?,?,?,?,?,?,?,?)""",
+                               (player.nom, id_prt, player.classe, player.niveau,
+                                player.position[0], player.position[1], 0, 0, 0,))
+                connexion.commit()
+
                 cursor.execute("""
-                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y) VALUES(player.nom, id_prt, 
-                player.classe, player.niveau, player.position[0], player.position[1]),
-
-                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
-                nb_invocateur, vivant) VALUES(id_prt, perso.temps_jeu, perso.compteur_mort, kill, kill_squelette,
-                kill_crane, kill_armure, kill_invocateur, player.vivant),
-                """)
-
+                                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                                nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""",
+                               (id_prt, temps_jeu, compteur_mort, kill,
+                                kill_squelette, kill_crane, kill_armure,
+                                kill_invocateur, player.vivant,))
+                connexion.commit()
             # Fermeture de la connexion
             connexion.close()
 
-    def open_save(self, nom):
+    def open_save(self, nom : str):
         try:
-            open('\\Save\\Base_de_données.db')
+            open('./_Save/Base_de_données.db')
         except FileNotFoundError:
-            return None  # Dans le cadre où la sauvegarde n'existe pas encore
+            self.create_save()  # Dans le cadre où la sauvegarde n'existe pas encore
         else:
-            connexion = sqlite3.connect('Base_de_données.db')
+            connexion = sqlite3.connect('./_Save/Base_de_données.db')
             cursor = connexion.cursor()
-            cursor.execute("""SELECT classe, niveau, pos_x, pos_y FROM Joueurs WHERE nom=player.nom""")
-            cls, niv, posx, posy = cursor.fetchone()
-            connexion.close()
-            self.new_player(nom, cls, niv, (posx, posy))
+            cursor.execute("""SELECT classe, niveau, pos_x, pos_y FROM Joueurs WHERE nom=?""", (nom,))
+            result = cursor.fetchone()
+            if result != None:
+                # Les conditions d'appel de "open_save" sont telles que, dans tous les cas, result ne sera pas None
+                [cls, niv, posx, posy] = list(result)
+                self.new_player(nom, cls, niv, (posx, posy))
 
     def suppr_ennemi(self):
         """Suppression des objets Ennemi"""
