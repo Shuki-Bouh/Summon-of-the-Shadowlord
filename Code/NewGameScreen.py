@@ -9,6 +9,15 @@ class Ui_NewGame(object):
     def setup_New(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+        MainWindow.setMinimumSize(QtCore.QSize(800, 600))
+        MainWindow.setMaximumSize(QtCore.QSize(800, 600))
+        MainWindow.setMouseTracking(False)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("logo_jeu.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
+        MainWindow.setIconSize(QtCore.QSize(30, 30))
+        MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
+        MainWindow.setAnimated(True)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -156,7 +165,7 @@ class Ui_NewGame(object):
 
     def retranslate_New(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
         self.nom_perso.setText(_translate("MainWindow", "Nom du personnage\n"
                                                                     "(12 caractères max.)"))
         self.nom_classe.setText(_translate("MainWindow", "Classe du personnage\n"

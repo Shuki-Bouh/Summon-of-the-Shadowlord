@@ -91,20 +91,6 @@ class Partie(list):
         connexion = sqlite3.connect('./_Save/Base_de_données.db')
         # Création des tables
         cursor = connexion.cursor()  # Pour manipuler les BDD
-        cursor.execute("""  
-               CREATE TABLE IF NOT EXISTS Joueurs(
-                   nom VARCHAR(12) NOT NULL UNIQUE,
-                   id_partie INT(4) NOT NULL UNIQUE,
-                   classe VARCHAR(7) NOT NULL CHECK (classe IN ('epeiste', 'garde', 'sorcier', 'garde')),
-                   niveau INT(2) NOT NULL CHECK (niveau <= 20),
-                   pos_x INT(2) NOT NULL,
-                   pos_y INT(2) NOT NULL,
-                   potion INT(1) CHECK (potion <= 5),
-                   argent INT(4) CHECK (argent <= 9999),
-                   CODEX INT(1) CHECK (CODEX IN (0, 1)),
-                   CONSTRAINT PK_Joueurs PRIMARY KEY (nom)
-               )""")
-        connexion.commit()
         cursor.execute("""
                CREATE TABLE IF NOT EXISTS Partie(
                    id_partie INT(4) NOT NULL UNIQUE,
@@ -119,14 +105,22 @@ class Partie(list):
                    CONSTRAINT PK_partie PRIMARY KEY (id_partie)
                )""")
         connexion.commit()
-        # cursor.execute("""
-        #        ALTER TABLE Joueurs ADD (
-        #             CONSTRAINT FK_Joueurs_Partie
-        #                 FOREIGN KEY (id_partie)
-        #                     REFERENCES Partie (id_partie)),
-        #
-        #        """)
-        # connexion.commit()
+        cursor.execute("""  
+                       CREATE TABLE IF NOT EXISTS Joueurs(
+                           nom VARCHAR(12) NOT NULL UNIQUE,
+                           id_partie INT(4) NOT NULL UNIQUE,
+                           classe VARCHAR(7) NOT NULL CHECK (classe IN ('epeiste', 'garde', 'sorcier', 'garde')),
+                           niveau INT(2) NOT NULL CHECK (niveau <= 20),
+                           pos_x INT(2) NOT NULL,
+                           pos_y INT(2) NOT NULL,
+                           potion INT(1) CHECK (potion <= 5),
+                           argent INT(4) CHECK (argent <= 9999),
+                           CODEX INT(1) CHECK (CODEX IN (0, 1)),
+                           CONSTRAINT PK_Joueurs PRIMARY KEY (nom),
+                           CONSTRAINT FK_Joueurs_Partie FOREIGN KEY (id_partie)
+                           REFERENCES Partie(id_partie)
+                       )""")
+        connexion.commit()
         # Fermeture de la connexion
         connexion.close()
 
@@ -182,11 +176,11 @@ class Partie(list):
 
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
-                cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
-                id_prt = cursor.fetchone()
+                cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
+                id_prt = list(cursor.fetchone())[0]
                 # Suppression anciennes données
                 cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (player.nom,))
-                cursor.execute("""DELETE FROM Partie WHERE id_partie=?""", (id_prt))
+                cursor.execute("""DELETE FROM Partie WHERE id_partie=?""", (id_prt,))
                 cursor.execute("""
                                 INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
                                 VALUES(?,?,?,?,?,?,?,?,?)""",
@@ -218,6 +212,36 @@ class Partie(list):
                 # Les conditions d'appel de "open_save" sont telles que, dans tous les cas, result ne sera pas None
                 [cls, niv, posx, posy] = list(result)
                 self.new_player(nom, cls, niv, (posx, posy))
+
+    @staticmethod
+    def destroy_dbb():
+        try:
+            open('./_Save/Base_de_données.db')
+        except FileNotFoundError:
+            Partie.create_save()  # Dans le cadre où la sauvegarde n'existe pas encore
+        else:
+            connexion = sqlite3.connect('./_Save/Base_de_données.db')
+            cursor = connexion.cursor()
+            cursor.execute("""DROP TABLE Joueurs""")
+            connexion.commit()
+            cursor.execute("""DROP TABLE Partie""")
+            connexion.commit()
+
+    @staticmethod
+    def lecture_perso():
+        try:
+            open('./_Save/Base_de_données.db')
+        except FileNotFoundError:
+            Partie.create_save()  # Dans le cadre où la sauvegarde n'existe pas encore
+        else:
+            connexion = sqlite3.connect('./_Save/Base_de_données.db')
+            cursor = connexion.cursor()
+            cursor.execute("""SELECT * FROM Joueurs""")
+            result = cursor.fetchall()
+            if result != None:
+                # Les conditions d'appel de "open_save" sont telles que, dans tous les cas, result ne sera pas None
+                list_perso = list(result)
+                return list_perso
 
     def suppr_ennemi(self):
         """Suppression des objets Ennemi"""
