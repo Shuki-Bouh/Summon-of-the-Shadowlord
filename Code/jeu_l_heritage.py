@@ -25,12 +25,21 @@ class MyWidget(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui_demarrage()
-        self.create_Game()
-        self.timer_refrech = QTimer()
-        self.timer_refrech.timeout.connect(self.refresh)
-        self.timer_ennemi = QTimer()
-        self.timer_ennemi.timeout.connect(self.game.action_mechant)
-        self.pause = False  # Booléen
+        # Récupération des différents personnages jouables
+        self.tuple_perso = partie.Partie.lecture_perso()
+        self.list_perso = []  # Récupération des personnages
+        self.list_nom = []  # Récupération de leur nom
+        for tuple in self.tuple_perso:
+            perso = list(tuple)
+            self.list_perso.append(perso)
+            nom = perso[0]
+            self.list_nom.append(nom)
+        # self.create_Game()
+        # self.timer_refrech = QTimer()
+        # self.timer_refrech.timeout.connect(self.refresh)
+        # self.timer_ennemi = QTimer()
+        # self.timer_ennemi.timeout.connect(self.game.action_mechant)
+        # self.pause = False  # Booléen
 
     def keyPressEvent(self, event):
         """Gère l'accès aux touches du joueur"""
@@ -108,7 +117,49 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.bouton_credits.clicked.connect(self.ui_credits)
         self.ui.bouton_multi.clicked.connect(self.ui_multi)
 
+    def ui_play(self):
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique de la fenêtre de choix de partie
+        self.ui = Ui_Start()
+        self.ui.setup_Start(self)
+        for nom in self.list_nom:
+            self.ui.Choix_game.addItem(nom)
+        # Connexion signaux/ bouton
+        self.ui.bouton_jouer.clicked.connect(self.ui_game)
+        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
+        self.ui.bouton_com.clicked.connect(self.ui_newgame)
+
+    def ui_newgame(self):
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique de la fenêtre de nouveau personnage
+        self.ui = Ui_NewGame()
+        self.ui.setup_New(self)
+        # Connexion signaux/ bouton
+        self.ui.bouton_retour.clicked.connect(self.ui_play)
+
     def ui_game(self):
+        # ---Gestion de la connexion---
+        if self.ui.Ref_game.text() in self.list_nom:
+            # On autorise la connexion et on récupère les infos du personnage sélectionné
+            personnage = [liste for liste in self.list_perso if liste[0] == self.ui.Ref_game.text()][0]
+        else:
+            return None
+        # -----------------------------
+        # ---Gestion du jeu---
+        self.create_Game(personnage)
+        self.timer_refrech = QTimer()
+        self.timer_refrech.timeout.connect(self.refresh)
+        self.timer_ennemi = QTimer()
+        self.timer_ennemi.timeout.connect(self.game.action_mechant)
+        self.pause = False  # Booléen
+        # --------------------
+        # Création de la fenêtre graphique associée
         try:
             self.ui.fermer()
         except AttributeError:
@@ -128,17 +179,6 @@ class MyWidget(QtWidgets.QMainWindow):
         self.timer_refrech.start(int(1/24 * 1000))
         self.timer_ennemi.start(1000)
 
-    def ui_credits(self):
-        try:
-            self.ui.fermer()
-        except AttributeError:
-            pass
-        # Démarrage fenêtre graphique des crédits
-        self.ui = Ui_Credits()
-        self.ui.setup_Cred(self)
-        # Connexion signaux/ bouton
-        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
-
     def ui_multi(self):
         try:
             self.ui.fermer()
@@ -150,39 +190,22 @@ class MyWidget(QtWidgets.QMainWindow):
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
-    def ui_play(self):
+    def ui_credits(self):
         try:
             self.ui.fermer()
         except AttributeError:
             pass
-        # Démarrage fenêtre graphique de la fenêtre de choix de partie
-        self.ui = Ui_Start()
-        self.ui.setup_Start(self)
-        # Affichage des différents personnages jouables
-        list_perso = partie.Partie.lecture_perso()
-
-
-
+        # Démarrage fenêtre graphique des crédits
+        self.ui = Ui_Credits()
+        self.ui.setup_Cred(self)
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
-        self.ui.bouton_jouer.clicked.connect(self.ui_game)
-        self.ui.bouton_com.clicked.connect(self.ui_newgame)
 
-    def ui_newgame(self):
-        try:
-            self.ui.fermer()
-        except AttributeError:
-            pass
-        # Démarrage fenêtre graphique de la fenêtre de nouveau personnage
-        self.ui = Ui_NewGame()
-        self.ui.setup_New(self)
-        # Connexion signaux/ bouton
-        self.ui.bouton_retour.clicked.connect(self.ui_play)
-
-    def create_Game(self):
+    def create_Game(self, personnage):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)  # Pour créer des cases sur la map
-        self.game.new_player('Link', 'epeiste')  # Je suis d'accord, c'est assez restrictif pour le moment
+        nom, classe, niveau, pos = personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5])
+        self.game.new_player(nom, classe, niveau, pos)  # Je suis d'accord, c'est assez restrictif pour le moment
         for k in range(5):
             self.game.spawn_ennemi()
 
