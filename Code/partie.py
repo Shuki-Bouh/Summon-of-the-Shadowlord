@@ -157,8 +157,7 @@ class Partie(list):
                 id_values = cursor.fetchone()
                 id_prt = 1
                 if id_values:
-                    while id_prt in list(id_values):
-                        id_prt = randrange(1, 9999)
+                    id_prt = max(list(id_values)) + 1
                 # On crée la sauvegarde de la partie et du joueur
                 cursor.execute("""
                 INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
