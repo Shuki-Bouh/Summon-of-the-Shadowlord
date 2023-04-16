@@ -14,6 +14,7 @@ from Credits import *
 from StartScreen import *
 from MultiScreen import *
 from PauseScreen import *
+from NewGameScreen import *
 from win32api import GetSystemMetrics
 
 
@@ -103,7 +104,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui = Ui_Demarrage()
         self.ui.setup_Dem(self)
         # Connexion signaux/ bouton
-        self.ui.bouton_jouer.clicked.connect(self.ui_newgame)
+        self.ui.bouton_jouer.clicked.connect(self.ui_play)
         self.ui.bouton_quit.clicked.connect(self.close)
         self.ui.bouton_credits.clicked.connect(self.ui_credits)
         self.ui.bouton_multi.clicked.connect(self.ui_multi)
@@ -150,7 +151,7 @@ class MyWidget(QtWidgets.QMainWindow):
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
-    def ui_newgame(self):
+    def ui_play(self):
         try:
             self.ui.fermer()
         except AttributeError:
@@ -161,6 +162,17 @@ class MyWidget(QtWidgets.QMainWindow):
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
+        self.ui.bouton_com.clicked.connect(self.ui_newgame)
+
+    def ui_newgame(self):
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique de la fenêtre de nouveau jeu
+        self.ui = Ui_NewGame()
+        self.ui.setup_New(self)
+        self.ui.bouton_retour.clicked.connect(self.ui_play)
 
     def create_Game(self):
         """Test spawn et affichage"""

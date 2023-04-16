@@ -94,6 +94,7 @@ class Ui_Demarrage(object):
         Ui_Demarrage.list_widgets.append([self.nom_createurs, 13])
 
         self.retranslate_Dem(MainWindow)
+        self.bouton_quit.clicked.connect(MainWindow.close)  # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.bouton_jouer, self.bouton_multi)
         MainWindow.setTabOrder(self.bouton_multi, self.bouton_credits)
