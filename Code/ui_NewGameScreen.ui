@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="conteneur" stretch="3,2,1">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,8,1,8,2">
+        <item>
+         <widget class="QWidget" name="widget_9" native="true"/>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,1,1">
+          <item>
+           <widget class="QWidget" name="widget" native="true"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="Nom_perso">
+            <property name="font">
+             <font>
+              <family>Viner Hand ITC</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Nom du personnage
+(12 caractères max.)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="choix_nom">
+            <property name="text">
+             <string extracomment="ex : ENSTABretagne"/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_11" native="true"/>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,1,1">
+          <item>
+           <widget class="QWidget" name="widget_3" native="true"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="Nom_classe">
+            <property name="font">
+             <font>
+              <family>Viner Hand ITC</family>
+              <pointsize>14</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Classe du personnage
+ </string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="Choix_classe">
+            <item>
+             <property name="text">
+              <string> - Classe du personnage</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Épéiste</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Garde</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Sorcier</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Archer</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_10" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,2,1">
+        <item>
+         <widget class="QWidget" name="widget_2" native="true"/>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,2,3">
+          <item>
+           <widget class="QWidget" name="widget_6" native="true"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="bouton_com">
+            <property name="text">
+             <string>Commencer</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_5" native="true"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_4" native="true"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QWidget" name="widget_7" native="true"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="bouton_retour">
+          <property name="text">
+           <string>Retour</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_8" native="true"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

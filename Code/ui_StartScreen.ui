@@ -14,28 +14,93 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,10,1">
+     <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,1">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QWidget" name="widget_4" native="true"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Jouer</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="widget_5" native="true"/>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QWidget" name="widget" native="true"/>
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout" stretch="15,9,5,1,10">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QWidget" name="widget_6" native="true"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bouton_jouer">
+             <property name="text">
+              <string>Jouer</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_7" native="true"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout" stretch="5,5">
+           <item>
+            <widget class="QComboBox" name="Choix_game">
+             <property name="currentText">
+              <string> - Select a game</string>
+             </property>
+             <item>
+              <property name="text">
+               <string> - Select a game</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Ref_game"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QWidget" name="widget_8" native="true"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="ou">
+             <property name="text">
+              <string>ou</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_9" native="true"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QWidget" name="widget_4" native="true"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bouton_com">
+             <property name="text">
+              <string>Nouvelle partie</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_5" native="true"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_10" native="true"/>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -60,5 +125,38 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>Choix_game</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>Ref_game</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>251</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Ref_game</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>Ref_game</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>500</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>466</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -103,11 +103,10 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui = Ui_Demarrage()
         self.ui.setup_Dem(self)
         # Connexion signaux/ bouton
-        self.ui.bouton_jouer.clicked.connect(self.ui_game)
+        self.ui.bouton_jouer.clicked.connect(self.ui_newgame)
         self.ui.bouton_quit.clicked.connect(self.close)
         self.ui.bouton_credits.clicked.connect(self.ui_credits)
         self.ui.bouton_multi.clicked.connect(self.ui_multi)
-        self.ui.bouton_start.clicked.connect(self.ui_newgame)
 
     def ui_game(self):
         try:
