@@ -29,17 +29,13 @@ class MyWidget(QtWidgets.QMainWindow):
         self.tuple_perso = partie.Partie.lecture_perso()
         self.list_perso = []  # Récupération des personnages
         self.list_nom = []  # Récupération de leur nom
+        self.list_id = []
         for tuple in self.tuple_perso:
             perso = list(tuple)
             self.list_perso.append(perso)
-            nom = perso[0]
-            self.list_nom.append(nom)
-        # self.create_Game()
-        # self.timer_refrech = QTimer()
-        # self.timer_refrech.timeout.connect(self.refresh)
-        # self.timer_ennemi = QTimer()
-        # self.timer_ennemi.timeout.connect(self.game.action_mechant)
-        # self.pause = False  # Booléen
+            self.list_nom.append(perso[0])
+            self.list_id.append(perso[1])
+        self.personnage = []
 
     def keyPressEvent(self, event):
         """Gère l'accès aux touches du joueur"""
@@ -142,17 +138,40 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.setup_New(self)
         # Connexion signaux/ bouton
         self.ui.bouton_retour.clicked.connect(self.ui_play)
+        self.ui.bouton_com.clicked.connect(self.newgame)
+
+    def newgame(self):
+        name = self.ui.choix_nom.text()
+        classe = self.ui.choix_classe.currentText()
+        if name != '' and len(name) < 12 and name not in self.list_nom and \
+                classe in ['Épéiste', 'Garde', 'Sorcier', 'Archer']:
+            if classe == 'Épéiste':
+                classe = 'epeiste'
+            elif classe == 'Garde':
+                classe = 'garde'
+            elif classe == 'Sorcier':
+                classe = 'sorcier'
+            else:
+                classe = 'archer'
+            self.personnage = [name, classe, 1, ()]
+            self.ui_game()
+        else:
+            return None
 
     def ui_game(self):
         # ---Gestion de la connexion---
-        if self.ui.Ref_game.text() in self.list_nom:
-            # On autorise la connexion et on récupère les infos du personnage sélectionné
-            personnage = [liste for liste in self.list_perso if liste[0] == self.ui.Ref_game.text()][0]
-        else:
-            return None
+        if len(self.personnage) == 0:
+            if self.ui.Ref_game.text() in self.list_nom:
+                # On autorise la connexion et on récupère les infos du personnage sélectionné
+                self.personnage = [liste for liste in self.list_perso if liste[0] == self.ui.Ref_game.text()][0]
+            else:
+                return None
         # -----------------------------
         # ---Gestion du jeu---
-        self.create_Game(personnage)
+        self.create_Game(self.personnage)
+        # ---Écriture de la sauvegarde---
+        if self.personnage[0] not in self.list_nom:
+            partie.Partie.write_save(self.game, self.game.joueurs[self.personnage[0]])
         self.timer_refrech = QTimer()
         self.timer_refrech.timeout.connect(self.refresh)
         self.timer_ennemi = QTimer()
@@ -204,7 +223,10 @@ class MyWidget(QtWidgets.QMainWindow):
     def create_Game(self, personnage):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)  # Pour créer des cases sur la map
-        nom, classe, niveau, pos = personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5])
+        if len(personnage) == 4:
+            nom, classe, niveau, pos = personnage[0], personnage[1], personnage[2], personnage[3]
+        else:
+            nom, classe, niveau, pos = personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5])
         self.game.new_player(nom, classe, niveau, pos)  # Je suis d'accord, c'est assez restrictif pour le moment
         for k in range(5):
             self.game.spawn_ennemi()
