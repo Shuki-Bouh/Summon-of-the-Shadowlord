@@ -14,7 +14,7 @@ class Partie(list):
         self.joueurs = {}
         self.ennemis = {}
         self.disparition = []
-        self.limite_spawn = 5
+        self.limiteSpawn = 5
         self.multi = False
 
     def __generation_map(self):
@@ -28,7 +28,7 @@ class Partie(list):
                     self[x].append(None)
 
     def new_player(self, nom: str, classe: str, niveau=1, pos=()):
-        """Création d'un nouveau joueur selon la classe selectionnée par le joueur"""
+        """Création d'un nouveau joueur selon la classe sélectionnée par le joueur"""
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
                                'sorcier': perso.Sorcier,
@@ -55,7 +55,7 @@ class Partie(list):
     def spawn_ennemi(self):
         """Fais apparaître des ennemis de type aléatoire sur la map
         La position est aléatoire sur les cases disponibles"""
-        if perso.Ennemi.compteur < self.limite_spawn:
+        if perso.Ennemi.compteur < self.limiteSpawn:
             lv = list(self.joueurs.values())[0].niveau  # ça commence à être moche
             lvl = lv + randrange(-2, 3)
             proba = random()

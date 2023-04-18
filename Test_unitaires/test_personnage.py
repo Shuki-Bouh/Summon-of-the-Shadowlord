@@ -32,7 +32,7 @@ class TestEntite(unittest.TestCase):
         game2 = prt.Partie(10, 10)
         link = perso.Garde(game2, (5, 5), 'Link', niveau=5)
         link.vie += 5
-        self.assertEqual(link.vie, link.viemax)
+        self.assertEqual(link.vie, link.vieMax)
         self.assertTrue(link.vivant)
         link.vie -= 150
         self.assertEqual(link.vie, 0)
@@ -42,7 +42,7 @@ class TestEntite(unittest.TestCase):
         game3 = prt.Partie(10, 10)
         link = perso.Archer(game3, (5, 5), 'Link', niveau=5)
         link.xp += 50
-        link._levelup()
+        link._level_up()
         self.assertEqual(link.xp, 0)
         self.assertEqual(link.niveau, 6)
 
@@ -244,7 +244,7 @@ class TestEntite(unittest.TestCase):
         v = link.vie
         e.attaque_speciale()
         self.assertEqual(v - res, link.vie)
-        self.assertEqual(e.vie, e.viemax)
+        self.assertEqual(e.vie, e.vieMax)
 
     def test_attaque_speciale_armure(self):
         game17 = prt.Partie(10, 10)

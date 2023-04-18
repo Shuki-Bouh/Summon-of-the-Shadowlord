@@ -26,15 +26,15 @@ class MyWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.ui_demarrage()
         # Récupération des différents personnages jouables
-        self.data_perso = partie.Partie.lecture_perso()
-        self.list_perso = []  # Récupération des personnages
-        self.list_nom = []  # Récupération de leur nom
-        self.list_id = []
-        for data in self.data_perso:
+        self.dataPerso = partie.Partie.lecture_perso()
+        self.listPerso = []  # Récupération des personnages
+        self.listNom = []  # Récupération de leur nom
+        self.listId = []
+        for data in self.dataPerso:
             nom, id, *other = data
-            self.list_perso.append(list(data))
-            self.list_nom.append(nom)
-            self.list_id.append(id)
+            self.listPerso.append(list(data))
+            self.listNom.append(nom)
+            self.listId.append(id)
         self.personnage = []
 
     def keyPressEvent(self, event):
@@ -42,10 +42,7 @@ class MyWidget(QtWidgets.QMainWindow):
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
             if not joueur.vivant:
-                # Dans l'idée, c'est là qu'on lance la sauvegarde automatique et qu'on fait
-                # apparaitre l'écran de game over, là ou dans la méthode mort, mais ici
-                # serait plus simple, car on a directement accès à l'interface graphique.
-                break  # Permet d'arrêter plus ou moins le jeu quand on meurt
+                break
             if not self.pause:
                 if event.key() == QtCore.Qt.Key_Z:
                     joueur.deplacement('up')
@@ -81,13 +78,13 @@ class MyWidget(QtWidgets.QMainWindow):
 
         perso = list(self.game.joueurs.values())[0]  # Pour le perso joué, on met à jour sa vie, son mana et son xp
 
-        update_vie = int(np.round(100 * (perso.vie / perso.viemax), 0))
+        update_vie = int(np.round(100 * (perso.vie / perso.vieMax), 0))
         self.ui.label_vie.setValue(update_vie)
-        self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.viemax))
+        self.ui.label_vie.setFormat("Vie : " + str(perso.vie) + "/" + str(perso.vieMax))
 
-        update_mana = int(np.round(100 * (perso.mana / perso.manamax), 0))
+        update_mana = int(np.round(100 * (perso.mana / perso.manaMax), 0))
         self.ui.label_mana.setValue(update_mana)
-        self.ui.label_mana.setFormat("Mana : " + str(perso.mana) + "/" + str(perso.manamax))
+        self.ui.label_mana.setFormat("Mana : " + str(perso.mana) + "/" + str(perso.manaMax))
 
         xp_max = 10 * perso.niveau
         update_xp = int(np.round(100 * (perso.xp / xp_max), 0))
@@ -121,14 +118,14 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique de la fenêtre de choix de partie
         self.ui = Ui_Start()
         self.ui.setup_Start(self)
-        for nom in self.list_nom:
+        for nom in self.listNom:
             self.ui.Choix_game.addItem(nom)
         # Connexion signaux/ bouton
         self.ui.bouton_jouer.clicked.connect(self.ui_game)
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
-        self.ui.bouton_com.clicked.connect(self.ui_newgame)
+        self.ui.bouton_com.clicked.connect(self.ui_new_game)
 
-    def ui_newgame(self):
+    def ui_new_game(self):
         try:
             self.ui.fermer()
         except AttributeError:
@@ -143,7 +140,7 @@ class MyWidget(QtWidgets.QMainWindow):
     def new_game(self):
         name = self.ui.choix_nom.text()
         classe = self.ui.choix_classe.currentText()
-        if 0 < len(name) < 12 and name not in self.list_nom:
+        if 0 < len(name) < 12 and name not in self.listNom:
             if classe == 'Épéiste':
                 classe = 'epeiste'
             elif classe == 'Garde':
@@ -158,15 +155,15 @@ class MyWidget(QtWidgets.QMainWindow):
     def ui_game(self):
         # ---Gestion de la connexion---
         if len(self.personnage) == 0:
-            if self.ui.Ref_game.text() in self.list_nom:
+            if self.ui.Ref_game.text() in self.listNom:
                 # On autorise la connexion et on récupère les infos du personnage sélectionné
-                self.personnage = [liste for liste in self.list_perso if liste[0] == self.ui.Ref_game.text()][0]
+                self.personnage = [liste for liste in self.listPerso if liste[0] == self.ui.Ref_game.text()][0]
 
         # -----------------------------
         # ---Gestion du jeu---
         self.create_Game()
         # ---Écriture de la sauvegarde---
-        if self.personnage[0] not in self.list_nom:
+        if self.personnage[0] not in self.listNom:
             self.game.write_save(self.personnage[0])
         self.timer_refrech = QTimer()
         self.timer_refrech.timeout.connect(self.refresh)
@@ -234,12 +231,12 @@ class MyWidget(QtWidgets.QMainWindow):
             x, y = player.position
             x_win = x * width // self.game.l
             y_win = y * height // self.game.h
-            player.dessinImage(qp, x_win, y_win)
+            player.dessin_image(qp, x_win, y_win)
         for ennemy in self.game.ennemis.values():  # Affichage ennemis
             x, y = ennemy.position
             x_win = x * width // self.game.l
             y_win = y * height // self.game.h
-            ennemy.dessinImage(qp, x_win, y_win)
+            ennemy.dessin_image(qp, x_win, y_win)
         self.painter.end()
 
 

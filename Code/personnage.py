@@ -15,11 +15,11 @@ class Entite(metaclass=ABCMeta):
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
 
-    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau=1):
+    def __init__(self, game, path: str, position: tuple, coolDown: int, niveau=1):
         """Game est du type Partie du fichier partie.py"""
         self.path = path  # Path vers le fichier devant être ouvert, contenant les informations prédéfinis des entités.
         # On y retrouve les statistiques des personnages et ennemis pour chaque niveau.
-        self.cooldown = cooldown  # Permet de cadencer la vitesse d'attaque des entités.
+        self.coolDown = coolDown  # Permet de cadencer la vitesse d'attaque des entités.
         self.__niveau = niveau
         self.niveau = niveau  # Appel la méthode "niveau.setter", dans laquelle vont être lu les informations de vie,
         # attaque, défense et mana du personnage, pour lui être attribués.
@@ -33,11 +33,11 @@ class Entite(metaclass=ABCMeta):
         return self.__position
 
     @position.setter
-    def position(self, newpos: tuple):
+    def position(self, newPos: tuple):
         """Accepte un déplacement ssi la prochaine case est vide et sur la map.
         Nb : Les bords de la map sont False actuellement"""
         x1, y1 = self.position
-        x2, y2 = newpos
+        x2, y2 = newPos
         if self.game[x2][y2] is None:  # La nouvelle case est vide
             self.__position = x2, y2  # On change la position
             self.game[x1][y1] = None  # On actualise dans game
@@ -60,9 +60,9 @@ class Entite(metaclass=ABCMeta):
                 lvl = lvl[self.niveau].split()  # On récupère la ligne correspondant aux stats du niveau dans le txt
                 for k in range(len(lvl)):
                     lvl[k] = int(lvl[k])
-                self.__viemax, self.attaque, self.defense, self.__manamax = lvl[:]  # On génère les stats du joueur
-                self.__vie = self.__viemax  # à chaque lvlup, il récupère toutes ses vies
-                self.__mana = self.__manamax
+                self.__vieMax, self.attaque, self.defense, self.__manaMax = lvl[:]  # On génère les stats du joueur
+                self.__vie = self.__vieMax  # à chaque lvlup, il récupère toutes ses vies
+                self.__mana = self.__manaMax
 
     @staticmethod
     @abstractmethod
@@ -78,8 +78,8 @@ class Entite(metaclass=ABCMeta):
         return np.linalg.norm(np.array([x1 - x2, y1 - y2]))
 
     @property
-    def viemax(self):
-        return self.__viemax
+    def vieMax(self):
+        return self.__vieMax
 
     @property
     def vie(self):
@@ -93,11 +93,11 @@ class Entite(metaclass=ABCMeta):
             self.__vie = 0
             self.mort()
         else:
-            self.__vie = min(x, self.viemax)
+            self.__vie = min(x, self.vieMax)
 
     @property
-    def manamax(self):
-        return self.__manamax
+    def manaMax(self):
+        return self.__manaMax
 
     @property
     def mana(self):
@@ -109,8 +109,8 @@ class Entite(metaclass=ABCMeta):
         ni qu'elles descendent sous un mana égal à 0."""
         if x <= 0:
             self.__mana = 0
-        elif x >= self.manamax:
-            self.__mana = self.manamax
+        elif x >= self.manaMax:
+            self.__mana = self.manaMax
         else:
             self.__mana = x
 
@@ -130,7 +130,7 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         pass
 
 
@@ -146,8 +146,8 @@ class Personnage(Entite):
     """Définition ici de l'ensemble des personnages pouvant être joués par l'utilisateur.
     Au début d'une partie, le joueur choisit un personnage avec lequel il entreprendra son aventure."""
 
-    def __init__(self, game, path: str, position: tuple, cooldown: int, nom: str, inventaire: dict, niveau: int):
-        super().__init__(game, path, position, cooldown, niveau)
+    def __init__(self, game, path: str, position: tuple, coolDown: int, nom: str, inventaire: dict, niveau: int):
+        super().__init__(game, path, position, coolDown, niveau)
         self.inventory = inventaire
         self.nom = nom
         self.orientation = 'up'  # L'orientation sert à l'affichage du personnage et pour la direction de ses attaques
@@ -178,7 +178,7 @@ class Personnage(Entite):
         """Permet d'utiliser objet"""
         pass
 
-    def _levelup(self):
+    def _level_up(self):
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp >= self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.xp -= self.niveau * 10
@@ -193,7 +193,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque
         if vie < 1:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
-            attaquant._levelup()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
+            attaquant._level_up()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
 
     def mort(self):
@@ -234,7 +234,7 @@ class Epeiste(Personnage):
                     self.attaque //= 2
                     self.mana -= 1
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -272,7 +272,7 @@ class Garde(Personnage):
                 entity.position = (x, y)
                 self.mana -= 1
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -300,7 +300,7 @@ class Sorcier(Personnage):
                 self.coup(self, entity)
                 self.mana -= 1
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -327,7 +327,7 @@ class Archer(Personnage):
                 self.coup(self, entity)
                 self.mana -= 1
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -341,8 +341,8 @@ class Ennemi(Entite):
 
     compteur = 0  # Ce compteur permet d'éviter de générer trop d'ennemis sur la map en même temps
 
-    def __init__(self, game, path: str, position: tuple, cooldown: int, niveau):
-        super().__init__(game, path, position, cooldown, niveau)
+    def __init__(self, game, path: str, position: tuple, coolDown: int, niveau):
+        super().__init__(game, path, position, coolDown, niveau)
         Ennemi.compteur += 1  # Il est incrémenté à chaque ennemi créé
         self.cible = None  # Chaque ennemi va essayer de poursuivre sa cible
         self.vision = 0  # Pour savoir jusqu'où il cherche une nouvelle cible
@@ -415,7 +415,7 @@ class Squelette(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Squelette_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Squelette_lvl.txt", position, coolDown=5, niveau=niveau)
         Squelette.compteur += 1  # Nombre de squelettes présents
         Squelette.total_compteur += 1  # Nb de squelettes étant déjà apparu
         self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
@@ -436,7 +436,7 @@ class Squelette(Ennemi):
         Squelette.compteur -= 1
         Ennemi.mort(self)
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -445,7 +445,7 @@ class Crane(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Crane_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Crane_lvl.txt", position, coolDown=5, niveau=niveau)
         Crane.compteur += 1
         Crane.total_compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
@@ -486,7 +486,7 @@ class Crane(Ennemi):
         Crane.compteur -= 1
         Ennemi.mort(self)
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -495,7 +495,7 @@ class Armure(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Armure_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Armure_lvl.txt", position, coolDown=5, niveau=niveau)
         Armure.compteur += 1
         Armure.total_compteur += 1
         self.nom = "Armure " + str(Armure.total_compteur)
@@ -530,7 +530,7 @@ class Armure(Ennemi):
         Armure.compteur -= 1
         Ennemi.mort(self)
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
@@ -539,7 +539,7 @@ class Invocateur(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Invocateur_lvl.txt", position, cooldown=5, niveau=niveau)
+        super().__init__(game, "Invocateur_lvl.txt", position, coolDown=5, niveau=niveau)
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
@@ -570,7 +570,7 @@ class Invocateur(Ennemi):
         Invocateur.compteur -= 1
         Ennemi.mort(self)
 
-    def dessinImage(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win):
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 
