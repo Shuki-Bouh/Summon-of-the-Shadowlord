@@ -132,9 +132,7 @@ class Partie(list):
             Partie.create_save()
         else:
             # Récupération des valeurs nécessaire pour la suite
-            print(self.joueurs)
-            player = self.joueurs[str(name)]
-            print(player)
+            player = self.joueurs[name]
             kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
             kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
             kill_armure = perso.Armure.total_compteur - perso.Armure.compteur
@@ -160,13 +158,18 @@ class Partie(list):
                 if len(id_values) != 0:  # idée créée de manière itérative
                     id_prt = id_values[-1][0] + 1
                 print(id_prt,"2")
+                print(player.nom)
+                print(player.classe)
+                print(player.niveau)
+                print(player.position[0])
+                print(player.position[1])
                 # On crée la sauvegarde de la partie et du joueur
+                print("flag2")
                 cursor.execute("""
-                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
-                VALUES(?,?,?,?,?,?,?,?,?)""",
-                               (player.nom, id_prt, player.classe, player.niveau,
-                                player.position[0], player.position[1], 0, 0, 0,))
-                print("3")
+                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX)
+                VALUES(?,?,?,?,?,?,?,?,?)""", (player.nom, id_prt, player.classe, player.niveau, player.position[0],
+                                               player.position[1], 0, 0, 0,))
+                print("flag3")
                 connexion.commit()
                 print("4")
                 cursor.execute("""
@@ -224,10 +227,7 @@ class Partie(list):
             cursor = connexion.cursor()
             cursor.execute("""SELECT * FROM Joueurs""")
             result = cursor.fetchall()
-            if result != None:
-                # Les conditions d'appel de "open_save" sont telles que, dans tous les cas, result ne sera pas None
-                list_perso = list(result)
-                return list_perso
+            return result
 
     def suppr_ennemi(self):
         """Suppression des objets Ennemi"""
@@ -263,27 +263,5 @@ class Partie(list):
 
 
 if __name__ == '__main__':
-    path = os.getcwd()
-    print(path)
-    path = path.split("\\Code")[0]
-    os.chdir(os.path.join(path, "Data"))
-    a = Partie(10, 15)
-    link = perso.Archer(a, (5, 5), 'link', niveau = 5)
-    a.spawn("squelette", 5, (4, 4))
-    a.spawn("squelette", 5, (4, 5))
-    a.spawn("squelette", 5, (4, 6))
-    a.spawn("squelette", 5, (5, 4))
-    a.spawn("squelette", 5, (5, 6))
-    a.spawn("squelette", 5, (6, 4))
-    a.spawn("squelette", 5, (6, 5))
-    a.spawn("squelette", 5, (6, 6))
-    for ennemi in a.ennemis.values():
-        v = ennemi.vie
-    for joueur in a.joueurs.values():
-        joueur.attaque_speciale()
-    for ennemi in a.ennemis.values():
-        print(ennemi.nom)
-        print(ennemi.position)
-        print(v)
-        print(ennemi.vie)
+    pass
 

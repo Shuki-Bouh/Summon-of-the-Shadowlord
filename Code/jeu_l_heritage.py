@@ -26,15 +26,15 @@ class MyWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.ui_demarrage()
         # Récupération des différents personnages jouables
-        self.tuple_perso = partie.Partie.lecture_perso()
+        self.data_perso = partie.Partie.lecture_perso()
         self.list_perso = []  # Récupération des personnages
         self.list_nom = []  # Récupération de leur nom
         self.list_id = []
-        for tuple in self.tuple_perso:
-            perso = list(tuple)
-            self.list_perso.append(perso)
-            self.list_nom.append(perso[0])
-            self.list_id.append(perso[1])
+        for data in self.data_perso:
+            nom, id, *other = data
+            self.list_perso.append(list(data))
+            self.list_nom.append(nom)
+            self.list_id.append(id)
         self.personnage = []
 
     def keyPressEvent(self, event):
@@ -138,25 +138,22 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.setup_New(self)
         # Connexion signaux/ bouton
         self.ui.bouton_retour.clicked.connect(self.ui_play)
-        self.ui.bouton_com.clicked.connect(self.newgame)
+        self.ui.bouton_com.clicked.connect(self.new_game)
 
-    def newgame(self):
+    def new_game(self):
         name = self.ui.choix_nom.text()
         classe = self.ui.choix_classe.currentText()
-        if name != '' and len(name) < 12 and name not in self.list_nom and \
-                classe in ['Épéiste', 'Garde', 'Sorcier', 'Archer']:
+        if 0 < len(name) < 12 and name not in self.list_nom:
             if classe == 'Épéiste':
                 classe = 'epeiste'
             elif classe == 'Garde':
                 classe = 'garde'
             elif classe == 'Sorcier':
                 classe = 'sorcier'
-            else:
+            elif classe == 'Archer':
                 classe = 'archer'
             self.personnage = [name, classe, 1, ()]
             self.ui_game()
-        else:
-            return None
 
     def ui_game(self):
         # ---Gestion de la connexion---
@@ -164,15 +161,13 @@ class MyWidget(QtWidgets.QMainWindow):
             if self.ui.Ref_game.text() in self.list_nom:
                 # On autorise la connexion et on récupère les infos du personnage sélectionné
                 self.personnage = [liste for liste in self.list_perso if liste[0] == self.ui.Ref_game.text()][0]
-            else:
-                return None
+
         # -----------------------------
         # ---Gestion du jeu---
-        self.create_Game(self.personnage)
+        self.create_Game()
         # ---Écriture de la sauvegarde---
         if self.personnage[0] not in self.list_nom:
-            print(self.game.joueurs[self.personnage[0]])
-            partie.Partie.write_save(self.game, self.game.joueurs[self.personnage[0]])
+            self.game.write_save(self.personnage[0])
         self.timer_refrech = QTimer()
         self.timer_refrech.timeout.connect(self.refresh)
         self.timer_ennemi = QTimer()
@@ -194,7 +189,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.musique.play()
         # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
-        self.ui.conteneur.paintEvent = self.drawGame
+        self.ui.conteneur.paintEvent = self.draw_game
         # Mise en place de la clock d'ennemi sur 24Hz
         self.timer_refrech.start(int(1/24 * 1000))
         self.timer_ennemi.start(1000)
@@ -221,18 +216,18 @@ class MyWidget(QtWidgets.QMainWindow):
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
 
-    def create_Game(self, personnage):
+    def create_Game(self):
         """Test spawn et affichage"""
         self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)  # Pour créer des cases sur la map
-        if len(personnage) == 4:
-            nom, classe, niveau, pos = personnage[0], personnage[1], personnage[2], personnage[3]
+        if len(self.personnage) == 4:
+            nom, classe, niveau, pos = self.personnage[0], self.personnage[1], self.personnage[2], self.personnage[3]
         else:
-            nom, classe, niveau, pos = personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5])
+            nom, classe, niveau, pos = self.personnage[0], self.personnage[2], self.personnage[3], (self.personnage[4], self.personnage[5])
         self.game.new_player(nom, classe, niveau, pos)  # Je suis d'accord, c'est assez restrictif pour le moment
         for k in range(5):
             self.game.spawn_ennemi()
 
-    def drawGame(self, *args):
+    def draw_game(self, *args):
         self.painter.begin(self.ui.conteneur)
         qp = self.painter
         for player in self.game.joueurs.values():  # Affichage personnages
