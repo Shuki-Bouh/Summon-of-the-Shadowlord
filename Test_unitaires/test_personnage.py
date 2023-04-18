@@ -1,7 +1,6 @@
 import Code.personnage as perso
 import Code.partie as prt
 import unittest
-import time
 import os
 
 path = os.getcwd()

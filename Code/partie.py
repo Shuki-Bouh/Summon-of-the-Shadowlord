@@ -1,6 +1,5 @@
 from random import randrange, choice, random
 import Code.personnage as perso
-import os
 import sqlite3
 
 class Partie(list):
