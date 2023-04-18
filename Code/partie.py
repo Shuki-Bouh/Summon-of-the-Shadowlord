@@ -131,7 +131,7 @@ class Partie(list):
             Partie.create_save()
         else:
             # Récupération des valeurs nécessaire pour la suite
-            player = self.joueurs[name]
+            player = self.joueurs[str(name)]
             kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
             kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
             kill_armure = perso.Armure.total_compteur - perso.Armure.compteur
@@ -167,6 +167,7 @@ class Partie(list):
                                                                       kill_squelette, kill_crane, kill_armure,
                                                                       kill_invocateur, player.vivant,))
                 connexion.commit()
+                print("4")
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
@@ -175,17 +176,16 @@ class Partie(list):
                 cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (player.nom,))
                 cursor.execute("""DELETE FROM Partie WHERE id_partie=?""", (id_prt,))
                 cursor.execute("""
-                                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
-                                VALUES(?,?,?,?,?,?,?,?,?)""",
+                INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
+                VALUES(?,?,?,?,?,?,?,?,?)""",
                                (player.nom, id_prt, player.classe, player.niveau,
                                 player.position[0], player.position[1], 0, 0, 0,))
                 connexion.commit()
                 cursor.execute("""
-                                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
-                                nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""",
-                               (id_prt, temps_jeu, compteur_mort, kill,
-                                kill_squelette, kill_crane, kill_armure,
-                                kill_invocateur, player.vivant,))
+                INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
+                                                                      kill_squelette, kill_crane, kill_armure,
+                                                                      kill_invocateur, player.vivant,))
                 connexion.commit()
             # Fermeture de la connexion
             connexion.close()

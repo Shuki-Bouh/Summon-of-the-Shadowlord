@@ -12,22 +12,22 @@ class TestSave(unittest.TestCase):
 
     def test_save(self):
         game = prt.Partie(10, 10)
-        Test_Save1 = perso.Epeiste(game, (5, 5), 'Test_Save1', niveau=5)
-        Test_Save2 = perso.Epeiste(game, (5, 5), 'Test_Save2', niveau=5)
-        path = game.joueurs['Test_Save2']
+        Test_Save3 = perso.Epeiste(game, (5, 5), 'Test_Save3', niveau=5)
+        Test_Save4 = perso.Garde(game, (5, 5), 'Test_Save4', niveau=5)
+        path = game.joueurs['Test_Save4']
         for k in range(5):
             game.spawn_ennemi()
         game.create_save()
-        game.write_save('Test_Save1')
-        game.write_save('Test_Save2')
+        game.write_save('Test_Save3')
+        game.write_save('Test_Save4')
         game.joueurs = {}
         list_perso = game.lecture_perso()
-        personnage = list([liste for liste in list_perso if liste[0] == 'Test_Save2'])[0]
+        personnage = list([liste for liste in list_perso if liste[0] == 'Test_Save4'])[0]
         game.new_player(personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5]))
-        self.assertEqual(path.game, game.joueurs['Test_Save2'].game)
-        self.assertEqual(path.position, game.joueurs['Test_Save2'].position)
-        self.assertEqual(path.niveau, game.joueurs['Test_Save2'].niveau)
-        self.assertEqual(path.nom, game.joueurs['Test_Save2'].nom)
+        self.assertEqual(path.game, game.joueurs['Test_Save4'].game)
+        self.assertEqual(path.position, game.joueurs['Test_Save4'].position)
+        self.assertEqual(path.niveau, game.joueurs['Test_Save4'].niveau)
+        self.assertEqual(path.nom, game.joueurs['Test_Save4'].nom)
 
     def test_save2(self):
         game = prt.Partie(10, 10)
