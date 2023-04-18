@@ -171,6 +171,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.create_Game(self.personnage)
         # ---Écriture de la sauvegarde---
         if self.personnage[0] not in self.list_nom:
+            print(self.game.joueurs[self.personnage[0]])
             partie.Partie.write_save(self.game, self.game.joueurs[self.personnage[0]])
         self.timer_refrech = QTimer()
         self.timer_refrech.timeout.connect(self.refresh)

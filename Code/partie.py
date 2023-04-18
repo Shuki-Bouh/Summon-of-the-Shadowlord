@@ -124,7 +124,7 @@ class Partie(list):
         # Fermeture de la connexion
         connexion.close()
 
-    def write_save(self, player):
+    def write_save(self, name):
         """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
         try:
             open('./_Save/Base_de_données.db')
@@ -132,7 +132,9 @@ class Partie(list):
             Partie.create_save()
         else:
             # Récupération des valeurs nécessaire pour la suite
-            player = self.joueurs[str(player)]
+            print(self.joueurs)
+            player = self.joueurs[str(name)]
+            print(player)
             kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
             kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
             kill_armure = perso.Armure.total_compteur - perso.Armure.compteur
@@ -150,26 +152,30 @@ class Partie(list):
             cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
             result = cursor.fetchone()
             if result == None:  # Pas de sauvegarde existante
+                print("1")
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Partie""")
                 id_values = cursor.fetchall()
                 id_prt = 1
                 if len(id_values) != 0:  # idée créée de manière itérative
                     id_prt = id_values[-1][0] + 1
-                print(id_prt)
+                print(id_prt,"2")
                 # On crée la sauvegarde de la partie et du joueur
                 cursor.execute("""
                 INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
                 VALUES(?,?,?,?,?,?,?,?,?)""",
                                (player.nom, id_prt, player.classe, player.niveau,
                                 player.position[0], player.position[1], 0, 0, 0,))
+                print("3")
                 connexion.commit()
+                print("4")
                 cursor.execute("""
                 INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
                 nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
                                                                       kill_squelette, kill_crane, kill_armure,
                                                                       kill_invocateur, player.vivant,))
                 connexion.commit()
+                print("4")
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
