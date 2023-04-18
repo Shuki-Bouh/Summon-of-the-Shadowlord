@@ -150,35 +150,24 @@ class Partie(list):
             cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
             result = cursor.fetchone()
             if result == None:  # Pas de sauvegarde existante
-                print("1")
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Partie""")
                 id_values = cursor.fetchall()
                 id_prt = 1
                 if len(id_values) != 0:  # idée créée de manière itérative
                     id_prt = id_values[-1][0] + 1
-                print(id_prt,"2")
-                print(player.nom)
-                print(player.classe)
-                print(player.niveau)
-                print(player.position[0])
-                print(player.position[1])
                 # On crée la sauvegarde de la partie et du joueur
-                print("flag2")
                 cursor.execute("""
                 INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX)
                 VALUES(?,?,?,?,?,?,?,?,?)""", (player.nom, id_prt, player.classe, player.niveau, player.position[0],
                                                player.position[1], 0, 0, 0,))
-                print("flag3")
                 connexion.commit()
-                print("4")
                 cursor.execute("""
                 INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
                 nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
                                                                       kill_squelette, kill_crane, kill_armure,
                                                                       kill_invocateur, player.vivant,))
                 connexion.commit()
-                print("4")
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
