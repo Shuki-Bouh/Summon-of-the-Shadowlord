@@ -153,7 +153,7 @@ class Partie(list):
                 cursor.execute("""SELECT id_partie FROM Partie""")
                 id_values = cursor.fetchall()
                 id_prt = 1
-                if len(id_values) != 0:  # idée créée de manière itérative
+                if len(id_values) != 0:  # id créée de manière itérative
                     id_prt = id_values[-1][0] + 1
                 # On crée la sauvegarde de la partie et du joueur
                 cursor.execute("""
@@ -167,7 +167,6 @@ class Partie(list):
                                                                       kill_squelette, kill_crane, kill_armure,
                                                                       kill_invocateur, player.vivant,))
                 connexion.commit()
-                print("4")
             else:  # Sauvegarde existante
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))

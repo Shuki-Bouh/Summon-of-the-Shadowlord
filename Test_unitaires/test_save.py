@@ -12,8 +12,8 @@ class TestSave(unittest.TestCase):
 
     def test_save(self):
         game = prt.Partie(10, 10)
-        Test_Save3 = perso.Epeiste(game, (5, 5), 'Test_Save3', niveau=5)
-        Test_Save4 = perso.Garde(game, (5, 5), 'Test_Save4', niveau=5)
+        Test_Save3 = perso.Sorcier(game, (5, 5), 'Test_Save3', niveau=5)
+        Test_Save4 = perso.Archer(game, (5, 5), 'Test_Save4', niveau=5)
         path = game.joueurs['Test_Save4']
         for k in range(5):
             game.spawn_ennemi()
@@ -28,14 +28,7 @@ class TestSave(unittest.TestCase):
         self.assertEqual(path.position, game.joueurs['Test_Save4'].position)
         self.assertEqual(path.niveau, game.joueurs['Test_Save4'].niveau)
         self.assertEqual(path.nom, game.joueurs['Test_Save4'].nom)
-
-    def test_save2(self):
-        game = prt.Partie(10, 10)
-        Test_Save1 = perso.Archer(game, (5, 5), 'Test_Save1', niveau=5)
-        for k in range(5):
-            game.spawn_ennemi()
-        game.create_save()
-        game.write_save('Test_Save1')
+        print(list_perso)
 
 
 if __name__ == '__main__':
