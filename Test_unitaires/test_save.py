@@ -29,6 +29,14 @@ class TestSave(unittest.TestCase):
         self.assertEqual(path.niveau, game.joueurs['Test_Save2'].niveau)
         self.assertEqual(path.nom, game.joueurs['Test_Save2'].nom)
 
+    def test_save2(self):
+        game = prt.Partie(10, 10)
+        Test_Save1 = perso.Archer(game, (5, 5), 'Test_Save1', niveau=5)
+        for k in range(5):
+            game.spawn_ennemi()
+        game.create_save()
+        game.write_save('Test_Save1')
+
 
 if __name__ == '__main__':
     unittest.main()

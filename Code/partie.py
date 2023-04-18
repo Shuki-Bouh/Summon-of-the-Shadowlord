@@ -109,7 +109,7 @@ class Partie(list):
                        CREATE TABLE IF NOT EXISTS Joueurs(
                            nom VARCHAR(12) NOT NULL UNIQUE,
                            id_partie INT(4) NOT NULL UNIQUE,
-                           classe VARCHAR(7) NOT NULL CHECK (classe IN ('epeiste', 'garde', 'sorcier', 'garde')),
+                           classe VARCHAR(7) NOT NULL CHECK (classe IN ('epeiste', 'garde', 'sorcier', 'archer')),
                            niveau INT(2) NOT NULL CHECK (niveau <= 20),
                            pos_x INT(2) NOT NULL,
                            pos_y INT(2) NOT NULL,
