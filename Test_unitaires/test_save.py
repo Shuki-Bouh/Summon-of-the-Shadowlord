@@ -1,5 +1,4 @@
 import Code.partie as prt
-import Code.personnage as perso
 import unittest
 import os
 
@@ -10,25 +9,31 @@ os.chdir(os.path.join(path, "Data"))
 
 class TestSave(unittest.TestCase):
 
-    def test_save(self):
+    def test_create_and_suppr_bdd(self):
         game = prt.Partie(10, 10)
-        Test_Save3 = perso.Sorcier(game, (5, 5), 'Test_Save3', niveau=5)
-        Test_Save4 = perso.Archer(game, (5, 5), 'Test_Save4', niveau=5)
-        path = game.joueurs['Test_Save4']
-        for k in range(5):
-            game.spawn_ennemi()
-        game.create_save()
-        game.write_save('Test_Save3')
-        game.write_save('Test_Save4')
-        game.joueurs = {}
-        list_perso = game.lecture_perso()
-        personnage = list([liste for liste in list_perso if liste[0] == 'Test_Save4'])[0]
-        game.new_player(personnage[0], personnage[2], personnage[3], (personnage[4], personnage[5]))
-        self.assertEqual(path.game, game.joueurs['Test_Save4'].game)
-        self.assertEqual(path.position, game.joueurs['Test_Save4'].position)
-        self.assertEqual(path.niveau, game.joueurs['Test_Save4'].niveau)
-        self.assertEqual(path.nom, game.joueurs['Test_Save4'].nom)
-        print(list_perso)
+        game.destroy_dbb("First_try")
+        game.create_save("First_try")
+        game.create_save("First_try")
+        game.destroy_dbb("First_try")
+        game.destroy_dbb("First_try")
+        os.remove("./_Save/First_try")
+
+    def test_write_save(self):
+        game = prt.Partie(10, 10)
+        with self.assertRaises(KeyError):
+            game.write_save("Link", "terrible.db")
+        game.new_player("Link", "epeiste")
+        game.spawn('squelette', 5)
+        game.write_save("Link", "terrible.db")
+        os.remove("./_Save/terrible.db")
+
+    def test_load_save(self):
+        game = prt.Partie(10, 10)
+        game.new_player("Saria", "sorcier", 5, (4, 6))
+        game.write_save("Saria", "encore une bdd.db")
+        result = game.lecture_perso("encore une bdd.db")[0]
+        self.assertEqual(result, ("Saria", 1, "sorcier", 5, 4, 6, 0, 0, 0))
+        os.remove("./_Save/encore une bdd.db")
 
 
 if __name__ == '__main__':
