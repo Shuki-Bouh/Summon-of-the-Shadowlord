@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import time
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import partie
@@ -151,24 +151,21 @@ class MyWidget(QtWidgets.QMainWindow):
             self.ui_game()
 
     def ui_game(self):
-        # ---Gestion de la connexion---
         if len(self.personnage) == 0:
             if self.ui.Ref_game.text() in self.listNom:
                 # On autorise la connexion et on récupère les infos du personnage sélectionné
                 self.personnage = [liste for liste in self.listPerso if liste[0] == self.ui.Ref_game.text()][0]
-
-        # -----------------------------
-        # ---Gestion du jeu---
+        # -------Création du jeu-------
         self.create_Game()
-        # ---Écriture de la sauvegarde---
+        # ---Gestion de la connexion---
         if self.personnage[0] not in self.listNom:
             self.game.write_save(self.personnage[0])
+        # -----------------------------
         self.timer_refrech = QTimer()
         self.timer_refrech.timeout.connect(self.refresh)
         self.timer_ennemi = QTimer()
         self.timer_ennemi.timeout.connect(self.game.action_mechant)
         self.pause = False  # Booléen
-        # --------------------
         # Création de la fenêtre graphique associée
         try:
             self.ui.fermer()
@@ -188,6 +185,17 @@ class MyWidget(QtWidgets.QMainWindow):
         # Mise en place de la clock d'ennemi sur 24Hz
         self.timer_refrech.start(int(1/24 * 1000))
         self.timer_ennemi.start(1000)
+        # Connexion signaux/ bouton
+        self.ui.bouton_save.clicked.connect(self.save)
+        self.ui.bouton_save_quit.clicked.connect(self.save_quit)
+        self.ui.retour_menu.clicked.connect(self.ui_demarrage)
+
+    def save(self):
+        self.game.write_save(self.personnage[0])
+
+    def save_quit(self):
+        self.game.write_save(self.personnage[0])
+        self.ui_demarrage()
 
     def ui_multi(self):
         try:

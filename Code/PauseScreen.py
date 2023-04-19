@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication
 import sys
 
 
+
 class Ui_PauseScreen(QMainWindow):
 
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
@@ -137,7 +138,7 @@ class Ui_PauseScreen(QMainWindow):
 
     def fermer(self):
         for widget in Ui_PauseScreen.list_widgets:
-            widget[0].deleteLater()
+            del widget[0]
         Ui_PauseScreen.list_widgets = []
 
 

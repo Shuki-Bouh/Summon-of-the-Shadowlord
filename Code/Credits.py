@@ -2,6 +2,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
+from win32api import GetSystemMetrics
+
+width = int(GetSystemMetrics(0) * 1.25)
+height = int(GetSystemMetrics(1) * 1.18)
 
 
 class Ui_Credits(object):
@@ -12,6 +16,7 @@ class Ui_Credits(object):
     def setup_Cred(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+        MainWindow.move(width//2-400, height//2-300)
         MainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MainWindow.setMaximumSize(QtCore.QSize(800, 600))
         MainWindow.setMouseTracking(False)
@@ -123,5 +128,5 @@ class Ui_Credits(object):
 
     def fermer(self):
         for widget in Ui_Credits.list_widgets:
-            widget[0].deleteLater()
+            del widget[0]
         Ui_Credits.list_widgets = []

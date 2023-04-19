@@ -10,8 +10,6 @@ class Ui_GameScreen(object):
     # List containing all the widgets of a current window, which able us to clean a window and show new things.
     list_widgets = []
 
-    # Screen resolution
-
     def setup_Jeu(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.move(0, 0)
@@ -33,6 +31,16 @@ class Ui_GameScreen(object):
         self.conteneur.setObjectName("conteneur")
         MainWindow.setCentralWidget(self.centralwidget)
 
+        self.bouton_save = QtWidgets.QPushButton(self.conteneur)
+        self.bouton_save.setGeometry(0, 0, 150, 25)
+        self.bouton_save.setObjectName("bouton_save")
+        self.bouton_save_quit = QtWidgets.QPushButton(self.conteneur)
+        self.bouton_save_quit.setGeometry(150, 0, 150, 25)
+        self.bouton_save_quit.setObjectName("bouton_save_quit")
+        self.retour_menu = QtWidgets.QPushButton(self.conteneur)
+        self.retour_menu.setGeometry(300, 0, 150, 25)
+        self.retour_menu.setObjectName("retour_menu")
+
         pixmap = QtGui.QPixmap("arriere_plan_jeu.png")
         pixmap = pixmap.scaled(self.centralwidget.size())
         pal = QtGui.QPalette()
@@ -46,7 +54,7 @@ class Ui_GameScreen(object):
         self.label_vie.setValue(100)
         self.label_vie.setFormat("Vie")
         self.label_vie.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_vie.setGeometry(50, 50, 200, 20)
+        self.label_vie.setGeometry(50, 100, 200, 20)
         self.label_vie.setStyleSheet("QProgressBar::chunk "
                                      "{"
                                      "background-color: red;"
@@ -56,20 +64,20 @@ class Ui_GameScreen(object):
         self.label_mana.setValue(100)
         self.label_mana.setFormat("Mana")
         self.label_mana.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_mana.setGeometry(50, 80, 200, 20)
+        self.label_mana.setGeometry(50, 130, 200, 20)
         self.label_mana.setStyleSheet("QProgressBar::chunk "
                                       "{"
                                       "background-color: green;"
                                       "}")
 
         self.label_niveau = QLabel("Niveau", self.conteneur)
-        self.label_niveau.setGeometry(60, 120, 100, 20)
+        self.label_niveau.setGeometry(60, 170, 100, 20)
 
         self.label_xp = QProgressBar(self.conteneur)
         self.label_xp.setValue(100)
         self.label_xp.setFormat("xp")
         self.label_xp.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_xp.setGeometry(50, 140, 200, 20)
+        self.label_xp.setGeometry(50, 190, 200, 20)
         self.label_xp.setStyleSheet("QProgressBar::chunk "
                                     "{"
                                     "background-color: blue;"
@@ -81,6 +89,12 @@ class Ui_GameScreen(object):
         Ui_GameScreen.list_widgets.append([self.label_mana, 4])
         Ui_GameScreen.list_widgets.append([self.label_niveau, 5])
         Ui_GameScreen.list_widgets.append([self.label_xp, 6])
+        Ui_GameScreen.list_widgets.append([self.bouton_save, 7])
+        Ui_GameScreen.list_widgets.append([self.bouton_save_quit, 8])
+        Ui_GameScreen.list_widgets.append([self.retour_menu, 9])
+        Ui_GameScreen.list_widgets.append([pixmap, 10])
+        Ui_GameScreen.list_widgets.append([pal, 11])
+        
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -88,8 +102,11 @@ class Ui_GameScreen(object):
     def retranslate_Jeu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
+        self.bouton_save.setText(_translate("MainWindow", "Sauvegarder"))
+        self.bouton_save_quit.setText(_translate("MainWindow", "Sauvegarder et quitter"))
+        self.retour_menu.setText(_translate("MainWindow", "Retour menu"))
 
     def fermer(self):
         for widget in Ui_GameScreen.list_widgets:
-            widget[0].deleteLater()
+            del widget[0]
         Ui_GameScreen.list_widgets = []

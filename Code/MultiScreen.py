@@ -1,4 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from win32api import GetSystemMetrics
+
+width = int(GetSystemMetrics(0) * 1.25)
+height = int(GetSystemMetrics(1) * 1.18)
 
 
 class Ui_Multi(object):
@@ -9,6 +13,7 @@ class Ui_Multi(object):
     def setup_Multi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+        MainWindow.move(width//2-400, height//2-300)
         MainWindow.setMinimumSize(QtCore.QSize(800, 600))
         MainWindow.setMaximumSize(QtCore.QSize(800, 600))
         MainWindow.setMouseTracking(False)
@@ -63,5 +68,5 @@ class Ui_Multi(object):
 
     def fermer(self):
         for widget in Ui_Multi.list_widgets:
-            widget[0].deleteLater()
+            del widget[0]
         Ui_Multi.list_widgets = []
