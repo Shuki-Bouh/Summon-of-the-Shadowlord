@@ -1,5 +1,5 @@
 import Code.personnage as perso
-import Code.partie as prt
+import Code.tableau as tbl
 import unittest
 import os
 
@@ -13,7 +13,7 @@ os.chdir(os.path.join(path, "Data"))
 class TestEntite(unittest.TestCase):
 
     def test_deplacement_joueur(self):
-        game1 = prt.Partie(10, 10)
+        game1 = tbl.Tableau(10, 10)
         link = perso.Epeiste(game1, (5, 5), 'Link', niveau=5)
         saria = perso.Sorcier(game1, (5, 6), 'Saria', niveau=5)
         self.assertEqual(game1[5][5], link)
@@ -28,7 +28,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(saria.game[5][7], saria)
 
     def test_set_vie(self):
-        game2 = prt.Partie(10, 10)
+        game2 = tbl.Tableau(10, 10)
         link = perso.Garde(game2, (5, 5), 'Link', niveau=5)
         link.vie += 5
         self.assertEqual(link.vie, link.vieMax)
@@ -38,7 +38,7 @@ class TestEntite(unittest.TestCase):
         self.assertFalse(link.vivant)
 
     def test_level_up(self):
-        game3 = prt.Partie(10, 10)
+        game3 = tbl.Tableau(10, 10)
         link = perso.Archer(game3, (5, 5), 'Link', niveau=5)
         link.xp += 50
         link._level_up()
@@ -46,7 +46,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(link.niveau, 6)
 
     def test_coup(self):
-        game4 = prt.Partie(10,10)
+        game4 = tbl.Tableau(10, 10)
         classe = [perso.Archer, perso.Garde, perso.Epeiste, perso.Sorcier]
         link = perso.Garde(game4, (5, 5), 'Link', niveau=8)
         ennemi = perso.Squelette(game4, (6, 6), 9)
@@ -61,7 +61,7 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual(vieLInit, vieLEnd)
 
     def test_attaque_perso(self):
-        game5 = prt.Partie(10, 10)
+        game5 = tbl.Tableau(10, 10)
         link = perso.Epeiste(game5, (5,5), 'link', niveau=5)
         ennemiHaut = perso.Squelette(game5, (5,4), 5)
         ennemiTresHaut = perso.Squelette(game5, (5, 3), 5)
@@ -76,7 +76,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(v2, ennemiCote.vie)
 
     def test_attaque_Special_Epeiste(self):
-        game6 = prt.Partie(10, 10)
+        game6 = tbl.Tableau(10, 10)
         link = perso.Epeiste(game6, (5, 5), 'link', niveau=5)
         e1 = perso.Armure(game6, (5, 4), 5)
         e2 = perso.Armure(game6, (4, 4), 5)
@@ -97,7 +97,7 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual(v3, e3.vie)
 
     def test_attaque_speciale_garde(self):
-        game7 = prt.Partie(10, 10)
+        game7 = tbl.Tableau(10, 10)
         link = perso.Garde(game7, (5, 5), 'link', niveau=5)
         e1 = perso.Armure(game7, (5, 4), 5)
         e2 = perso.Armure(game7, (5, 3), 5)
@@ -125,7 +125,7 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual(v5, e5.vie)
 
     def test_attaque_speciale_sorcier(self):
-        game8 = prt.Partie(10, 10)
+        game8 = tbl.Tableau(10, 10)
         link = perso.Sorcier(game8, (5, 5), 'link', niveau=5)
         e1 = perso.Armure(game8, (5, 4), 5)
         e2 = perso.Armure(game8, (5, 3), 5)
@@ -152,7 +152,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(v9, e9.vie)
 
     def test_attaque_speciale_archer(self):
-        game9 = prt.Partie(10, 10)
+        game9 = tbl.Tableau(10, 10)
         link = perso.Archer(game9, (5, 5), 'link', niveau=20)
         e1 = perso.Armure(game9, (5, 4), 5)
         e2 = perso.Armure(game9, (4, 4), 5)
@@ -177,14 +177,14 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual(v8, e8.vie)
 
     def test_attaque_ennemi(self):
-        game10 = prt.Partie(10, 10)
+        game10 = tbl.Tableau(10, 10)
         e = perso.Crane(game10, (5, 5), 10)
         link = perso.Archer(game10, (5, 5), 'link', niveau= 10)
         e.cible = link
         e.attaquer()
 
     def test_deplacement_ennemi(self):
-        game11 = prt.Partie(10, 10)
+        game11 = tbl.Tableau(10, 10)
         e = perso.Armure(game11, (5, 5), 10)
         link = perso.Garde(game11, (5, 8), 'link', 10)
         e.cible = link
@@ -192,7 +192,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(e.position, (5, 6))
 
     def test_portee(self):
-        game12 = prt.Partie(10, 10)
+        game12 = tbl.Tableau(10, 10)
         e1 = perso.Squelette(game12, (5, 5), 10)
         link = perso.Sorcier(game12, (6, 5), 'link', 10)
         self.assertFalse(e1.portee())
@@ -202,7 +202,7 @@ class TestEntite(unittest.TestCase):
         self.assertFalse(e1.portee())
 
     def test_agro(self):
-        game13 = prt.Partie(10, 10)
+        game13 = tbl.Tableau(10, 10)
         e = perso.Invocateur(game13, (5, 1), 10)
         e.agro()
         self.assertIs(e.cible, None)
@@ -217,7 +217,7 @@ class TestEntite(unittest.TestCase):
         self.assertIs(e.cible, link)
 
     def test_mort_ennemi(self):
-        game14 = prt.Partie(10, 10)
+        game14 = tbl.Tableau(10, 10)
         e = perso.Squelette(game14, (5, 5), 1)
         self.assertIs(game14[5][5], e)
         e.mort()
@@ -225,7 +225,7 @@ class TestEntite(unittest.TestCase):
         self.assertIs(game14.disparition[0], e)
 
     def test_attaque_speciale_squelette(self):
-        game15 = prt.Partie(10, 10)
+        game15 = tbl.Tableau(10, 10)
         e = perso.Squelette(game15, (5, 5), 1)
         link = perso.Archer(game15, (5, 8), 'link', niveau=10)
         e.cible = link
@@ -234,7 +234,7 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual(v, link.vie)
 
     def test_attaque_speciale_crane(self):
-        game16 = prt.Partie(10, 10)
+        game16 = tbl.Tableau(10, 10)
         e = perso.Crane(game16, (5, 5), 10)
         link = perso.Archer(game16, (5, 8), 'link', niveau=10)
         res = link.vie // 3
@@ -246,7 +246,7 @@ class TestEntite(unittest.TestCase):
         self.assertEqual(e.vie, e.vieMax)
 
     def test_attaque_speciale_armure(self):
-        game17 = prt.Partie(10, 10)
+        game17 = tbl.Tableau(10, 10)
         e = perso.Armure(game17, (5, 5), 10)
         link = perso.Archer(game17, (5, 8), 'link', niveau=10)
         e.cible = link
@@ -257,7 +257,7 @@ class TestEntite(unittest.TestCase):
         self.assertNotEqual((5, 7), link.position)
 
     def test_attaque_speciale_invocateur(self):
-        game18 = prt.Partie(10, 10)
+        game18 = tbl.Tableau(10, 10)
         e = perso.Invocateur(game18, (5, 5), 10)
         link = perso.Archer(game18, (5, 8), 'link', niveau=10)
         e.cible = link
@@ -270,7 +270,7 @@ class TestEntite(unittest.TestCase):
         self.assertIsInstance(game18[6][5], perso.Crane)
 
     def test_niveau(self):
-        game19 = prt.Partie(10, 10)
+        game19 = tbl.Tableau(10, 10)
         for k in range(25):
             # On teste qu'on arrive bien à instancier les joueurs/ennemis à chaque niveau
             joueur = perso.Epeiste(game19, (5, 5), 'link', niveau=k)

@@ -2,7 +2,7 @@ from random import randrange, choice, random
 import Code.personnage as perso
 import sqlite3
 
-class Partie(list):
+class Tableau(list):
     """Dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
 
     def __init__(self, l: int, h: int):
@@ -111,7 +111,7 @@ class Partie(list):
             # Création des tables
             cursor = connexion.cursor()  # Pour manipuler les BDD
             cursor.execute("""
-                      CREATE TABLE IF NOT EXISTS Partie(
+                      CREATE TABLE IF NOT EXISTS Tableau(
                           id_partie INT(4) NOT NULL UNIQUE,
                           temps_jeu HOUR NOT NULL,
                           nb_mort INT(2) NOT NULL CHECK (nb_mort <= 99),
@@ -137,7 +137,7 @@ class Partie(list):
                                   CODEX INT(1) CHECK (CODEX IN (0, 1)),
                                   CONSTRAINT PK_Joueurs PRIMARY KEY (nom),
                                   CONSTRAINT FK_Joueurs_Partie FOREIGN KEY (id_partie)
-                                  REFERENCES Partie(id_partie)
+                                  REFERENCES Tableau(id_partie)
                               )""")
             connexion.commit()
             # Fermeture de la connexion
@@ -170,7 +170,7 @@ class Partie(list):
                 result = cursor.fetchone()
                 if result is None:  # Pas de sauvegarde existante
                     cursor = connexion.cursor()
-                    cursor.execute("""SELECT id_partie FROM Partie""")
+                    cursor.execute("""SELECT id_partie FROM Tableau""")
                     id_values = cursor.fetchall()
                     id_prt = 1
                     if len(id_values) != 0:  # id créée de manière itérative
@@ -183,7 +183,7 @@ class Partie(list):
                                     player.position[1], 0, 0, 0,))
                     connexion.commit()
                     cursor.execute("""
-                       INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                       INSERT INTO Tableau(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
                        nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
                                                                              kill_squelette, kill_crane, kill_armure,
                                                                              kill_invocateur, player.vivant,))
@@ -194,7 +194,7 @@ class Partie(list):
                     id_prt = list(cursor.fetchone())[0]
                     # Suppression anciennes données
                     cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (player.nom,))
-                    cursor.execute("""DELETE FROM Partie WHERE id_partie=?""", (id_prt,))
+                    cursor.execute("""DELETE FROM Tableau WHERE id_partie=?""", (id_prt,))
                     cursor.execute("""
                        INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
                        VALUES(?,?,?,?,?,?,?,?,?)""",
@@ -202,7 +202,7 @@ class Partie(list):
                                     player.position[0], player.position[1], 0, 0, 0,))
                     connexion.commit()
                     cursor.execute("""
-                       INSERT INTO Partie(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
+                       INSERT INTO Tableau(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
                        nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
                                                                              kill_squelette, kill_crane, kill_armure,
                                                                              kill_invocateur, player.vivant,))
@@ -216,7 +216,7 @@ class Partie(list):
                 cursor = connexion.cursor()
                 cursor.execute("""DROP TABLE Joueurs""")
                 connexion.commit()
-                cursor.execute("""DROP TABLE Partie""")
+                cursor.execute("""DROP TABLE Tableau""")
                 connexion.commit()
         except sqlite3.OperationalError:
             print("Aucune données dans la base de données")
@@ -227,7 +227,7 @@ class Partie(list):
             bdd = open('./_Save/' + nomBdd)
             bdd.close()
         except FileNotFoundError:
-            Partie.create_save(nomBdd)  # Dans le cadre où la sauvegarde n'existe pas encore
+            Tableau.create_save(nomBdd)  # Dans le cadre où la sauvegarde n'existe pas encore
         finally:
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
                 # connexion = sqlite3.connect('./_Save/Base_de_données.db')

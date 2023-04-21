@@ -1,4 +1,4 @@
-from Code.partie import Partie
+from Code.tableau import Tableau
 import Code.personnage as p
 import unittest
 import os
@@ -13,12 +13,12 @@ os.chdir(os.path.join(path, "Data"))
 class TestPartie(unittest.TestCase):
 
     def test_shape(self):
-        game1 = Partie(10, 10)
+        game1 = Tableau(10, 10)
         self.assertEqual(game1.l, 12)
         self.assertEqual(game1.h, 12)
 
     def test_new_player(self):
-        game2 = Partie(10, 10)
+        game2 = Tableau(10, 10)
         classes = {'epeiste': p.Epeiste,
                    'garde': p.Garde,
                    'sorcier': p.Sorcier,
@@ -32,7 +32,7 @@ class TestPartie(unittest.TestCase):
             self.assertEqual(joueur.niveau, 5)
 
     def test_spawn(self):
-        game3 = Partie(10, 10)
+        game3 = Tableau(10, 10)
         i = 0
         ennemi = {'squelette': p.Squelette,
                   'crane': p.Crane,
@@ -46,7 +46,7 @@ class TestPartie(unittest.TestCase):
             self.assertEqual(ennemi.niveau, 5)
 
     def test_spawn_ennemi(self):
-        game4 = Partie(10, 10)
+        game4 = Tableau(10, 10)
         game4.new_player('link', 'epeiste', 5, (1, 5))
         for k in range(10):
             game4.spawn_ennemi()
@@ -55,7 +55,7 @@ class TestPartie(unittest.TestCase):
         # On ne peut pas tester la partie sur la limite spawn :((
 
     def test_suppr_ennemi(self):
-        game5 = Partie(10, 10)
+        game5 = Tableau(10, 10)
         game5.spawn('squelette', 5)
         game5.spawn('crane', 5)
         game5.spawn('armure', 5)

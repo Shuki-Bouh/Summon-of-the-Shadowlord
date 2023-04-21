@@ -52,7 +52,7 @@ class Ui_Credits(object):
         self.horizontalLayout_3.addLayout(self.verticalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
-        # Partie définition des crédits
+        # Tableau définition des crédits
         self.credit_list = [
             "CRÉDITS",
             "",

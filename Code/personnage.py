@@ -14,7 +14,7 @@ class Entite(metaclass=ABCMeta):
                  'right': 'x + 1 , y'}
 
     def __init__(self, game, path: str, position: tuple, coolDown: int, niveau=1):
-        """Game est du type Partie du fichier partie.py"""
+        """Game est du type Tableau du fichier tableau.py"""
         self.path = path  # Path vers le fichier devant être ouvert, contenant les informations prédéfinis des entités.
         # On y retrouve les statistiques des personnages et ennemis pour chaque niveau.
         self.coolDown = coolDown  # Permet de cadencer la vitesse d'attaque des entités.

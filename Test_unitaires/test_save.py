@@ -1,4 +1,4 @@
-import Code.partie as prt
+import Code.tableau as tbl
 import unittest
 import os
 
@@ -10,7 +10,7 @@ os.chdir(os.path.join(path, "Data"))
 class TestSave(unittest.TestCase):
 
     def test_create_and_suppr_bdd(self):
-        game = prt.Partie(10, 10)
+        game = tbl.Tableau(10, 10)
         game.destroy_dbb("First_try")
         game.create_save("First_try")
         game.create_save("First_try")
@@ -19,7 +19,7 @@ class TestSave(unittest.TestCase):
         os.remove("./_Save/First_try")
 
     def test_write_save(self):
-        game = prt.Partie(10, 10)
+        game = tbl.Tableau(10, 10)
         with self.assertRaises(KeyError):
             game.write_save("Link", "terrible.db")
         game.new_player("Link", "epeiste")
@@ -28,7 +28,7 @@ class TestSave(unittest.TestCase):
         os.remove("./_Save/terrible.db")
 
     def test_load_save(self):
-        game = prt.Partie(10, 10)
+        game = tbl.Tableau(10, 10)
         game.new_player("Saria", "sorcier", 5, (4, 6))
         game.write_save("Saria", "encore une bdd.db")
         result = game.lecture_perso("encore une bdd.db")[0]

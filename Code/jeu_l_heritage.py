@@ -4,7 +4,7 @@ import time
 from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-import partie
+import tableau
 from GameScreen import *
 from Demarrage import *
 from Credits import *
@@ -24,7 +24,7 @@ class MyWidget(QtWidgets.QMainWindow):
         super().__init__()
         self.ui_demarrage()
         # Récupération des différents personnages jouables
-        self.dataPerso = partie.Partie.lecture_perso()
+        self.dataPerso = tableau.Tableau.lecture_perso()
         self.listPerso = []  # Récupération des personnages
         self.listNom = []  # Récupération de leur nom
         self.listId = []
@@ -221,7 +221,7 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def create_Game(self):
         """Test spawn et affichage"""
-        self.game = partie.Partie(MyWidget.width//40, MyWidget.height//40)  # Pour créer des cases sur la map
+        self.game = tableau.Tableau(MyWidget.width // 40, MyWidget.height // 40)  # Pour créer des cases sur la map
         if len(self.personnage) == 4:
             nom, classe, niveau, pos = self.personnage[0], self.personnage[1], self.personnage[2], self.personnage[3]
         else:

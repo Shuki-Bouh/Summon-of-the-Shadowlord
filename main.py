@@ -1,5 +1,5 @@
 from Code.personnage import Epeiste
-from Code.partie import Partie
+from Code.tableau import Tableau
 
 
 if __name__ == '__main__':
