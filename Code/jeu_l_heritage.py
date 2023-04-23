@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import time
-from PyQt5.QtWidgets import QWidget, QAction
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import tableau
