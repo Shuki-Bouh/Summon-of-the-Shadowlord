@@ -27,7 +27,7 @@ class Entite(metaclass=ABCMeta):
         self.position = position
 
     @property
-    def position(self):
+    def position(self) -> tuple:
         return self.__position
 
     @position.setter
@@ -42,7 +42,7 @@ class Entite(metaclass=ABCMeta):
             self.game[x2][y2] = self
 
     @property
-    def niveau(self):
+    def niveau(self) -> int:
         return self.__niveau
 
     @niveau.setter
@@ -69,22 +69,22 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def norm(vect1: tuple, vect2: tuple):
+    def norm(vect1: tuple, vect2: tuple) -> float:
         """Renvoie la norme entre deux vecteurs."""
         x1, y1 = vect1
         x2, y2 = vect2
         return np.linalg.norm(np.array([x1 - x2, y1 - y2]))
 
     @property
-    def vieMax(self):
+    def vieMax(self) -> int:
         return self.__vieMax
 
     @property
-    def vie(self):
+    def vie(self) -> int:
         return self.__vie
 
     @vie.setter
-    def vie(self, x):
+    def vie(self, x: int):
         """Permet de réguler la vie des entités, afin qu'elles ne dépassent pas self.viemax
         ni qu'elles descendent sous une vie égale à 0."""
         if x <= 0:
@@ -94,15 +94,15 @@ class Entite(metaclass=ABCMeta):
             self.__vie = min(x, self.vieMax)
 
     @property
-    def manaMax(self):
+    def manaMax(self) -> int:
         return self.__manaMax
 
     @property
-    def mana(self):
+    def mana(self) -> int:
         return self.__mana
 
     @mana.setter
-    def mana(self, x):
+    def mana(self, x: int):
         """Permet de réguler le mana des entités, afin qu'elles ne dépassent pas self.manamax
         ni qu'elles descendent sous un mana égal à 0."""
         if x <= 0:
@@ -131,7 +131,6 @@ class Entite(metaclass=ABCMeta):
     def dessin_image(self, qp, x_win, y_win):
         pass
 
-
     def __str__(self):
         """Permet de représenter une entité par son nom."""
         return self.nom
@@ -153,7 +152,7 @@ class Personnage(Entite):
         self.vivant = True
         game.joueurs[self.nom] = self  # On ajoute dans la partie actuelle le joueur dans la case adéquate
 
-    def attaquer(self):
+    def attaquer(self) -> None:
         """Nota : l'attaque est un simple coup dans la direction regardée"""
         x, y = self.position
         x_att, y_att = eval(Entite.direction[self.orientation])  # On se sert de Entite.direction comme d'un switch
@@ -165,7 +164,7 @@ class Personnage(Entite):
     def attaque_speciale(self):
         pass
 
-    def deplacement(self, direction: str):
+    def deplacement(self, direction: str) -> None:
         """Déplacement du joueur, avec la direction donnée par PyQt"""
         x, y = self.position
         x, y = eval(Entite.direction[direction])  # Renvoie un tuple de type (x + 1, y) (utilisation d'un switch)
@@ -176,14 +175,14 @@ class Personnage(Entite):
         """Permet d'utiliser objet"""
         pass
 
-    def _level_up(self):
+    def _level_up(self) -> None:
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp >= self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
             self.xp -= self.niveau * 10
             self.niveau += 1
 
     @staticmethod
-    def coup(attaquant, cible):
+    def coup(attaquant, cible) -> None:
         """La fonction qui permet à un joueur de retirer de la vie à un ennemi"""
         if (attaquant.defense / cible.defense) < 1:
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
@@ -194,10 +193,9 @@ class Personnage(Entite):
             attaquant._level_up()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
 
-    def mort(self):
+    def mort(self) -> None:
         """La mort bloque en réalité l'utilisation des touches actions"""
         self.vivant = False
-        pass
 
 
 class Epeiste(Personnage):
@@ -208,7 +206,7 @@ class Epeiste(Personnage):
         self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
         super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
 
-    def attaque_speciale(self):
+    def attaque_speciale(self) -> None:
         """
         Nota : attaque spéciale d'épéiste est un balayage avec dégâts sur les 3 cases faces à sa vision.
         Les dégâts infligés sont certains et doublés.
@@ -232,7 +230,7 @@ class Epeiste(Personnage):
                     self.attaque //= 2
                     self.mana -= 1
 
-    def dessin_image(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win) -> None:
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
 
 

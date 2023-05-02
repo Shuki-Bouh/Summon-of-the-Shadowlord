@@ -16,7 +16,7 @@ class Tableau(list):
         self.limiteSpawn = 5
         self.multi = False
 
-    def __generation_map(self):
+    def __generation_map(self) -> None:
         """Ne doit pas être appelé en dehors de la classe. Il crée la forme générale de la map (static array)"""
         for x in range(self.l):
             self.append([])
@@ -26,7 +26,7 @@ class Tableau(list):
                 else:
                     self[x].append(None)
 
-    def new_player(self, nom: str, classe: str, niveau=1, pos=()):
+    def new_player(self, nom: str, classe: str, niveau=1, pos=()) -> None:
         """Création d'un nouveau joueur selon la classe sélectionnée par le joueur"""
         differentes_classes = {'epeiste': perso.Epeiste,
                                'garde': perso.Garde,
@@ -40,7 +40,6 @@ class Tableau(list):
                 classe(self, pos, nom, niveau=niveau)
         else:
             pass  # On l'implémentera plus tard
-        return
 
     @property
     def h(self):
@@ -51,7 +50,7 @@ class Tableau(list):
     def l(self):
         return self.__l
 
-    def spawn_ennemi(self):
+    def spawn_ennemi(self) -> None:
         """Fais apparaître des ennemis de type aléatoire sur la map
         La position est aléatoire sur les cases disponibles"""
         if perso.Ennemi.compteur < self.limiteSpawn:
@@ -66,9 +65,8 @@ class Tableau(list):
                 self.spawn('invocateur', lvl)
             else:
                 self.spawn('armure', lvl)
-            return True
 
-    def spawn(self, classe: str, niveau: int, pos=()):
+    def spawn(self, classe: str, niveau: int, pos=()) -> None:
         """Le paramètre pos=() ne sert que pour les spawn de crânes dans l'attaque spéciale de l'Invocateur"""
         ennemi = {'squelette': perso.Squelette,
                   'crane': perso.Crane,
@@ -84,14 +82,14 @@ class Tableau(list):
             pos = choice(cases_possibles)
         ennemi(self, pos, niveau)
 
-    def suppr_ennemi(self):
+    def suppr_ennemi(self) -> None:
         """Suppression des objets Ennemi"""
         while len(self.disparition) > 0:
             mechant = self.disparition.pop()
             del self.ennemis[mechant.nom]  # On vide le dictionnaire
             del mechant  # On supprime l'objet pour un peu de performance
 
-    def action_mechant(self):
+    def action_mechant(self) -> None:
         """Dans cette fonction, on gère les actions de chaque ennemi, cette fonction est appelée par QTimer par la suite
         (On voulait la mettre sur un thread à part mais PyQt n'apprécie pas tellement)"""
         self.spawn_ennemi()  # On fait apparaitre les ennemis à chaque iteration s'il n'y en a pas assez
@@ -104,7 +102,7 @@ class Tableau(list):
             # réactualisé à chaque iteration
 
     @staticmethod
-    def create_save(nomBdd):
+    def create_save(nomBdd) -> None:
         # Création du fichier si inexistant, ouverture sinon
         with sqlite3.connect('./_Save/' + nomBdd) as connexion:
             # connexion = sqlite3.connect('./_Save/' + name)
@@ -142,7 +140,7 @@ class Tableau(list):
             connexion.commit()
             # Fermeture de la connexion
 
-    def write_save(self, name, nomBdd = "Base_de_données.db"):
+    def write_save(self, name: int, nomBdd = "Base_de_données.db") -> None:
         """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
         try:
             bdd = open('./_Save/' + nomBdd, 'r')
@@ -210,7 +208,7 @@ class Tableau(list):
                 # Fermeture de la connexion
 
     @staticmethod
-    def destroy_dbb(nomBdd="Base_de_données.db"):
+    def destroy_dbb(nomBdd="Base_de_données.db") -> None:
         try:
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
                 cursor = connexion.cursor()
@@ -222,7 +220,7 @@ class Tableau(list):
             print("Aucune données dans la base de données")
 
     @staticmethod
-    def lecture_perso(nomBdd="Base_de_données.db"):
+    def lecture_perso(nomBdd="Base_de_données.db") -> tuple:
         try:
             bdd = open('./_Save/' + nomBdd)
             bdd.close()
