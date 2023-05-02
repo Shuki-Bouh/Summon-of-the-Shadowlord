@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import tableau
+import decors
 from GameScreen import *
 from Demarrage import *
 from Credits import *
@@ -191,6 +192,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.retour_menu.clicked.connect(self.ui_demarrage)
 
     def save(self):
+        print(self.personnage)
         self.game.write_save(self.personnage[0])
 
     def save_quit(self):
@@ -243,6 +245,11 @@ class MyWidget(QtWidgets.QMainWindow):
             x_win = x * width // self.game.l
             y_win = y * height // self.game.h
             ennemy.dessin_image(qp, x_win, y_win)
+        for arbre in self.game.arbres:
+            x, y = arbre.x, arbre.y
+            x_win = x * width // self.game.l
+            y_win = y * height // self.game.h
+            arbre.draw_obj(qp, x_win, y_win)
         self.painter.end()
 
 

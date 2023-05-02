@@ -1,6 +1,8 @@
 from random import randrange, choice, random
 import Code.personnage as perso
 import sqlite3
+import Code.decors as decors
+
 
 class Tableau(list):
     """Dans self sera contenu les ennemis avec les joueurs (à la position prévue)"""
@@ -9,6 +11,7 @@ class Tableau(list):
         list().__init__()
         self.__h = h + 2  # Pour compenser les False qui apparaissent
         self.__l = l + 2
+        self.arbres = []
         self.__generation_map()
         self.joueurs = {}
         self.ennemis = {}
@@ -22,7 +25,9 @@ class Tableau(list):
             self.append([])
             for y in range(self.h):
                 if x == 0 or x == self.l - 1 or y == 0 or y == self.h - 1:
-                    self[x].append(False)
+                    arbre = decors.Arbre(x, y)
+                    self[x].append(arbre)
+                    self.arbres.append(arbre)
                 else:
                     self[x].append(None)
 
@@ -142,6 +147,7 @@ class Tableau(list):
 
     def write_save(self, name: int, nomBdd = "Base_de_données.db") -> None:
         """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
+        print("1")
         try:
             bdd = open('./_Save/' + nomBdd, 'r')
             bdd.close()
@@ -149,6 +155,8 @@ class Tableau(list):
             self.create_save(nomBdd)
         finally:
             # Récupération des valeurs nécessaires pour la suite
+            print("2")
+
             player = self.joueurs[name]
             kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
             kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
@@ -162,6 +170,7 @@ class Tableau(list):
 
             # Ouverture du fichier
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
+                print("3")
                 # Test pour savoir si le joueur a déjà une sauvegarde dans la table
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
@@ -187,6 +196,7 @@ class Tableau(list):
                                                                              kill_invocateur, player.vivant,))
                     connexion.commit()
                 else:  # Sauvegarde existante
+                    print("4")
                     cursor = connexion.cursor()
                     cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
                     id_prt = list(cursor.fetchone())[0]
