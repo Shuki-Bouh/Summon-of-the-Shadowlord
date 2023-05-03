@@ -145,9 +145,8 @@ class Tableau(list):
             connexion.commit()
             # Fermeture de la connexion
 
-    def write_save(self, name: int, nomBdd = "Base_de_données.db") -> None:
+    def write_save(self, name: str, nomBdd = "Base_de_données.db") -> None:
         """Permet de sauvegarder, et de créer la sauvegarde si c'est la première partie."""
-        print("1")
         try:
             bdd = open('./_Save/' + nomBdd, 'r')
             bdd.close()
@@ -155,7 +154,6 @@ class Tableau(list):
             self.create_save(nomBdd)
         finally:
             # Récupération des valeurs nécessaires pour la suite
-            print("2")
 
             player = self.joueurs[name]
             kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
@@ -170,7 +168,6 @@ class Tableau(list):
 
             # Ouverture du fichier
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
-                print("3")
                 # Test pour savoir si le joueur a déjà une sauvegarde dans la table
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT nom FROM Joueurs WHERE nom=?""", (player.nom,))
@@ -196,7 +193,7 @@ class Tableau(list):
                                                                              kill_invocateur, player.vivant,))
                     connexion.commit()
                 else:  # Sauvegarde existante
-                    print("4")
+                    print("42")
                     cursor = connexion.cursor()
                     cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
                     id_prt = list(cursor.fetchone())[0]
