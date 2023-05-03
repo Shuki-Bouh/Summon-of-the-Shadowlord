@@ -64,7 +64,7 @@ class Ui_Demarrage(object):
         self.verticalLayout_2.setStretch(5, 1)
         self.verticalLayout_2.setStretch(6, 10)
         self.titre_jeu = QtWidgets.QLabel(self.centralwidget)
-        self.titre_jeu.setGeometry(QtCore.QRect(95, 95, 610, 60))
+        self.titre_jeu.setGeometry(QtCore.QRect(95, 130, 610, 60))
         self.titre_jeu.setStyleSheet("color: white;")
         font = QtGui.QFont()
         font.setFamily("Viner Hand ITC")
