@@ -22,7 +22,7 @@ class Arbre(Decors):
         nom = 'Arbre'
         path = './Arbre/Idle/Idle.jpg'
         super().__init__(nom, path, x_pos, y_pos)
-        self.image = QtGui.QImage("./Arbre/Idle/idle.jpg")
+        self.image = QtGui.QImage("./Arbre/Idle/idle.png")
 
     def draw_obj(self, qp, x_win: int, y_win: int) -> None:
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)
@@ -33,7 +33,7 @@ class Rocher(Decors):
         nom = 'Rocher'
         path = './Rocher/Idle/Idle.jpg'
         super().__init__(nom, path, x_pos, y_pos)
-        self.image = QtGui.QImage("./Rocher/Idle/idle.jpg")
+        self.image = QtGui.QImage("./Rocher/Idle/idle.png")
 
     def draw_obj(self, qp, x_win: int, y_win: int) -> None:
         qp.drawImage(QtCore.QRect(x_win, y_win, 50, 50), self.image)

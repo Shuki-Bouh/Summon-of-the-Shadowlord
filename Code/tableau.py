@@ -2,6 +2,7 @@ from random import randrange, choice, random
 import Code.personnage as perso
 import sqlite3
 import Code.decors as decors
+import numpy as np
 
 
 class Tableau(list):
@@ -12,6 +13,7 @@ class Tableau(list):
         self.__h = h + 2  # Pour compenser les False qui apparaissent
         self.__l = l + 2
         self.arbres = []
+        self.rochers = []
         self.__generation_map()
         self.joueurs = {}
         self.ennemis = {}
@@ -29,7 +31,12 @@ class Tableau(list):
                     self[x].append(arbre)
                     self.arbres.append(arbre)
                 else:
-                    self[x].append(None)
+                    if np.random.random() < 0.01:
+                        rocher = decors.Rocher(x, y)
+                        self[x].append(rocher)
+                        self.rochers.append(rocher)
+                    else :
+                        self[x].append(None)
 
     def new_player(self, nom: str, classe: str, niveau=1, pos=()) -> None:
         """Création d'un nouveau joueur selon la classe sélectionnée par le joueur"""

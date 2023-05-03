@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import tableau
-import decors
 from GameScreen import *
 from Demarrage import *
 from Credits import *
@@ -250,6 +249,11 @@ class MyWidget(QtWidgets.QMainWindow):
             x_win = x * width // self.game.l
             y_win = y * height // self.game.h
             arbre.draw_obj(qp, x_win, y_win)
+        for rocher in self.game.rochers:
+            x, y = rocher.x, rocher.y
+            x_win = x * width // self.game.l
+            y_win = y * height // self.game.h
+            rocher.draw_obj(qp, x_win, y_win)
         self.painter.end()
 
 
