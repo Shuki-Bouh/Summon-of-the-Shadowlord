@@ -54,7 +54,7 @@ class MyWidget(QtWidgets.QMainWindow):
                     joueur.attaquer()
                 elif event.key() == QtCore.Qt.Key_E:
                     joueur.attaque_speciale()
-            if event.key() == QtCore.Qt.Key_Tab:
+            if event.key() == QtCore.Qt.Key_Escape:
                 self.pause = not self.pause
                 if self.pause:
                     self.musique.pause()
@@ -191,7 +191,6 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.retour_menu.clicked.connect(self.ui_demarrage)
 
     def save(self):
-        print(self.personnage)
         self.game.write_save(self.personnage[0])
 
     def save_quit(self):

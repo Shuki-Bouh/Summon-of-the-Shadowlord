@@ -200,7 +200,6 @@ class Tableau(list):
                                                                              kill_invocateur, player.vivant,))
                     connexion.commit()
                 else:  # Sauvegarde existante
-                    print("42")
                     cursor = connexion.cursor()
                     cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
                     id_prt = list(cursor.fetchone())[0]

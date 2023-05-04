@@ -54,33 +54,47 @@ class Ui_GameScreen(object):
         self.label_vie.setValue(100)
         self.label_vie.setFormat("Vie")
         self.label_vie.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_vie.setGeometry(50, 100, 200, 20)
-        self.label_vie.setStyleSheet("QProgressBar::chunk "
+        self.label_vie.setGeometry(70, 70, 200, 20)
+        self.label_vie.setStyleSheet("QProgressBar"
                                      "{"
-                                     "background-color: red;"
+                                     "border : 1px solid black;"
+                                     "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1 );"
                                      "}")
 
         self.label_mana = QProgressBar(self.conteneur)
         self.label_mana.setValue(100)
         self.label_mana.setFormat("Mana")
         self.label_mana.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_mana.setGeometry(50, 130, 200, 20)
-        self.label_mana.setStyleSheet("QProgressBar::chunk "
+        self.label_mana.setGeometry(70, 100, 200, 20)
+        self.label_mana.setStyleSheet("QProgressBar"
                                       "{"
-                                      "background-color: green;"
+                                      "border : 1px solid black;"
+                                      "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1);"
                                       "}")
 
+        self.label_niveau_sh = QLabel("Niveau", self.conteneur)
+        self.label_niveau_sh.setGeometry(71, 131, 150, 20)
+        self.label_niveau_sh.setStyleSheet("color: black;")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label_niveau_sh.setFont(font)
+
         self.label_niveau = QLabel("Niveau", self.conteneur)
-        self.label_niveau.setGeometry(60, 170, 100, 20)
+        self.label_niveau.setGeometry(70, 130, 150, 20)
+        self.label_niveau.setStyleSheet("color: white;")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label_niveau.setFont(font)
 
         self.label_xp = QProgressBar(self.conteneur)
         self.label_xp.setValue(100)
         self.label_xp.setFormat("xp")
         self.label_xp.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_xp.setGeometry(50, 190, 200, 20)
-        self.label_xp.setStyleSheet("QProgressBar::chunk "
+        self.label_xp.setGeometry(70, 160, 200, 20)
+        self.label_xp.setStyleSheet("QProgressBar"
                                     "{"
-                                    "background-color: blue;"
+                                    "border : 1px solid black;"
+                                    "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1);"
                                     "}")
 
         Ui_GameScreen.list_widgets.append([self.centralwidget, 1])
@@ -88,13 +102,13 @@ class Ui_GameScreen(object):
         Ui_GameScreen.list_widgets.append([self.label_vie, 3])
         Ui_GameScreen.list_widgets.append([self.label_mana, 4])
         Ui_GameScreen.list_widgets.append([self.label_niveau, 5])
-        Ui_GameScreen.list_widgets.append([self.label_xp, 6])
-        Ui_GameScreen.list_widgets.append([self.bouton_save, 7])
-        Ui_GameScreen.list_widgets.append([self.bouton_save_quit, 8])
-        Ui_GameScreen.list_widgets.append([self.retour_menu, 9])
-        Ui_GameScreen.list_widgets.append([pixmap, 10])
-        Ui_GameScreen.list_widgets.append([pal, 11])
-        
+        Ui_GameScreen.list_widgets.append([self.label_niveau_sh, 6])
+        Ui_GameScreen.list_widgets.append([self.label_xp, 7])
+        Ui_GameScreen.list_widgets.append([self.bouton_save, 8])
+        Ui_GameScreen.list_widgets.append([self.bouton_save_quit, 9])
+        Ui_GameScreen.list_widgets.append([self.retour_menu, 10])
+        Ui_GameScreen.list_widgets.append([pixmap, 11])
+        Ui_GameScreen.list_widgets.append([pal, 12])
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

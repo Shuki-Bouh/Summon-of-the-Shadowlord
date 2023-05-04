@@ -63,6 +63,16 @@ class Ui_Demarrage(object):
         self.verticalLayout_2.setStretch(4, 10)
         self.verticalLayout_2.setStretch(5, 1)
         self.verticalLayout_2.setStretch(6, 10)
+
+        self.titre_jeu_sh = QtWidgets.QLabel(self.centralwidget)
+        self.titre_jeu_sh.setGeometry(QtCore.QRect(98, 133, 610, 60))
+        self.titre_jeu_sh.setStyleSheet("color: black;")
+        font = QtGui.QFont()
+        font.setFamily("Viner Hand ITC")
+        font.setPointSize(28)
+        self.titre_jeu_sh.setFont(font)
+        self.titre_jeu_sh.setObjectName("titre_jeu_sh")
+
         self.titre_jeu = QtWidgets.QLabel(self.centralwidget)
         self.titre_jeu.setGeometry(QtCore.QRect(95, 130, 610, 60))
         self.titre_jeu.setStyleSheet("color: white;")
@@ -71,6 +81,7 @@ class Ui_Demarrage(object):
         font.setPointSize(28)
         self.titre_jeu.setFont(font)
         self.titre_jeu.setObjectName("titre_jeu")
+
         self.nom_createurs = QtWidgets.QLabel(self.centralwidget)
         self.nom_createurs.setGeometry(QtCore.QRect(670, 570, 120, 20))
         self.nom_createurs.setObjectName("nom_createurs")
@@ -96,7 +107,8 @@ class Ui_Demarrage(object):
         Ui_Demarrage.list_widgets.append([self.bouton_credits, 10])
         Ui_Demarrage.list_widgets.append([self.bouton_quit, 11])
         Ui_Demarrage.list_widgets.append([self.titre_jeu, 12])
-        Ui_Demarrage.list_widgets.append([self.nom_createurs, 13])
+        Ui_Demarrage.list_widgets.append([self.titre_jeu_sh, 13])
+        Ui_Demarrage.list_widgets.append([self.nom_createurs, 14])
 
         self.retranslate_Dem(MainWindow)
         self.bouton_quit.clicked.connect(MainWindow.close)  # type: ignore
@@ -113,6 +125,7 @@ class Ui_Demarrage(object):
         self.bouton_credits.setText(_translate("MainWindow", "Crédits"))
         self.bouton_quit.setText(_translate("MainWindow", "Quitter"))
         self.titre_jeu.setText(_translate("MainWindow", "Summon of the ShadowLord"))
+        self.titre_jeu_sh.setText(_translate("MainWindow", "Summon of the ShadowLord"))
         self.nom_createurs.setText(_translate("MainWindow", "@Shuki // @Melinda"))
 
     def fermer(self):
