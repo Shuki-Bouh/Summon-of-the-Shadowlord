@@ -52,6 +52,14 @@ class Ui_Credits(object):
         self.horizontalLayout_3.addLayout(self.verticalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
+        pixmap = QtGui.QPixmap("menu_jouer.jpg")
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
+
         # Tableau définition des crédits
         self.credit_list = [
             "CRÉDITS",
@@ -109,6 +117,8 @@ class Ui_Credits(object):
         Ui_Credits.list_widgets.append([self.scroll_defilement, 13])
         Ui_Credits.list_widgets.append([self.timer, 14])
         Ui_Credits.list_widgets.append([self.font, 15])
+        Ui_Credits.list_widgets.append([pixmap, 16])
+        Ui_Credits.list_widgets.append([pal, 17])
 
         self.retranslate_Cred(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

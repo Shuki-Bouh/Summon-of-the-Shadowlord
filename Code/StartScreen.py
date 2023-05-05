@@ -108,6 +108,14 @@ class Ui_Start(object):
         self.verticalLayout_3.addLayout(self.verticalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
+        pixmap = QtGui.QPixmap("menu_jouer.jpg")
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
+
         Ui_Start.list_widgets.append([self.centralwidget, 1])
         Ui_Start.list_widgets.append([self.verticalLayout, 2])
         Ui_Start.list_widgets.append([self.verticalLayout_2, 3])
@@ -133,6 +141,8 @@ class Ui_Start(object):
         Ui_Start.list_widgets.append([self.ou, 24])
         Ui_Start.list_widgets.append([self.Ref_game, 25])
         Ui_Start.list_widgets.append([self.Choix_game, 26])
+        Ui_Start.list_widgets.append([pixmap, 27])
+        Ui_Start.list_widgets.append([pal, 28])
 
         self.retranslate_Start(MainWindow)
         self.Choix_game.currentTextChanged['QString'].connect(self.Ref_game.setText)  # type: ignore

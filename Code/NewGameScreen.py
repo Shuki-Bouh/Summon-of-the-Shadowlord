@@ -138,6 +138,14 @@ class Ui_NewGame(object):
         self.horizontalLayout_2.addLayout(self.conteneur)
         MainWindow.setCentralWidget(self.centralwidget)
 
+        pixmap = QtGui.QPixmap("menu_jouer.jpg")
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
+
         Ui_NewGame.list_widgets.append([self.centralwidget, 1])
         Ui_NewGame.list_widgets.append([self.verticalLayout_2, 2])
         Ui_NewGame.list_widgets.append([self.verticalLayout_3, 3])
@@ -164,6 +172,8 @@ class Ui_NewGame(object):
         Ui_NewGame.list_widgets.append([self.choix_classe, 24])
         Ui_NewGame.list_widgets.append([self.nom_perso, 25])
         Ui_NewGame.list_widgets.append([self.nom_classe, 26])
+        Ui_NewGame.list_widgets.append([pixmap, 16])
+        Ui_NewGame.list_widgets.append([pal, 17])
 
         self.retranslate_New(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
