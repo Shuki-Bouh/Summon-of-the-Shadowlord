@@ -91,6 +91,7 @@ class Ui_Credits(object):
         self.scroll_label = QLabel(self.centralwidget)
         self.scroll_label.setAlignment(Qt.AlignCenter)
         self.scroll_label.setGeometry(100, 100, 600, 400)
+        self.scroll_label.setStyleSheet("color: white;")
         self.font = QFont()
         self.font.setPointSize(8)  # ajuster la taille de la police en fonction de vos besoins
         self.scroll_label.setFont(self.font)  # définir la police du QLabel

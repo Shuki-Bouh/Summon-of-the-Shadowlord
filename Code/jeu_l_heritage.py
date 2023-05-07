@@ -155,6 +155,8 @@ class MyWidget(QtWidgets.QMainWindow):
             if self.ui.Ref_game.text() in self.listNom:
                 # On autorise la connexion et on récupère les infos du personnage sélectionné
                 self.personnage = [liste for liste in self.listPerso if liste[0] == self.ui.Ref_game.text()][0]
+            else:
+                return  # Dans le cas où pn n'a pas sélectionné de personnage, on ne peut pas lancer de partie
         # -------Création du jeu-------
         self.create_Game()
         # ---Gestion de la connexion---
@@ -178,6 +180,7 @@ class MyWidget(QtWidgets.QMainWindow):
         self.musique = QMediaPlayer()
         audio_file = QMediaContent(QUrl.fromLocalFile("Let the battle begin.mp3"))
         self.musique.setMedia(audio_file)
+        self.musique.setVolume(10)
         self.musique.play()
         # Démarrage interface graphique des entités
         self.painter = QtGui.QPainter()
