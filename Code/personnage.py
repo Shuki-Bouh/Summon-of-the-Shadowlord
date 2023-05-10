@@ -188,7 +188,7 @@ class Personnage(Entite):
             vie = cible.vie - attaquant.attaque * attaquant.defense // cible.defense
         else:  # Formula damage
             vie = cible.vie - attaquant.attaque
-        if vie < 1:  # Si l'ennemi n'a plus de vie
+        if vie < 1 and attaquant.niveau < 20:  # Si l'ennemi n'a plus de vie
             attaquant.xp += cible.xp  # Le joueur gagne de l'xp
             attaquant._level_up()  # Puis on vérifie s'il a suffisamment d'xp pour lvlup
         cible.vie = vie
