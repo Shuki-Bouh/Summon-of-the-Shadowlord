@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from win32api import GetSystemMetrics
+from PyQt5.QtWidgets import QLabel, QProgressBar
 
 width = int(GetSystemMetrics(0) * 1.25)
 height = int(GetSystemMetrics(1) * 1.18)
@@ -37,9 +38,6 @@ class Ui_Multi(object):
         self.widget_2 = QtWidgets.QWidget(self.centralwidget)
         self.widget_2.setObjectName("widget_2")
         self.horizontalLayout_2.addWidget(self.widget_2)
-        self.bouton_menu = QtWidgets.QPushButton(self.centralwidget)
-        self.bouton_menu.setObjectName("bouton_menu")
-        self.horizontalLayout_2.addWidget(self.bouton_menu)
         self.widget_3 = QtWidgets.QWidget(self.centralwidget)
         self.widget_3.setObjectName("widget_3")
         self.horizontalLayout_2.addWidget(self.widget_3)
@@ -56,7 +54,6 @@ class Ui_Multi(object):
         Ui_Multi.list_widgets.append([self.widget, 5])
         Ui_Multi.list_widgets.append([self.widget_2, 6])
         Ui_Multi.list_widgets.append([self.widget_3, 7])
-        Ui_Multi.list_widgets.append([self.bouton_menu, 8])
 
         self.retranslate_Multi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -64,9 +61,25 @@ class Ui_Multi(object):
     def retranslate_Multi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
-        self.bouton_menu.setText(_translate("MainWindow", "Menu"))
 
     def fermer(self):
         for widget in Ui_Multi.list_widgets:
             del widget[0]
         Ui_Multi.list_widgets = []
+
+    def error418(self):
+        pixmap = QtGui.QPixmap("error418.png")
+        pal = QtGui.QPalette()
+        pal.setBrush(QtGui.QPalette.Background, QtGui.QBrush(pixmap))
+        self.centralwidget.lower()
+        self.centralwidget.stackUnder(self.centralwidget)
+        self.centralwidget.setAutoFillBackground(True)
+        self.centralwidget.setPalette(pal)
+        Ui_Multi.list_widgets.append([pixmap, 9])
+        Ui_Multi.list_widgets.append([pal, 10])
+
+    def bouton_menu(self):
+        self.bouton_menu = QtWidgets.QPushButton(self.centralwidget)
+        self.bouton_menu.setObjectName("bouton_menu")
+        self.horizontalLayout_2.addWidget(self.bouton_menu)
+        Ui_Multi.list_widgets.append([self.bouton_menu, 8])

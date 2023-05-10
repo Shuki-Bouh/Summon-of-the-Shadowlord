@@ -208,8 +208,43 @@ class MyWidget(QtWidgets.QMainWindow):
         # Démarrage fenêtre graphique des crédits
         self.ui = Ui_Multi()
         self.ui.setup_Multi(self)
+        self.state = False
+        # Création d'une barre de progression
+        self.chargement = QProgressBar(self.ui.widget)
+        self.chargement.setRange(0, 100)
+        self.chargement.setValue(0)
+        self.chargement.setFormat("Chargement")
+        self.chargement.setAlignment(QtCore.Qt.AlignCenter)
+        self.chargement.setGeometry(288, 248, 200, 20)
+        self.chargement.setStyleSheet("QProgressBar"
+                                      "{"
+                                      "border : 1px solid black;"
+                                      "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1 );"
+                                      "}")
+        # Création d'un minuteur qui déclenchera la mise à jour de la barre de progression
+        self.timer = QTimer()
+        self.timer.setInterval(100)
+        self.timer.timeout.connect(self.updateProgressBar)
+        # Lancement du minuteur pour une durée de 10 secondes
+        self.timer.start(100)
+
+    def ui_multi_attente(self):
         # Connexion signaux/ bouton
         self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
+
+    def updateProgressBar(self):
+        currentValue = self.chargement.value()
+        compteur = currentValue % 3
+        if currentValue == 100:
+            self.timer.stop()
+            self.state = True
+            self.chargement.deleteLater()
+            self.ui.error418()
+            self.ui.bouton_menu()
+            self.ui_multi_attente()
+        else:
+            self.chargement.setValue(currentValue + 1)
+            self.chargement.setFormat("Chargement"+compteur*'.')
 
     def ui_credits(self):
         try:

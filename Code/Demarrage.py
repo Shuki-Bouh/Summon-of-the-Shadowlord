@@ -109,6 +109,8 @@ class Ui_Demarrage(object):
         Ui_Demarrage.list_widgets.append([self.titre_jeu, 12])
         Ui_Demarrage.list_widgets.append([self.titre_jeu_sh, 13])
         Ui_Demarrage.list_widgets.append([self.nom_createurs, 14])
+        Ui_Demarrage.list_widgets.append([pixmap, 15])
+        Ui_Demarrage.list_widgets.append([pal, 16])
 
         self.retranslate_Dem(MainWindow)
         self.bouton_quit.clicked.connect(MainWindow.close)  # type: ignore
