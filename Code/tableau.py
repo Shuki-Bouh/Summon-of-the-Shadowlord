@@ -3,6 +3,7 @@ import Code.personnage as perso
 import sqlite3
 import Code.decors as decors
 import numpy as np
+import time
 
 
 class Tableau(list):
@@ -170,8 +171,8 @@ class Tableau(list):
             kill = kill_squelette + kill_crane + kill_armure + kill_invocateur
 
             # A implémenter ?
-            temps_jeu = 0
-            compteur_mort = 0
+            timer = time.time() - perso.Entite.timer
+            compteur_mort = perso.Personnage.compteur_mort
 
             # Ouverture du fichier
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
@@ -201,22 +202,38 @@ class Tableau(list):
                     connexion.commit()
                 else:  # Sauvegarde existante
                     cursor = connexion.cursor()
-                    cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (player.nom,))
-                    id_prt = list(cursor.fetchone())[0]
+                    cursor.execute("""SELECT * FROM Joueurs WHERE nom=?""", (player.nom,))
+                    result_j = list(cursor.fetchone())
+                    print(result_j)
+                    cursor.execute("""SELECT * FROM Tableau WHERE id_partie=?""", (result_j[1],))
+                    result_prt = list(cursor.fetchone())
+                    print(result_prt)
+                    # Collecte des données
+                    nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX = result_j
+                    id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure, \
+                                    nb_invocateur, vivant = result_prt
+                    temps_jeu += timer
+                    nb_mort += compteur_mort
+                    nb_kill += kill
+                    nb_squelette += kill_squelette
+                    nb_crane += kill_crane
+                    nb_armure += kill_armure
+                    nb_invocateur += kill_invocateur
+                    print(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX)
+                    print(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure, nb_invocateur, vivant)
                     # Suppression anciennes données
-                    cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (player.nom,))
-                    cursor.execute("""DELETE FROM Tableau WHERE id_partie=?""", (id_prt,))
+                    cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (nom,))
+                    cursor.execute("""DELETE FROM Tableau WHERE id_partie=?""", (id_partie,))
                     cursor.execute("""
                        INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
                        VALUES(?,?,?,?,?,?,?,?,?)""",
-                                   (player.nom, id_prt, player.classe, player.niveau,
-                                    player.position[0], player.position[1], 0, 0, 0,))
+                                   (nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX,))
                     connexion.commit()
                     cursor.execute("""
                        INSERT INTO Tableau(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
-                       nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_prt, temps_jeu, compteur_mort, kill,
-                                                                             kill_squelette, kill_crane, kill_armure,
-                                                                             kill_invocateur, player.vivant,))
+                       nb_invocateur, vivant) VALUES(?,?,?,?,?,?,?,?,?)""", (id_partie, temps_jeu, nb_mort, nb_kill,
+                                                                             nb_squelette, nb_crane, nb_armure,
+                                                                             nb_invocateur, vivant,))
                     connexion.commit()
                 # Fermeture de la connexion
 
@@ -263,4 +280,3 @@ class Tableau(list):
 
 if __name__ == '__main__':
     pass
-

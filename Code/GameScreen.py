@@ -55,10 +55,13 @@ class Ui_GameScreen(object):
         self.label_vie.setFormat("Vie")
         self.label_vie.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vie.setGeometry(70, 70, 200, 20)
-        self.label_vie.setStyleSheet("QProgressBar"
-                                     "{"
-                                     "border : 1px solid black;"
-                                     "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1 );"
+        self.label_vie.setStyleSheet("QProgressBar {"
+                                     "border: 2px solid black;"
+                                     "color: white;"
+                                     "}"
+                                     "QProgressBar::chunk {"
+                                     "background-color: #EB3324;"
+                                     "width: 16px;"
                                      "}")
 
         self.label_mana = QProgressBar(self.conteneur)
@@ -66,10 +69,13 @@ class Ui_GameScreen(object):
         self.label_mana.setFormat("Mana")
         self.label_mana.setAlignment(QtCore.Qt.AlignCenter)
         self.label_mana.setGeometry(70, 100, 200, 20)
-        self.label_mana.setStyleSheet("QProgressBar"
-                                      "{"
-                                      "border : 1px solid black;"
-                                      "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1);"
+        self.label_mana.setStyleSheet("QProgressBar {"
+                                      "border: 2px solid black;"
+                                      "color: white;"
+                                      "}"
+                                      "QProgressBar::chunk {"
+                                      "background-color: #0F79EB;"
+                                      "width: 16px;"
                                       "}")
 
         self.label_niveau_sh = QLabel("Niveau", self.conteneur)
@@ -91,10 +97,14 @@ class Ui_GameScreen(object):
         self.label_xp.setFormat("xp")
         self.label_xp.setAlignment(QtCore.Qt.AlignCenter)
         self.label_xp.setGeometry(70, 160, 200, 20)
-        self.label_xp.setStyleSheet("QProgressBar"
-                                    "{"
-                                    "border : 1px solid black;"
-                                    "background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0, stop: 1);"
+        self.label_xp.setStyleSheet("QProgressBar {"
+                                    "border: 2px solid black;"
+                                    "color: black;"
+                                    "}"
+                                    "QProgressBar::chunk {"
+                                    "background-color: #E019C5;"
+                                    "width: 16px;"
+                                    "margin: 0.5px;"
                                     "}")
 
         Ui_GameScreen.list_widgets.append([self.centralwidget, 1])

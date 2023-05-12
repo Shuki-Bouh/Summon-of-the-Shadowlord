@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABCMeta
 import random
+import time
 import numpy as np
 from PyQt5 import QtCore, QtGui
 
@@ -12,6 +13,8 @@ class Entite(metaclass=ABCMeta):
                  'down': 'x, y + 1',
                  'left': 'x - 1, y',
                  'right': 'x + 1 , y'}
+
+    timer = time.time()  # Met en place le temps de jeu
 
     def __init__(self, game, path: str, position: tuple, coolDown: int, niveau=1):
         """Game est du type Tableau du fichier tableau.py"""
@@ -26,12 +29,13 @@ class Entite(metaclass=ABCMeta):
         self.nom = 'entite'  # Nom par défaut, modifié par la suite.
         self.position = position
 
+
     @property
     def position(self) -> tuple:
         return self.__position
 
     @position.setter
-    def position(self, newPos: tuple):
+    def position(self, newPos: tuple) -> None:
         """Accepte un déplacement ssi la prochaine case est vide et sur la map.
         Nb : Les bords de la map sont False actuellement"""
         x1, y1 = self.position
@@ -46,7 +50,7 @@ class Entite(metaclass=ABCMeta):
         return self.__niveau
 
     @niveau.setter
-    def niveau(self, niveau: int):
+    def niveau(self, niveau: int) -> None:
         """Permet d'attribuer à un personnage ses différentes caractéristiques, en fonction de son niveau en lisant
         les données dans un fichier txt.
         Dans chaque txt est contenu les vies max du perso, son attaque, sa défense et la magie qu'il dispose"""
@@ -64,7 +68,7 @@ class Entite(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def coup(attaquant, cible):
+    def coup(attaquant, cible) -> None:
         """Attaque d'attaquant sur cible."""
         pass
 
@@ -84,7 +88,7 @@ class Entite(metaclass=ABCMeta):
         return self.__vie
 
     @vie.setter
-    def vie(self, x: int):
+    def vie(self, x: int) -> None:
         """Permet de réguler la vie des entités, afin qu'elles ne dépassent pas self.viemax
         ni qu'elles descendent sous une vie égale à 0."""
         if x <= 0:
@@ -102,7 +106,7 @@ class Entite(metaclass=ABCMeta):
         return self.__mana
 
     @mana.setter
-    def mana(self, x: int):
+    def mana(self, x: int) -> None:
         """Permet de réguler le mana des entités, afin qu'elles ne dépassent pas self.manamax
         ni qu'elles descendent sous un mana égal à 0."""
         if x <= 0:
@@ -113,25 +117,25 @@ class Entite(metaclass=ABCMeta):
             self.__mana = x
 
     @abstractmethod
-    def attaquer(self):
+    def attaquer(self) -> None:
         """Schéma d'attaque classique des entités."""
         pass
 
     @abstractmethod
-    def attaque_speciale(self):
+    def attaque_speciale(self) -> None:
         """Schéma d'attaque spéciale des entités."""
         pass
 
     @abstractmethod
-    def mort(self):
+    def mort(self) -> None:
         """Permet de faire mourir une entité, et donc de libérer son espace mémoire associé."""
         pass
 
     @abstractmethod
-    def dessin_image(self, qp, x_win, y_win):
+    def dessin_image(self, qp, x_win, y_win) -> None:
         pass
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Permet de représenter une entité par son nom."""
         return self.nom
 
@@ -142,6 +146,8 @@ class Entite(metaclass=ABCMeta):
 class Personnage(Entite):
     """Définition ici de l'ensemble des personnages pouvant être joués par l'utilisateur.
     Au début d'une partie, le joueur choisit un personnage avec lequel il entreprendra son aventure."""
+
+    compteur_mort = 0  # Met en place les stats de mort des joueurs
 
     def __init__(self, game, path: str, position: tuple, coolDown: int, nom: str, inventaire: dict, niveau: int):
         super().__init__(game, path, position, coolDown, niveau)
@@ -196,6 +202,7 @@ class Personnage(Entite):
     def mort(self) -> None:
         """La mort bloque en réalité l'utilisation des touches actions"""
         self.vivant = False
+        Personnage.compteur_mort += 1
 
 
 class Epeiste(Personnage):
