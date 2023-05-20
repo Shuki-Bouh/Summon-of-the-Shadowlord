@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 import Code.tableau as tableau
+import Code.personnage as perso
 from Code.GameScreen import *
 from Code.Demarrage import *
 from Code.Credits import *
@@ -12,6 +13,7 @@ from Code.StartScreen import *
 from Code.MultiScreen import *
 from Code.PauseScreen import *
 from Code.NewGameScreen import *
+from Code.StatsScreen import *
 from win32api import GetSystemMetrics
 
 
@@ -63,6 +65,8 @@ class MyWidget(QtWidgets.QMainWindow):
                 self.timer_ennemi.start(1000)
             else:
                 QWidget().keyPressEvent(event)
+            # Sauvegarde automatique
+            self.save(joueur)
         t1_loop = time.time()
         t_loop = t1_loop - t0_loop
         if t_loop < 1/10:  # Permet de mettre un cooldown sur le joueur
@@ -104,9 +108,10 @@ class MyWidget(QtWidgets.QMainWindow):
         self.ui.setup_Dem(self)
         # Connexion signaux/ bouton
         self.ui.bouton_jouer.clicked.connect(self.ui_play)
-        self.ui.bouton_quit.clicked.connect(self.close)
-        self.ui.bouton_credits.clicked.connect(self.ui_credits)
         self.ui.bouton_multi.clicked.connect(self.ui_multi)
+        self.ui.bouton_stats.clicked.connect(self.ui_stats)
+        self.ui.bouton_credits.clicked.connect(self.ui_credits)
+        self.ui.bouton_quit.clicked.connect(self.close)
 
     def ui_play(self):
         try:
@@ -188,17 +193,9 @@ class MyWidget(QtWidgets.QMainWindow):
         # Mise en place de la clock d'ennemi sur 24Hz
         self.timer_refrech.start(int(1/24 * 1000))
         self.timer_ennemi.start(1000)
-        # Connexion signaux/ bouton
-        self.ui.bouton_save.clicked.connect(self.save)
-        self.ui.bouton_save_quit.clicked.connect(self.save_quit)
-        self.ui.retour_menu.clicked.connect(self.ui_demarrage)
 
-    def save(self):
-        self.game.write_save(self.personnage[0])
-
-    def save_quit(self):
-        self.game.write_save(self.personnage[0])
-        self.ui_demarrage()
+    def save(self, joueur):
+        self.game.write_save(joueur.nom)
 
     def ui_multi(self):
         try:
@@ -246,6 +243,42 @@ class MyWidget(QtWidgets.QMainWindow):
             self.chargement.setValue(currentValue + 1)
             self.chargement.setFormat("Chargement"+compteur*'.')
 
+    def ui_stats(self):
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique des crédits
+        self.ui = Ui_Stats()
+        self.ui.setup_Stats(self)
+        for nom in self.listNom:
+            self.ui.comboBox.addItem(nom)
+        # Connexion signaux/ bouton
+        self.ui.bouton_menu.clicked.connect(self.ui_demarrage)
+        self.ui.pushButton_3.clicked.connect(self.statistiques)
+
+    def statistiques(self):
+        name = self.ui.comboBox.currentText()
+        if name in self.listNom:
+            self.player = [liste for liste in self.listPerso if liste[0] == name][0]
+            stats = tableau.Tableau.lecture_perso(name=name)
+            temps_jeu = int(stats[0][1])
+            hour, min, sec = 0, 0, 0
+            if temps_jeu >= 60:
+                min = temps_jeu//60
+                sec = temps_jeu%60
+                if min > 60:
+                    hour = min//60
+                    min = min%60
+            else:
+                sec = temps_jeu
+            time = "{}h {}min {}sec".format(hour, min, sec)
+            stats = [self.player[0], self.player[2], self.player[3], time, stats[0][3], stats[0][4], stats[0][5],
+                     stats[0][6], stats[0][7]]
+            for k in range(len(stats)):
+                value = self.ui.tableWidget.item(k, 0)
+                value.setText(str(stats[k]))
+
     def ui_credits(self):
         try:
             self.ui.fermer()
@@ -259,6 +292,7 @@ class MyWidget(QtWidgets.QMainWindow):
 
     def create_Game(self):
         """Test spawn et affichage"""
+        perso.Entite.timer = time.time()
         self.game = tableau.Tableau(MyWidget.width // 40, MyWidget.height // 40)  # Pour créer des cases sur la map
         if len(self.personnage) == 4:
             nom, classe, niveau, pos = self.personnage[0], self.personnage[1], self.personnage[2], self.personnage[3]

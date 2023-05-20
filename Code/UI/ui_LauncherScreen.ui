@@ -54,7 +54,7 @@
       <height>284</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,1,10,50,10,1,10">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,1,10,1,10,50,10,1,10">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="10">
        <property name="topMargin">
@@ -76,6 +76,16 @@
       <widget class="QPushButton" name="bouton_multi">
        <property name="text">
         <string>Multijoueur</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget" native="true"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="bouton_stats">
+       <property name="text">
+        <string>Statistiques</string>
        </property>
       </widget>
      </item>

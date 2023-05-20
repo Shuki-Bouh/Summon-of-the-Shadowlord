@@ -161,19 +161,23 @@ class Tableau(list):
         except FileNotFoundError:
             self.create_save(nomBdd)
         finally:
-            # Récupération des valeurs nécessaires pour la suite
-
+            # Récupération des valeurs nécessaires pour les stats
             player = self.joueurs[name]
-            kill_squelette = perso.Squelette.total_compteur - perso.Squelette.compteur
-            kill_crane = perso.Crane.total_compteur - perso.Crane.compteur
-            kill_armure = perso.Armure.total_compteur - perso.Armure.compteur
-            kill_invocateur = perso.Invocateur.total_compteur - perso.Invocateur.compteur
+            kill_squelette = perso.Squelette.tue_compteur
+            kill_crane = perso.Crane.tue_compteur
+            kill_armure = perso.Armure.tue_compteur
+            kill_invocateur = perso.Invocateur.tue_compteur
             kill = kill_squelette + kill_crane + kill_armure + kill_invocateur
-
+            # Remise à zéros des compteurs pour la prochaine sauvegarde
+            perso.Squelette.tue_compteur = 0
+            perso.Crane.tue_compteur = 0
+            perso.Armure.tue_compteur = 0
+            perso.Invocateur.tue_compteur = 0
             # A implémenter ?
-            timer = time.time() - perso.Entite.timer
+            time_ref = time.time()
+            timer = time_ref - perso.Entite.timer
+            perso.Entite.timer = time_ref
             compteur_mort = perso.Personnage.compteur_mort
-
             # Ouverture du fichier
             with sqlite3.connect('./_Save/' + nomBdd) as connexion:
                 # Test pour savoir si le joueur a déjà une sauvegarde dans la table
@@ -185,6 +189,7 @@ class Tableau(list):
                     cursor.execute("""SELECT id_partie FROM Tableau""")
                     id_values = cursor.fetchall()
                     id_prt = 1
+                    temps_jeu = 0
                     if len(id_values) != 0:  # id créée de manière itérative
                         id_prt = id_values[-1][0] + 1
                     # On crée la sauvegarde de la partie et du joueur
@@ -204,14 +209,12 @@ class Tableau(list):
                     cursor = connexion.cursor()
                     cursor.execute("""SELECT * FROM Joueurs WHERE nom=?""", (player.nom,))
                     result_j = list(cursor.fetchone())
-                    print(result_j)
                     cursor.execute("""SELECT * FROM Tableau WHERE id_partie=?""", (result_j[1],))
                     result_prt = list(cursor.fetchone())
-                    print(result_prt)
                     # Collecte des données
                     nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX = result_j
-                    id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure, \
-                                    nb_invocateur, vivant = result_prt
+                    id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure, nb_invocateur, vivant =\
+                        result_prt
                     temps_jeu += timer
                     nb_mort += compteur_mort
                     nb_kill += kill
@@ -219,15 +222,14 @@ class Tableau(list):
                     nb_crane += kill_crane
                     nb_armure += kill_armure
                     nb_invocateur += kill_invocateur
-                    print(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX)
-                    print(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure, nb_invocateur, vivant)
                     # Suppression anciennes données
                     cursor.execute("""DELETE FROM Joueurs WHERE nom=?""", (nom,))
                     cursor.execute("""DELETE FROM Tableau WHERE id_partie=?""", (id_partie,))
                     cursor.execute("""
                        INSERT INTO Joueurs(nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX) 
                        VALUES(?,?,?,?,?,?,?,?,?)""",
-                                   (nom, id_partie, classe, niveau, pos_x, pos_y, potion, argent, CODEX,))
+                                   (player.nom, id_partie, player.classe, player.niveau, player.position[0],
+                                    player.position[1], potion, argent, CODEX,))
                     connexion.commit()
                     cursor.execute("""
                        INSERT INTO Tableau(id_partie, temps_jeu, nb_mort, nb_kill, nb_squelette, nb_crane, nb_armure,
@@ -250,7 +252,7 @@ class Tableau(list):
             print("Aucune données dans la base de données")
 
     @staticmethod
-    def lecture_perso(nomBdd="Base_de_données.db") -> tuple:
+    def lecture_perso(nomBdd: str = "Base_de_données.db", name: str = "") -> list:
         try:
             bdd = open('./_Save/' + nomBdd)
             bdd.close()
@@ -262,6 +264,14 @@ class Tableau(list):
                 cursor = connexion.cursor()
                 cursor.execute("""SELECT * FROM Joueurs""")
                 result = cursor.fetchall()
+                if name != "":
+                    cursor = connexion.cursor()
+                    cursor.execute("""SELECT id_partie FROM Joueurs WHERE nom=?""", (name,))
+                    id = cursor.fetchone()[0]
+                    cursor.execute("""SELECT * FROM Tableau WHERE id_partie=?""", (id,))
+                    result_ = cursor.fetchall()
+                    connexion.commit()
+                    return result_
             return result
 
     def __str__(self):

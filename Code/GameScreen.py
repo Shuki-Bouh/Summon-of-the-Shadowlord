@@ -31,16 +31,6 @@ class Ui_GameScreen(object):
         self.conteneur.setObjectName("conteneur")
         MainWindow.setCentralWidget(self.centralwidget)
 
-        self.bouton_save = QtWidgets.QPushButton(self.conteneur)
-        self.bouton_save.setGeometry(0, 0, 150, 25)
-        self.bouton_save.setObjectName("bouton_save")
-        self.bouton_save_quit = QtWidgets.QPushButton(self.conteneur)
-        self.bouton_save_quit.setGeometry(150, 0, 150, 25)
-        self.bouton_save_quit.setObjectName("bouton_save_quit")
-        self.retour_menu = QtWidgets.QPushButton(self.conteneur)
-        self.retour_menu.setGeometry(300, 0, 150, 25)
-        self.retour_menu.setObjectName("retour_menu")
-
         pixmap = QtGui.QPixmap("arriere_plan_jeu.png")
         pixmap = pixmap.scaled(self.centralwidget.size())
         pal = QtGui.QPalette()
@@ -57,7 +47,7 @@ class Ui_GameScreen(object):
         self.label_vie.setGeometry(70, 70, 200, 20)
         self.label_vie.setStyleSheet("QProgressBar {"
                                      "border: 2px solid black;"
-                                     "color: white;"
+                                     "color: black;"
                                      "}"
                                      "QProgressBar::chunk {"
                                      "background-color: #EB3324;"
@@ -71,7 +61,7 @@ class Ui_GameScreen(object):
         self.label_mana.setGeometry(70, 100, 200, 20)
         self.label_mana.setStyleSheet("QProgressBar {"
                                       "border: 2px solid black;"
-                                      "color: white;"
+                                      "color: black;"
                                       "}"
                                       "QProgressBar::chunk {"
                                       "background-color: #0F79EB;"
@@ -87,7 +77,7 @@ class Ui_GameScreen(object):
 
         self.label_niveau = QLabel("Niveau", self.conteneur)
         self.label_niveau.setGeometry(70, 130, 150, 20)
-        self.label_niveau.setStyleSheet("color: white;")
+        self.label_niveau.setStyleSheet("color: purple;")
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_niveau.setFont(font)
@@ -114,11 +104,8 @@ class Ui_GameScreen(object):
         Ui_GameScreen.list_widgets.append([self.label_niveau, 5])
         Ui_GameScreen.list_widgets.append([self.label_niveau_sh, 6])
         Ui_GameScreen.list_widgets.append([self.label_xp, 7])
-        Ui_GameScreen.list_widgets.append([self.bouton_save, 8])
-        Ui_GameScreen.list_widgets.append([self.bouton_save_quit, 9])
-        Ui_GameScreen.list_widgets.append([self.retour_menu, 10])
-        Ui_GameScreen.list_widgets.append([pixmap, 11])
-        Ui_GameScreen.list_widgets.append([pal, 12])
+        Ui_GameScreen.list_widgets.append([pixmap, 8])
+        Ui_GameScreen.list_widgets.append([pal, 9])
 
         self.retranslate_Jeu(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -126,9 +113,6 @@ class Ui_GameScreen(object):
     def retranslate_Jeu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Summon_of_the_ShadowLand"))
-        self.bouton_save.setText(_translate("MainWindow", "Sauvegarder"))
-        self.bouton_save_quit.setText(_translate("MainWindow", "Sauvegarder et quitter"))
-        self.retour_menu.setText(_translate("MainWindow", "Retour menu"))
 
     def fermer(self):
         for widget in Ui_GameScreen.list_widgets:

@@ -399,7 +399,7 @@ class Ennemi(Entite):
         """Mort d'un méchant"""
         Ennemi.compteur -= 1
         x, y = self.position
-        self.game [x][y] = None  # One le retire de la map immédiatement et on l'ajoute à la liste des ennemis à del
+        self.game[x][y] = None  # One le retire de la map immédiatement et on l'ajoute à la liste des ennemis à del
         self.game.disparition.append(self)
 
     def agro(self):
@@ -415,6 +415,7 @@ class Ennemi(Entite):
 
 class Squelette(Ennemi):
     compteur = 0
+    tue_compteur = 0
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
@@ -437,6 +438,7 @@ class Squelette(Ennemi):
 
     def mort(self):
         Squelette.compteur -= 1
+        Squelette.tue_compteur += 1
         Ennemi.mort(self)
 
     def dessin_image(self, qp, x_win, y_win):
@@ -445,6 +447,7 @@ class Squelette(Ennemi):
 
 class Crane(Ennemi):
     compteur = 0
+    tue_compteur = 0
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
@@ -487,6 +490,7 @@ class Crane(Ennemi):
 
     def mort(self):
         Crane.compteur -= 1
+        Crane.tue_compteur += 1
         Ennemi.mort(self)
 
     def dessin_image(self, qp, x_win, y_win):
@@ -495,6 +499,7 @@ class Crane(Ennemi):
 
 class Armure(Ennemi):
     compteur = 0
+    tue_compteur = 0
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
@@ -531,6 +536,7 @@ class Armure(Ennemi):
 
     def mort(self):
         Armure.compteur -= 1
+        Armure.tue_compteur += 1
         Ennemi.mort(self)
 
     def dessin_image(self, qp, x_win, y_win):
@@ -539,6 +545,7 @@ class Armure(Ennemi):
 
 class Invocateur(Ennemi):
     compteur = 0
+    tue_compteur = 0
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
@@ -571,6 +578,7 @@ class Invocateur(Ennemi):
 
     def mort(self):
         Invocateur.compteur -= 1
+        Invocateur.tue_compteur +=1
         Ennemi.mort(self)
 
     def dessin_image(self, qp, x_win, y_win):
