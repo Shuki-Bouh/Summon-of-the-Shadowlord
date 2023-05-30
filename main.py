@@ -14,6 +14,7 @@ from Code.MultiScreen import *
 from Code.PauseScreen import *
 from Code.NewGameScreen import *
 from Code.StatsScreen import *
+from Code.DeathScreen import *
 from win32api import GetSystemMetrics
 
 
@@ -42,7 +43,10 @@ class MyWidget(QtWidgets.QMainWindow):
         t0_loop = time.time()
         for joueur in self.game.joueurs.values():
             if not joueur.vivant:
-                break
+                del self.timer_refrech
+                del self.timer_ennemi
+                del self.musique
+                self.deces()
             if not self.pause:
                 if event.key() == QtCore.Qt.Key_Z:
                     joueur.deplacement('up')
@@ -274,7 +278,7 @@ class MyWidget(QtWidgets.QMainWindow):
                 sec = temps_jeu
             time = "{}h {}min {}sec".format(hour, min, sec)
             stats = [self.player[0], self.player[2], self.player[3], time, stats[0][3], stats[0][4], stats[0][5],
-                     stats[0][6], stats[0][7]]
+                     stats[0][6], stats[0][7], stats[0][2]]
             for k in range(len(stats)):
                 value = self.ui.tableWidget.item(k, 0)
                 value.setText(str(stats[k]))
@@ -326,6 +330,23 @@ class MyWidget(QtWidgets.QMainWindow):
             y_win = y * height // self.game.h
             rocher.draw_obj(qp, x_win, y_win)
         self.painter.end()
+
+    def deces(self):
+        try:
+            self.ui.fermer()
+        except AttributeError:
+            pass
+        # Démarrage fenêtre graphique des décès
+        self.ui = Ui_DeathScreen()
+        self.ui.setup_Mort(self)
+        # Musique d'ambiance
+        self.musique = QMediaPlayer()
+        audio_file = QMediaContent(QUrl.fromLocalFile("Death screen.mp3"))
+        self.musique.setMedia(audio_file)
+        self.musique.setVolume(30)
+        self.musique.play()
+        # Connexion signaux/ bouton
+        self.ui.bouton_quitter.clicked.connect(self.close)
 
 
 if __name__ == "__main__":

@@ -77,7 +77,7 @@ class Ui_GameScreen(object):
 
         self.label_niveau = QLabel("Niveau", self.conteneur)
         self.label_niveau.setGeometry(70, 130, 150, 20)
-        self.label_niveau.setStyleSheet("color: purple;")
+        self.label_niveau.setStyleSheet("color: white;")
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_niveau.setFont(font)
