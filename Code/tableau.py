@@ -20,7 +20,6 @@ class Tableau(list):
         self.ennemis = {}
         self.disparition = []
         self.limiteSpawn = 5
-        self.multi = False
 
     def __generation_map(self) -> None:
         """Ne doit pas être appelé en dehors de la classe. Il crée la forme générale de la map (static array)"""
@@ -46,13 +45,10 @@ class Tableau(list):
                                'sorcier': perso.Sorcier,
                                'archer': perso.Archer}
         classe = differentes_classes[classe]
-        if not self.multi:
-            if pos == ():
-                classe(self, (self.l // 2, self.h - self.h // 4), nom, niveau=niveau)
-            else:
-                classe(self, pos, nom, niveau=niveau)
+        if pos == ():
+            classe(self, (self.l // 2, self.h - self.h // 4), nom, niveau=niveau)
         else:
-            pass  # On l'implémentera plus tard
+            classe(self, pos, nom, niveau=niveau)
 
     @property
     def h(self):
