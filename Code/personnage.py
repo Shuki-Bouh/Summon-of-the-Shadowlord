@@ -16,11 +16,10 @@ class Entite(metaclass=ABCMeta):
 
     timer = time.time()  # Met en place le temps de jeu
 
-    def __init__(self, game, path: str, position: tuple, coolDown: int, niveau=1):
+    def __init__(self, game, path: str, position: tuple, niveau=1):
         """Game est du type Tableau du fichier tableau.py"""
         self.path = path  # Path vers le fichier devant être ouvert, contenant les informations prédéfinis des entités.
         # On y retrouve les statistiques des personnages et ennemis pour chaque niveau.
-        self.coolDown = coolDown  # Permet de cadencer la vitesse d'attaque des entités.
         self.__niveau = niveau
         self.niveau = niveau  # Appel la méthode "niveau.setter", dans laquelle vont être lu les informations de vie,
         # attaque, défense et mana du personnage, pour lui être attribués.
@@ -149,8 +148,8 @@ class Personnage(Entite):
 
     compteur_mort = 0  # Met en place les stats de mort des joueurs
 
-    def __init__(self, game, path: str, position: tuple, coolDown: int, nom: str, inventaire: dict, niveau: int):
-        super().__init__(game, path, position, coolDown, niveau)
+    def __init__(self, game, path: str, position: tuple, nom: str, inventaire: dict, niveau: int):
+        super().__init__(game, path, position, niveau)
         self.inventory = inventaire
         self.nom = nom
         self.orientation = 'up'  # L'orientation sert à l'affichage du personnage et pour la direction de ses attaques
@@ -208,10 +207,9 @@ class Personnage(Entite):
 class Epeiste(Personnage):
 
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        self.cooldown = 0
         self.classe = 'epeiste'
         self.image = QtGui.QImage("./Epeiste/Idle/idle.jpg")
-        super().__init__(game, "Epeiste_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Epeiste_lvl.txt", position, nom, inventaire, niveau)
 
     def attaque_speciale(self) -> None:
         """
@@ -243,10 +241,9 @@ class Epeiste(Personnage):
 
 class Garde(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        self.cooldown = 0
         self.classe = 'garde'
         self.image = QtGui.QImage("./Garde/Idle/idle.jpg")
-        super().__init__(game, "Garde_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Garde_lvl.txt", position, nom, inventaire, niveau)
 
     def attaque_speciale(self):
         """
@@ -281,10 +278,9 @@ class Garde(Personnage):
 
 class Sorcier(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        self.cooldown = 0
         self.classe = 'sorcier'
         self.image = QtGui.QImage("./Sorcier/Idle/idle.jpg")
-        super().__init__(game, "Sorcier_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Sorcier_lvl.txt", position, nom, inventaire, niveau)
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
@@ -309,10 +305,9 @@ class Sorcier(Personnage):
 
 class Archer(Personnage):
     def __init__(self, game, position: tuple, nom: str, inventaire={}, niveau=1):
-        self.cooldown = 0
         self.classe = 'archer'
         self.image = QtGui.QImage("./Archer/Idle/idle.jpg")
-        super().__init__(game, "Archer_lvl.txt", position, self.cooldown, nom, inventaire, niveau)
+        super().__init__(game, "Archer_lvl.txt", position, nom, inventaire, niveau)
 
     def attaque_speciale(self, direction=""):  # Pas besoin de direction dans celle-ci
         """
@@ -344,8 +339,8 @@ class Ennemi(Entite):
 
     compteur = 0  # Ce compteur permet d'éviter de générer trop d'ennemis sur la map en même temps
 
-    def __init__(self, game, path: str, position: tuple, coolDown: int, niveau):
-        super().__init__(game, path, position, coolDown, niveau)
+    def __init__(self, game, path: str, position: tuple, niveau):
+        super().__init__(game, path, position, niveau)
         Ennemi.compteur += 1  # Il est incrémenté à chaque ennemi créé
         self.cible = None  # Chaque ennemi va essayer de poursuivre sa cible
         self.vision = 0  # Pour savoir jusqu'où il cherche une nouvelle cible
@@ -419,7 +414,7 @@ class Squelette(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Squelette_lvl.txt", position, coolDown=5, niveau=niveau)
+        super().__init__(game, "Squelette_lvl.txt", position, niveau=niveau)
         Squelette.compteur += 1  # Nombre de squelettes présents
         Squelette.total_compteur += 1  # Nb de squelettes étant déjà apparu
         self.nom = "Squelette " + str(Squelette.total_compteur)  # Permet d'être sûr de ne pas avoir deux squelettes
@@ -451,7 +446,7 @@ class Crane(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Crane_lvl.txt", position, coolDown=5, niveau=niveau)
+        super().__init__(game, "Crane_lvl.txt", position, niveau=niveau)
         Crane.compteur += 1
         Crane.total_compteur += 1
         self.nom = "Crane " + str(Crane.total_compteur)
@@ -503,7 +498,7 @@ class Armure(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Armure_lvl.txt", position, coolDown=5, niveau=niveau)
+        super().__init__(game, "Armure_lvl.txt", position, niveau=niveau)
         Armure.compteur += 1
         Armure.total_compteur += 1
         self.nom = "Armure " + str(Armure.total_compteur)
@@ -549,7 +544,7 @@ class Invocateur(Ennemi):
     total_compteur = 0
 
     def __init__(self, game, position: tuple, niveau):
-        super().__init__(game, "Invocateur_lvl.txt", position, coolDown=5, niveau=niveau)
+        super().__init__(game, "Invocateur_lvl.txt", position, niveau=niveau)
         Invocateur.compteur += 1
         Invocateur.total_compteur += 1
         self.nom = "Invocateur " + str(Invocateur.total_compteur)
