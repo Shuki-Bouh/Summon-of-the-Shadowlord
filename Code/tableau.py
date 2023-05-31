@@ -35,7 +35,7 @@ class Tableau(list):
                         rocher = decors.Rocher(x, y)
                         self[x].append(rocher)
                         self.rochers.append(rocher)
-                    else :
+                    else:
                         self[x].append(None)
 
     def new_player(self, nom: str, classe: str, niveau=1, pos=()) -> None:

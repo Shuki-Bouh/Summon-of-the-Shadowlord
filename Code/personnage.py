@@ -126,11 +126,6 @@ class Entite(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deplacement(self, direction: str) -> None:
-        """Déplacement de l'entité"""
-        pass
-
-    @abstractmethod
     def mort(self) -> None:
         """Permet de faire mourir une entité, et donc de libérer son espace mémoire associé."""
         pass
