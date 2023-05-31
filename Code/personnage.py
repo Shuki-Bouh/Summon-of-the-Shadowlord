@@ -176,10 +176,6 @@ class Personnage(Entite):
         self.position = (x, y)
         self.orientation = direction
 
-    def interagir(self):
-        """Permet d'utiliser objet"""
-        pass
-
     def _level_up(self) -> None:
         """Permet de faire évoluer le niveau du personnage lorsqu'il a tué suffisamment d'ennemis"""
         if self.xp >= self.niveau * 10 and self.niveau < 20:  # C'est un peu arbitraire pour le moment
